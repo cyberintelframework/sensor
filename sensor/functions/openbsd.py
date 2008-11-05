@@ -362,3 +362,32 @@ def runWrapper(cmd, ignoreError=False):
         if log: logging.warning(log)
         raise excepts.RunException, msg
 
+
+def scanPort(IP, port):
+   """ Scan A single port\nScanPort(IP, Port)\nReturn a boolean value """
+   logging.debugv("functions/linux.py->scanPort(IP, port)", [IP, port])
+   scan = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+   scan.settimeout(int(4))
+   logging.debug("Scanning %s with port %s" % (IP, port))
+   if scan.connect_ex((IP, port)) == 0:
+      scan.close()
+      return True
+   else:
+      scan.close()
+      return False
+
+
+def getMac(interface):
+    """ Return hardware address of interface"""
+    logging.debugv("functions/linux.py->getMac(interface)", [interface])
+    logging.warning("getMac() not yet (correctly) implemented")
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', interface[:15]))
+    hwaddr = []
+    for char in info[18:24]:
+        hdigit = hex(ord(char))[2:]
+        if len(hdigit) == 2 : hwaddr.append(hdigit)
+        elif len(hdigit) == 1 : hwaddr.append('0' + hdigit)
+        else: hwaddr.append('00')
+    return ":".join(hwaddr)
+
