@@ -20,23 +20,7 @@ changeset = "009"
 
 r = runtime.Runtime()
 
-inf_flags = {}
-inf_flags[0] = "UP"
-inf_flags[1] = "BROADCAST"
-inf_flags[2] = "DEBUG"
-inf_flags[3] = "LOOPBACK"
-inf_flags[4] = "POINTTOPOINT"
-inf_flags[5] = "NOTRAILERS"
-inf_flags[6] = "RUNNING"
-inf_flags[7] = "NOARP"
-inf_flags[8] = "PROMISC"
-inf_flags[9] = "ALLMULTI"
-inf_flags[10] = "MASTER"
-inf_flags[11] = "SLAVE"
-inf_flags[12] = "MULTICAST"
-inf_flags[13] = "PORTSEL"
-inf_flags[14] = "AUTOMEDIA"
-inf_flags[15] = "DYNAMIC"
+inf_flags = ["UP", "BROADCAST", "DEBUG", "LOOPBACK", "POINTTOPOINT", "NOTRAILERS", "RUNNING", "NOARP", "PROMISC", "ALLMULTI", "MASTER", "SLAVE", "MULTICAST", "PORTSEL", "AUTOMEDIA", "DYNAMIC"]
 
 def scanPort(IP, port):
    """ Scan A single port\nScanPort(IP, Port)\nReturn a boolean value """
@@ -547,6 +531,12 @@ def waitInterfaceLink(interface):
         raise excepts.NetworkException, msg
 
     logging.debug("network device up after %d seconds" % (60-timeout))
+
+def killAllDhcp():
+    cmd=[locations.KILLALL, '-q', locations.DHCLIENT]
+    runWrapper(cmd, ignoreError=True)
+    return True
+
 
 
 if __name__ == '__main__':

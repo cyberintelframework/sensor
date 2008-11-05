@@ -35,6 +35,7 @@ VPNTEMPLATE = os.path.join(DATA, "openvpn.conf")
 INTERFACES = os.path.join(RUNTIME, "connections")
 ABOUT = os.path.join(DOC, "ABOUT")
 OPENVPNPID = os.path.join(DATA, "tunnel.pid")
+SSHPID = "/var/run/sshd.pid"
 
 
 # check if all binaries are OK

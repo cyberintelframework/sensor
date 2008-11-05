@@ -268,8 +268,7 @@ def allInfsDown():
     #setDNS("","")
 
     # kill any remaining DHCP servers
-    cmd=[locations.KILLALL, '-q', locations.DHCLIENT]
-    runWrapper(cmd, ignoreError=True)
+    killAllDhcp()
 
     # set runtime status to network down
     r.networkDown()
