@@ -1,0 +1,14 @@
+Source: surfids-sensor
+Section: python
+Priority: optional
+Maintainer: Gijs Molenaar <gijs.molenaar@surfnet.nl>
+Standards-Version: 3.7.3
+Build-Depends: cdbs, python-dev, python-support, debhelper
+Homepage: http://surfids.surfnet.nl
+
+Package: surfids-sensor
+Architecture: all
+Depends: ${python:Depends}, openvpn, bridge-utils, vlan, python-configobj, dialog, openssh-server
+Priority: optional
+Description: A sensor for SURFids, written in python
+

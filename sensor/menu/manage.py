@@ -1,0 +1,117 @@
+ 
+import logging
+import pdb
+
+from sensor import dialog
+from sensor import functions
+from sensor import config
+from sensor import tools
+from sensor import runtime
+from sensor import excepts
+
+class Manage:
+    def __init__(self, d):
+        # d = dialog object
+	logging.debugv("menu/manage.py->__init__(self, d)", [])
+        self.d = d
+        self.r = runtime.Runtime()
+
+        # c = config object
+        self.c = config.Config()
+
+    def run(self):
+        """ Submenu of main to for sensor management """
+	logging.debugv("menu/manage.py->run(self)", [])
+        choices = []
+
+        if self.r.sensorStatus():
+            choices.append( ("Sensor Down", "Bring sensor down") )
+        else:
+            choices.append( ("Sensor Up", "Bring sensor up") )
+
+	if self.r.networkStatus():
+            choices.append( ("Update", "Sync with server now") )
+            choices.append( ("Ping", "Check if connection is okay") )
+
+        if functions.sshStatus():
+            choices.append( ("SSH server off", "Disable remote shell access") )
+        else:
+            choices.append( ("SSH server on", "Enable remote shell access") )
+
+        if functions.checkKey():
+            choices.append( ("Reinit sensor", "Removes keys and sensor ID") )
+
+        # TODO
+        #choices.append( ("Startup on", "Enable SURFids at startup") ) 
+
+        choice = self.d.menu("What do you want to manage?", choices=choices, cancel="back")
+
+        # cancel 
+        if choice[0] == 1: return
+        elif choice[1] == "Sensor Up":
+            self.sensorUp()
+        elif choice[1] == "Sensor Down":
+            self.sensorDown()
+        elif choice[1] == "Update":
+            self.update()
+        elif choice[1] == "SSH server on":
+            functions.sshUp()
+            self.d.msgbox("SSH server enabled")
+        elif choice[1] == "SSH server off":
+            functions.sshDown()
+            self.d.msgbox("SSH server disabled")
+        elif choice[1] == "Reinit sensor":
+            if not self.d.yesno("Are you sure you want to reinit this sensor? " + 
+                    "This will result in a new sensor ID"):
+                if self.sensorDown():
+                    functions.delKey()
+                    self.d.msgbox("Sensor cleaned (removed key & certificate)")
+        elif choice[1] == "Ping":
+            self.ping()
+        else:
+            self.d.msgbox("not yet implemented")
+        self.run()
+
+
+    def sensorUp(self):
+	""" Bring the sensor up """
+        logging.debugv("menu/manage.py->sensorUp(self)", [])
+        self.d.infobox("Bringing sensor up...")
+        functions.sensorDown()
+        try:
+            if functions.sensorUp():
+        	self.d.msgbox("Sensor succesfully brought online")
+	    else:
+		self.d.msgbox("Unable to start the sensor")
+        except excepts.NetworkException, msg:
+            self.d.msgbox(str(msg) + "\nplease see logfile for details", width=70)
+            self.sensorDown()
+
+
+    def sensorDown(self):
+	""" Bring down the sensor """
+	logging.debugv("menu/manage.py->sensorDown(self)", [])
+        try:
+            self.d.infobox("Bringing sensor down...")
+            functions.sensorDown()
+        except excepts.NetworkException:
+            logging.info("No network connection, so can't deregister")
+            functions.allInfsDown()
+        self.d.msgbox("Sensor succesfully brought offline")
+
+
+    def update(self):
+	""" Update the sensor scripts """
+	logging.debugv("menu/manage.py->update(self)", [])
+        self.d.infobox("syncing sensor with surfids server...")
+        functions.update()
+        self.d.msgbox("sensor succesfully updated")
+
+
+    def ping(self):
+	""" Send a ping to predefined addresses """
+	logging.debugv("menu/manage.py->ping(self)", [])
+        self.d.infobox("sending ping...")
+        result = tools.ping(tools.hosts)
+        if result: self.d.msgbox("ping successful")
+        else: self.d.msgbox("ping unsuccesfull, there is something wrong with your settings or you can't sent ICMP packages")

@@ -1,0 +1,55 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:          surfids-sensor
+# Required-Start:    $all 
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start/stop SURFids sensor
+# Description:       Start/stop SURFids sensor
+### END INIT INFO
+
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+NAME="surfids-sensor"
+DESC="The SURFids honeypot sensor"
+
+# Include flowd defaults if available
+if [ -f /etc/default/$NAME ] ; then
+	. /etc/default/$NAME
+fi
+
+case $ENABLED in
+    false) exit 0
+            ;;
+esac
+
+
+
+case "$1" in
+  start)
+	echo -n "Starting $DESC: "
+		/usr/sbin/sensor-up
+        echo "$NAME.";
+	;;
+  stop)
+	echo -n "Stopping $DESC: "
+        /usr/sbin/sensor-down
+	;;
+  update)
+    echo -n "Updating $DESC: "
+        /usr/sbin/sensor-update
+    ;;
+  restart)
+    $0 stop
+    $0 start
+	;;
+  *)
+	N=/etc/init.d/$NAME
+	echo "Usage: $N {start|stop|rotate|restart}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
