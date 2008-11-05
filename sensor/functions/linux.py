@@ -100,10 +100,10 @@ def chkIfIp(interface):
             0x8915,  # SIOCGIFADDR
             struct.pack('256s', interface[:15])
         )[20:24])
-	return True
+        return True
     except IOError:
-	logging.warning("Interface %s did not have an IP address" % interface)
-	return False
+        logging.warning("Interface %s did not have an IP address" % interface)
+        return False
 
 
 def getIp(interface):
@@ -116,7 +116,7 @@ def getIp(interface):
             0x8915,  # SIOCGIFADDR
             struct.pack('256s', interface[:15])
         )[20:24])
-	return res
+        return res
     except IOError:
         raise excepts.InterfaceException, "Interface %s did not have an IP address" % interface
 
@@ -132,23 +132,23 @@ def getIfFlags(interface):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     try:
-	# call ioctl() to get the flags for the given interface
-	result = fcntl.ioctl(s.fileno(), SIOCGIFFLAGS, interface + null256)
+        # call ioctl() to get the flags for the given interface
+        result = fcntl.ioctl(s.fileno(), SIOCGIFFLAGS, interface + null256)
 
-	# extract the interface's flags from the return value
-	flags, = struct.unpack('H', result[16:18])
+        # extract the interface's flags from the return value
+        flags, = struct.unpack('H', result[16:18])
 
-	binflags = tools.dec2bin(flags)
-	binflags = binflags[::-1]
-	i = 0
-	for b in binflags:
-	    if int(b) == 1:
-		active_flags += " " + str(inf_flags[i])
-	    i += 1
-	active_flags = active_flags.lstrip()
-	return active_flags
+        binflags = tools.dec2bin(flags)
+        binflags = binflags[::-1]
+        i = 0
+        for b in binflags:
+            if int(b) == 1:
+                active_flags += " " + str(inf_flags[i])
+            i += 1
+        active_flags = active_flags.lstrip()
+        return active_flags
     except IOError:
-	raise excepts.InterfaceException, "Interface %s was not found" % interface
+        raise excepts.InterfaceException, "Interface %s was not found" % interface
 
 def chkIf(interface):
     """ Checks for the existance of a given interface """
@@ -162,12 +162,12 @@ def chkIf(interface):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     try:
-	# call ioctl() to get the flags for the given interface
-	result = fcntl.ioctl(s.fileno(), SIOCGIFFLAGS, interface + null256)
-	return True
+        # call ioctl() to get the flags for the given interface
+        result = fcntl.ioctl(s.fileno(), SIOCGIFFLAGS, interface + null256)
+        return True
     except IOError:
-	logging.warning("Interface %s was not found" % interface)
-	return False
+        logging.warning("Interface %s was not found" % interface)
+        return False
 
 
 def getNm(interface):
@@ -224,10 +224,10 @@ def ifDelIp(interface):
     logging.info("Removing IP address from %s" % interface)
     cmd = [locations.IFCONFIG, interface, "0.0.0.0", "up"]
     if runWrapper(cmd):
-	r.net(interface, 2)
-	return True
+        r.net(interface, 2)
+        return True
     else:
-	return False
+        return False
  
 
 def ifUp(interface):
@@ -236,10 +236,10 @@ def ifUp(interface):
     logging.info("bring interface %s up " % interface)
     cmd = [locations.IFCONFIG, interface, "up"]
     if runWrapper(cmd):
-	r.net(interface, 2)
-	return True
+        r.net(interface, 2)
+        return True
     else:
-	return False
+        return False
 
 
 def ifUpStatic(interface,ip,netmask):
@@ -249,8 +249,8 @@ def ifUpStatic(interface,ip,netmask):
     logging.info("configuring %s with %s/%s" % (interface, ip, netmask))
     cmd = [locations.IFCONFIG, interface, "up", ip, "netmask", netmask]
     if runWrapper(cmd):
-	r.net(interface, 3)
-	r.networkUp()
+        r.net(interface, 3)
+        r.networkUp()
     return ip
 
 def ifUpDhcp(interface):
@@ -267,8 +267,8 @@ def ifUpDhcp(interface):
         try:
             ip = getIp(interface)
             logging.info("received: " + ip)
-	    r.net(interface, 3)
-	    r.networkUp()
+            r.net(interface, 3)
+            r.networkUp()
             return ip
         except excepts.InterfaceException:
             logging.warning("Did not receive an IP address on interface %s" % interface)
@@ -289,7 +289,7 @@ def ifDown(interface):
     try:
         cmd = [locations.IFCONFIG, interface, "0.0.0.0", "down"]
         if runWrapper(cmd):
-	    r.net(interface, 1)
+            r.net(interface, 1)
     except excepts.RunException, msg:
         raise excepts.InterfaceException, "Interface %s doesn't exists" % interface
 
@@ -299,10 +299,10 @@ def ifDown(interface):
         pid = open(pidfile, 'r').readline().strip()
         if not pid.isdigit(): raise excepts.RunException, "Invalid pidfile (%s)" % pidfile
         logging.debug("Killed DHCP daemon with PID %s" % pid)
-	try:
+        try:
             os.kill(int(pid), 15)
-	except:
-	    logging.warn("Killing dhclient: No such process")
+        except:
+            logging.warn("Killing dhclient: No such process")
         os.unlink(pidfile)
 
 def addGw(ip):
@@ -360,20 +360,20 @@ def addTap(id):
     dev = 'tap' + str(id)
     cmd = [locations.OPENVPN, '--mktun', '--dev', dev]
     if runWrapper(cmd):
-	r.net(dev, 1)
-	if ifUp(dev):
-	   return dev
-	else:
-	    return False
+        r.net(dev, 1)
+        if ifUp(dev):
+           return dev
+        else:
+            return False
     else:
-	return False
+        return False
 
 def delTap(tap):
     """ Removes given tap device """
     logging.debugv("functions/linux.py->delTap(tap)", [tap])
     cmd = [locations.OPENVPN, '--rmtun', '--dev', tap]
     if runWrapper(cmd):
-	r.net(tap, 0)
+        r.net(tap, 0)
 
 def tapList():
     """ Return a list of tap devices """
@@ -394,7 +394,7 @@ def addBridge(id, devices=[]):
     logging.info("Creating bridge %s " % dev)
     cmd = [locations.BRCTL, 'addbr', dev]
     if runWrapper(cmd):
-	r.net(dev, 1)
+        r.net(dev, 1)
     ifUp(dev)
     for device in devices:
         cmd = [locations.BRCTL, 'addif', dev, device]
@@ -411,7 +411,7 @@ def mkTunnel(id):
     logging.debug(" ".join(cmd))
     pid = os.fork() 
     if pid == 0:
-	fd = plock(locations.LOCKFILE)
+        fd = plock(locations.LOCKFILE)
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         buffer = ""
         while p.poll() == None:
@@ -421,8 +421,8 @@ def mkTunnel(id):
                     buffer += out
                 else:
                     logging.debug(buffer[25:])
-		    if buffer[25:] == locations.OPENVPN_INIT_RDY:
-			punlock(fd, locations.LOCKFILE)
+                    if buffer[25:] == locations.OPENVPN_INIT_RDY:
+                        punlock(fd, locations.LOCKFILE)
                     buffer = ""
         if p.poll() > 0:
             logging.error("%s died with error code %s, see log for details" % (cmd[0], p.poll()))
@@ -431,10 +431,10 @@ def mkTunnel(id):
         import sys
         sys.exit(0)
     else:
-	logging.debug("Parent waiting for child...")
-	while os.path.exists(locations.LOCKFILE):
-	    time.sleep(1)
-	logging.debug("Parent continuing...")
+        logging.debug("Parent waiting for child...")
+        while os.path.exists(locations.LOCKFILE):
+            time.sleep(1)
+        logging.debug("Parent continuing...")
 
 
 def brList():
@@ -483,26 +483,18 @@ def sshStatus():
     """ Returns the status of the SSH daemon """
     logging.debugv("functions/linux.py->sshStatus()", [])
     if os.access(locations.SSHPID, os.F_OK):
-	pid = str(open(locations.SSHPID).read())
-	pid = pid.rstrip()
-	if os.access(locations.PROC + pid + "/", os.F_OK):
-            return True
-	else:
-	    return False
-    return False
+        pid = str(open(locations.SSHPID).read())
+        pid = pid.rstrip()
+        return os.access(locations.PROC + pid + "/", os.F_OK)
 
 def openvpnStatus():
     """ Returns the status of the OpenVPN daemon """
     logging.debugv("functions/linux.py->openvpnStatus()", [])
     opid = locations.OPENVPNPID
     if os.access(opid, os.F_OK):
-	pid = str(open(opid).read())
-	pid = pid.rstrip()
-	if os.access(locations.PROC + pid + "/", os.F_OK):
-	    return True
-	else:
-	    return False
-    return False
+        pid = str(open(opid).read())
+        pid = pid.rstrip()
+        return os.access(locations.PROC + pid + "/", os.F_OK)
 
 def sshUp():
     """ Starts the SSH daemon """
@@ -510,7 +502,7 @@ def sshUp():
     logging.info("starting ssh daemon")
     cmd = [locations.SSHINIT, 'start']
     if runWrapper(cmd):
-	r.sshUp()
+        r.sshUp()
 
 def sshDown():
     """ Stops the SSH daemon """
@@ -518,7 +510,7 @@ def sshDown():
     logging.info("shutting down ssh daemon")
     cmd = [locations.SSHINIT, 'stop']
     if runWrapper(cmd):
-	r.sshDown()
+        r.sshDown()
 
 def plock(file):
     """ Function to touch a file. Acts as a proxy for locking. """

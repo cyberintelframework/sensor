@@ -29,12 +29,12 @@ def checkNet():
 def saveConf(method, mainConf, trunkConf):
     """ Send the configuration to the server
 
-	mainConf =	"dhcp" | "ip|tap_ip|nm|bc|gw"
-	vlanDesc =	[a-zA-Z0-9 ]+
-	method =	"vlan" | "simple"
-	vlanConf =	VLAN_ID , MAINCONF , VLANDESC
-	trunkConf =	VLANCONF ! VLANCONF ! VLANCONF ! ...
-	request =	"save_config.php?method=METHOD&interface=MAINCONF&trunk=TRUNKCONF
+        mainConf =        "dhcp" | "ip|tap_ip|nm|bc|gw"
+        vlanDesc =        [a-zA-Z0-9 ]+
+        method =        "vlan" | "simple"
+        vlanConf =        VLAN_ID , MAINCONF , VLANDESC
+        trunkConf =        VLANCONF ! VLANCONF ! VLANCONF ! ...
+        request =        "save_config.php?method=METHOD&interface=MAINCONF&trunk=TRUNKCONF
 
     """
     logging.debugv("client.py->saveConf(method, mainConf, trunkConf)", [method, mainConf, trunkConf])
@@ -44,7 +44,7 @@ def saveConf(method, mainConf, trunkConf):
     args = urllib.urlencode((
         ('strip_html_escape_method', method),
         ('strip_html_escape_interface', str(mainConf)),
-	('strip_html_escape_keyname', sensor),
+        ('strip_html_escape_keyname', sensor),
         ('strip_html_escape_trunk', str(trunkConf)))
     )
 

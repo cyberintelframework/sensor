@@ -12,7 +12,7 @@ from sensor import excepts
 class Manage:
     def __init__(self, d):
         # d = dialog object
-	logging.debugv("menu/manage.py->__init__(self, d)", [])
+        logging.debugv("menu/manage.py->__init__(self, d)", [])
         self.d = d
         self.r = runtime.Runtime()
 
@@ -21,7 +21,7 @@ class Manage:
 
     def run(self):
         """ Submenu of main to for sensor management """
-	logging.debugv("menu/manage.py->run(self)", [])
+        logging.debugv("menu/manage.py->run(self)", [])
         choices = []
 
         if self.r.sensorStatus():
@@ -29,7 +29,7 @@ class Manage:
         else:
             choices.append( ("Sensor Up", "Bring sensor up") )
 
-	if self.r.networkStatus():
+        if self.r.networkStatus():
             choices.append( ("Update", "Sync with server now") )
             choices.append( ("Ping", "Check if connection is okay") )
 
@@ -74,23 +74,23 @@ class Manage:
 
 
     def sensorUp(self):
-	""" Bring the sensor up """
+        """ Bring the sensor up """
         logging.debugv("menu/manage.py->sensorUp(self)", [])
         self.d.infobox("Bringing sensor up...")
         functions.sensorDown()
         try:
             if functions.sensorUp():
-        	self.d.msgbox("Sensor succesfully brought online")
-	    else:
-		self.d.msgbox("Unable to start the sensor")
+                self.d.msgbox("Sensor succesfully brought online")
+            else:
+                self.d.msgbox("Unable to start the sensor")
         except excepts.NetworkException, msg:
             self.d.msgbox(str(msg) + "\nplease see logfile for details", width=70)
             self.sensorDown()
 
 
     def sensorDown(self):
-	""" Bring down the sensor """
-	logging.debugv("menu/manage.py->sensorDown(self)", [])
+        """ Bring down the sensor """
+        logging.debugv("menu/manage.py->sensorDown(self)", [])
         try:
             self.d.infobox("Bringing sensor down...")
             functions.sensorDown()
@@ -101,16 +101,16 @@ class Manage:
 
 
     def update(self):
-	""" Update the sensor scripts """
-	logging.debugv("menu/manage.py->update(self)", [])
+        """ Update the sensor scripts """
+        logging.debugv("menu/manage.py->update(self)", [])
         self.d.infobox("syncing sensor with surfids server...")
         functions.update()
         self.d.msgbox("sensor succesfully updated")
 
 
     def ping(self):
-	""" Send a ping to predefined addresses """
-	logging.debugv("menu/manage.py->ping(self)", [])
+        """ Send a ping to predefined addresses """
+        logging.debugv("menu/manage.py->ping(self)", [])
         self.d.infobox("sending ping...")
         result = tools.ping(tools.hosts)
         if result: self.d.msgbox("ping successful")

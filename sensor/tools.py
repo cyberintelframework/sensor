@@ -67,25 +67,25 @@ def debugDict(d, level = 0):
     """ Formats a dictionary to a human readable string """
     ret = ""
     if isinstance(d, dict):
-	for (k, v) in d.items():
-	    if isinstance(k, str):
-		k = "'" + k + "'"
+        for (k, v) in d.items():
+            if isinstance(k, str):
+                k = "'" + k + "'"
             pre = level * "  "
-	    if isinstance(v, dict):
-		if v.__len__() != 0:
-		    level = level + 1
-		    ret += pre + str(k) + " = {\n"
-		    ret += debugDict(v, level)
-		    ret += pre + "} "
-		    level = level - 1
-		else:
-		    ret += pre + str(k) + " = {}"
-	    else:
-		if isinstance(v, str):
-		    v = "'" + v + "'"
-	        ret += pre + str(k) + " = " + str(v)
-	    ret += "\n"
-	return ret
+            if isinstance(v, dict):
+                if v.__len__() != 0:
+                    level = level + 1
+                    ret += pre + str(k) + " = {\n"
+                    ret += debugDict(v, level)
+                    ret += pre + "} "
+                    level = level - 1
+                else:
+                    ret += pre + str(k) + " = {}"
+            else:
+                if isinstance(v, str):
+                    v = "'" + v + "'"
+                ret += pre + str(k) + " = " + str(v)
+            ret += "\n"
+        return ret
 
 class Pinger(Thread):
     """ Threaded ping class """

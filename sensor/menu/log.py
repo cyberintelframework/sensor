@@ -5,11 +5,11 @@ import sensor.dialog
 
 class Log:
     def __init__(self, d):
-	logging.debugv("menu/log.py->__init__(self, d)", [])
+        logging.debugv("menu/log.py->__init__(self, d)", [])
         self.d = d
 
     def run(self):
-	logging.debugv("menu/log.py->run(self)", [])
+        logging.debugv("menu/log.py->run(self)", [])
         logging.info("opening log dialog")
         try:
             return self.d.tailbox(locations.LOGFILE, 0, 0)

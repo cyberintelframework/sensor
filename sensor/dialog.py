@@ -617,11 +617,11 @@ class Dialog:
         This method is obsolete. Please remove calls to it from your
         programs.
 
-	"""
-	self.add_persistent_args(("--backtitle", text))
+        """
+        self.add_persistent_args(("--backtitle", text))
 
     def _call_program(self, redirect_child_stdin, cmdargs, **kwargs):
-	"""Do the actual work of invoking the dialog-like program.
+        """Do the actual work of invoking the dialog-like program.
 
         Communication with the dialog-like program is performed
         through one or two pipes, depending on
@@ -811,7 +811,7 @@ class Dialog:
         return (exit_code, child_output)
 
     def _perform(self, cmdargs, **kwargs):
-	"""Perform a complete dialog-like program invocation.
+        """Perform a complete dialog-like program invocation.
 
         This function invokes the dialog-like program, waits for its
         termination and returns its exit status and whatever it wrote
@@ -828,7 +828,7 @@ class Dialog:
         (exit_code, output) = \
                     self._wait_for_program_termination(child_pid,
                                                         child_rfd)
-	return (exit_code, output)
+        return (exit_code, output)
 
     def _strip_xdialog_newline(self, output):
         """Remove trailing newline (if any), if using Xdialog"""
@@ -838,18 +838,18 @@ class Dialog:
 
     # This is for compatibility with the old dialog.py
     def _perform_no_options(self, cmd):
-	"""Call dialog without passing any more options."""
-	return os.system(self._dialog_prg + ' ' + cmd)
+        """Call dialog without passing any more options."""
+        return os.system(self._dialog_prg + ' ' + cmd)
 
     # For compatibility with the old dialog.py
     def clear(self):
-	"""Clear the screen. Equivalent to the dialog --clear option.
+        """Clear the screen. Equivalent to the dialog --clear option.
 
         This method is obsolete. Please remove calls to it from your
         programs.
 
-	"""
-	self._perform_no_options('--clear')
+        """
+        self._perform_no_options('--clear')
 
     def calendar(self, text, height=6, width=0, day=0, month=0, year=0,
                  **kwargs):
@@ -883,8 +883,8 @@ class Dialog:
             - UnexpectedDialogOutput
             - PythonDialogReModuleError
 
-	"""
-	(code, output) = self._perform(
+        """
+        (code, output) = self._perform(
             *(["--calendar", text, str(height), str(width), str(day),
                str(month), str(year)],),
             **kwargs)
@@ -905,7 +905,7 @@ class Dialog:
 
     def checklist(self, text, height=15, width=54, list_height=7,
                   choices=[], **kwargs):
-	"""Display a checklist box.
+        """Display a checklist box.
 
         text        -- text to display in the box
         height      -- height of the box
@@ -942,7 +942,7 @@ class Dialog:
         # double-quote).
         kwargs["separate_output"] = True
 
-	(code, output) = self._perform(*(cmd,), **kwargs)
+        (code, output) = self._perform(*(cmd,), **kwargs)
 
         # Since we used --separate-output, the tags are separated by a newline
         # in the output. There is also a final newline after the last tag.
@@ -989,17 +989,17 @@ class Dialog:
 
             any exception raised by self._perform()
 
-	"""
+        """
         (code, output) = self._perform(
             *(["--fselect", filepath, str(height), str(width)],),
             **kwargs)
 
         output = self._strip_xdialog_newline(output)
         
-	return (code, output)
+        return (code, output)
     
     def gauge_start(self, text="", height=8, width=54, percent=0, **kwargs):
-	"""Display gauge box.
+        """Display gauge box.
 
         text    -- text to display in the box
         height  -- height of the box
@@ -1020,20 +1020,20 @@ class Dialog:
         -------------------
 
         Gauge typical usage (assuming that `d' is an instance of the
-	Dialog class) looks like this:
-	    d.gauge_start()
-	    # do something
-	    d.gauge_update(10)       # 10% of the whole task is done
-	    # ...
-	    d.gauge_update(100, "any text here") # work is done
-	    exit_code = d.gauge_stop()           # cleanup actions
+        Dialog class) looks like this:
+            d.gauge_start()
+            # do something
+            d.gauge_update(10)       # 10% of the whole task is done
+            # ...
+            d.gauge_update(100, "any text here") # work is done
+            exit_code = d.gauge_stop()           # cleanup actions
 
 
         Notable exceptions:
             - any exception raised by self._call_program()
             - PythonDialogOSError
 
-	"""
+        """
         (child_pid, child_rfd, child_stdin_wfd) = self._call_program(
             True,
             *(["--gauge", text, str(height), str(width), str(percent)],),
@@ -1048,8 +1048,8 @@ class Dialog:
             raise PythonDialogOSError(v.strerror)
             
     def gauge_update(self, percent, text="", update_text=0):
-	"""Update a running gauge box.
-	
+        """Update a running gauge box.
+        
         percent     -- new percentage to show in the gauge meter
         text        -- new text to optionally display in the box
         update-text -- boolean indicating whether to update the
@@ -1060,8 +1060,8 @@ class Dialog:
         called previously). If update_text is true (for instance, 1),
         the text displayed in the box is also updated.
 
-	See the `gauge_start' function's documentation for
-	information about how to use a gauge.
+        See the `gauge_start' function's documentation for
+        information about how to use a gauge.
 
         Return value: undefined.
 
@@ -1069,12 +1069,12 @@ class Dialog:
                            is an I/O error while writing to the pipe
                            used to talk to the dialog-like program.
 
-	"""
-	if update_text:
-	    gauge_data = "%d\nXXX\n%s\nXXX\n" % (percent, text)
-	else:
-	    gauge_data = "%d\n" % percent
-	try:
+        """
+        if update_text:
+            gauge_data = "%d\nXXX\n%s\nXXX\n" % (percent, text)
+        else:
+            gauge_data = "%d\n" % percent
+        try:
             self._gauge_process["stdin"].write(gauge_data)
             self._gauge_process["stdin"].flush()
         except IOError, v:
@@ -1084,13 +1084,13 @@ class Dialog:
     gauge_iterate = gauge_update
 
     def gauge_stop(self):
-	"""Terminate a running gauge.
+        """Terminate a running gauge.
 
         This function performs the appropriate cleanup actions to
         terminate a running gauge (started with `gauge_start').
-	
-	See the `gauge_start' function's documentation for
-	information about how to use a gauge.
+        
+        See the `gauge_start' function's documentation for
+        information about how to use a gauge.
 
         Return value: undefined.
 
@@ -1100,7 +1100,7 @@ class Dialog:
             - PythonDialogIOError can be raised if closing the pipe
               used to talk to the dialog-like program fails.
 
-	"""
+        """
         p = self._gauge_process
         # Close the pipe that we are using to feed dialog's stdin
         try:
@@ -1134,8 +1134,8 @@ class Dialog:
 
             any exception raised by self._perform()
 
-	"""
-	return self._perform(
+        """
+        return self._perform(
             *(["--infobox", text, str(height), str(width)],),
             **kwargs)[0]
 
@@ -1162,14 +1162,14 @@ class Dialog:
 
             any exception raised by self._perform()
 
-	"""
+        """
         (code, tag) = self._perform(
             *(["--inputbox", text, str(height), str(width), init],),
             **kwargs)
 
         tag = self._strip_xdialog_newline(tag)
         
-	return (code, tag)
+        return (code, tag)
 
     def menu(self, text, height=15, width=54, menu_height=7, choices=[],
              **kwargs):
@@ -1251,11 +1251,11 @@ class Dialog:
 
             any exception raised by self._perform()
 
-	"""
+        """
         cmd = ["--menu", text, str(height), str(width), str(menu_height)]
         for t in choices:
             cmd.extend(t)
-	(code, output) = self._perform(*(cmd,), **kwargs)
+        (code, output) = self._perform(*(cmd,), **kwargs)
 
         output = self._strip_xdialog_newline(output)
         
@@ -1286,8 +1286,8 @@ class Dialog:
 
             any exception raised by self._perform()
 
-	"""
-	return self._perform(
+        """
+        return self._perform(
             *(["--msgbox", text, str(height), str(width)],),
             **kwargs)[0]
 
@@ -1316,8 +1316,8 @@ class Dialog:
 
             any exception raised by self._perform()
 
-	"""
-	(code, password) = self._perform(
+        """
+        (code, password) = self._perform(
             *(["--passwordbox", text, str(height), str(width), init],),
             **kwargs)
 
@@ -1327,7 +1327,7 @@ class Dialog:
 
     def radiolist(self, text, height=15, width=54, list_height=7,
                   choices=[], **kwargs):
-	"""Display a radiolist box.
+        """Display a radiolist box.
 
         text        -- text to display in the box
         height      -- height of the box
@@ -1357,7 +1357,7 @@ class Dialog:
 
             any exception raised by self._perform() or _to_onoff()
 
-	"""
+        """
         cmd = ["--radiolist", text, str(height), str(width), str(list_height)]
         for t in choices:
             cmd.extend(((t[0], t[1], _to_onoff(t[2]))))
@@ -1366,10 +1366,10 @@ class Dialog:
 
         tag = self._strip_xdialog_newline(tag)
             
-	return (code, tag)
+        return (code, tag)
 
     def scrollbox(self, text, height=20, width=78, **kwargs):
-	"""Display a string in a scrollable box.
+        """Display a string in a scrollable box.
 
         text   -- text to display in the box
         height -- height of the box
@@ -1391,7 +1391,7 @@ class Dialog:
               unfortunately not mentioned in its documentation, at
               least in Python 2.3.3...)
 
-	"""
+        """
         # In Python < 2.3, the standard library does not have
         # tempfile.mkstemp(), and unfortunately, tempfile.mktemp() is
         # insecure. So, I create a non-world-writable temporary directory and
@@ -1455,8 +1455,8 @@ class Dialog:
 
             any exception raised by self._perform()
 
-	"""
-	return self._perform(
+        """
+        return self._perform(
             *(["--tailbox", filename, str(height), str(width)],),
             **kwargs)[0]
     # No tailboxbg widget, at least for now.
@@ -1485,12 +1485,12 @@ class Dialog:
 
             any exception raised by self._perform()
 
-	"""
+        """
         # This is for backward compatibility... not that it is
         # stupid, but I prefer explicit programming.
         if not "title" in kwargs.keys():
-	    kwargs["title"] = filename
-	return self._perform(
+            kwargs["title"] = filename
+        return self._perform(
             *(["--textbox", filename, str(height), str(width)],),
             **kwargs)[0]
 
@@ -1525,8 +1525,8 @@ class Dialog:
             - PythonDialogReModuleError
             - UnexpectedDialogOutput
 
-	"""
-	(code, output) = self._perform(
+        """
+        (code, output) = self._perform(
             *(["--timebox", text, str(height), str(width),
                str(hour), str(minute), str(second)],),
             **kwargs)
@@ -1570,7 +1570,7 @@ class Dialog:
 
             any exception raised by self._perform()
 
-	"""
-	return self._perform(
+        """
+        return self._perform(
             *(["--yesno", text, str(height), str(width)],),
             **kwargs)[0]

@@ -217,3 +217,12 @@ def bridgify(inf, infConf, bridgeNumber):
             addGw(infConf['gateway'])
     return (inf, ip)
 
+def openvpnStatus():
+    """ Returns the status of the OpenVPN daemon """
+    logging.debugv("functions/linux.py->openvpnStatus()", [])
+    opid = locations.OPENVPNPID
+    if os.access(opid, os.F_OK):
+    pid = str(open(opid).read())
+    pid = pid.rstrip()
+    return os.access(locations.PROC + pid + "/", os.F_OK)
+

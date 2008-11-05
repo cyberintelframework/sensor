@@ -37,21 +37,21 @@ def getVer(file):
     """ Get the version (changelog) of the given file """
     logging.debugv("functions/__init__.py->getVer(file)", [file])
     if file == "client":
-	return client.changeset
+        return client.changeset
     elif file == "config":
-	return config.changeset
+        return config.changeset
     elif file == "dialog":
-	return dialog.changeset
+        return dialog.changeset
     elif file == "excepts":
-	return excepts.changeset
+        return excepts.changeset
     elif file == "log":
-	return log.changeset
+        return log.changeset
     elif file == "runtime":
-	return runtime.changeset
+        return runtime.changeset
     elif file == "tools":
-	return tools.changeset
+        return tools.changeset
     elif file == "version":
-	return version.changeset
+        return version.changeset
 
 
 def networkUp():
@@ -64,10 +64,10 @@ def networkUp():
 
     # Only use the first interface that is configured
     try:
-	inf = getFirstIf(["dhcp", "static"])
+        inf = getFirstIf(["dhcp", "static"])
     except excepts.InterfaceException:
-	logging.error("Could not find an interface configuration.")
-	return
+        logging.error("Could not find an interface configuration.")
+        return
 
     logging.debug("First interface: %s" % inf)
     infConf = c.getIf(inf)
@@ -76,15 +76,15 @@ def networkUp():
 
     if infType in ["dhcp", "static"]:
         if infType == "static":
-	    nm = infConf['netmask']
-	    ip = infConf['address']
-	    gw = infConf['gateway']
-	    ifUpStatic(inf, ip, nm)
-	    if getGw(inf):
-		delGw(inf)
+            nm = infConf['netmask']
+            ip = infConf['address']
+            gw = infConf['gateway']
+            ifUpStatic(inf, ip, nm)
+            if getGw(inf):
+                delGw(inf)
             addGw(gw)
-	else:
-	    ifUpDhcp(inf)
+        else:
+            ifUpDhcp(inf)
 
     # set DNS
     (type, prim, sec) = c.getDNS()
@@ -98,8 +98,8 @@ def sensorUp():
 
 #    pdb.set_trace()
     if not r.configStatus():
-	logging.error("Could not find a configured interface")
-	return False
+        logging.error("Could not find a configured interface")
+        return False
 
     # Always bring the main network interface up
     networkUp()
@@ -119,53 +119,53 @@ def sensorUp():
     gw = ""
 
     if sensortype == "normal":
-	# Steps to be taken:
-	#   Create bridge
-	#   Create tap
-	#   Add tap + main interface to bridge
-	#   Give bridge IP
-	#   Remove IP from inf
+        # Steps to be taken:
+        #   Create bridge
+        #   Create tap
+        #   Add tap + main interface to bridge
+        #   Give bridge IP
+        #   Remove IP from inf
 
-	# Only use the first interface that is configured
-	try:
-	    inf = getFirstIf(["dhcp", "static"])
-	except excepts.InterfaceException:
+        # Only use the first interface that is configured
+        try:
+            inf = getFirstIf(["dhcp", "static"])
+        except excepts.InterfaceException:
             logging.error("Could not find an interface configuration.")
             return
 
-	logging.debug("inf: " + inf)
+        logging.debug("inf: " + inf)
  
-	infConf = c.getIf(inf)
-	infType = infConf['type']
-	(brdev, ip) = bridgify(inf, infConf, bridgeID)
+        infConf = c.getIf(inf)
+        infType = infConf['type']
+        (brdev, ip) = bridgify(inf, infConf, bridgeID)
         r.addInf(inf, brdev, infType, bridgeID)
-	ifDelIp(inf)
+        ifDelIp(inf)
 
-	if infType == "static":
-	    nm = infConf['netmask']
-	    gw = infConf['gateway']
-	    bc = infConf['broadcast']
+        if infType == "static":
+            nm = infConf['netmask']
+            gw = infConf['gateway']
+            bc = infConf['broadcast']
 
-	client.checkKey(ip)
-	client.register(ip, c.get('sensorid'))
+        client.checkKey(ip)
+        client.register(ip, c.get('sensorid'))
 
     elif sensortype == "vlan":
-	# Only use the first interface that is configured
-	try:
-	    trunk = getFirstIf(["trunk"])
-	    logging.debug("trunk: " + trunk)
-	except excepts.InterfaceException:
+        # Only use the first interface that is configured
+        try:
+            trunk = getFirstIf(["trunk"])
+            logging.debug("trunk: " + trunk)
+        except excepts.InterfaceException:
             logging.error("Could not find a trunk interface configuration.")
             return False
 
-	ifUp(trunk)
+        ifUp(trunk)
         tapdev = addTap(bridgeID)
         brdev = addBridge(bridgeID, [tapdev, trunk])
 
-	(chk, ip) = getLocalIp()
+        (chk, ip) = getLocalIp()
 
-	client.checkKey(ip)
-	client.register(ip, c.get('sensorid'))
+        client.checkKey(ip)
+        client.register(ip, c.get('sensorid'))
 
     mkTunnel(bridgeID)
 
@@ -173,7 +173,7 @@ def sensorUp():
     if openvpnStatus():
         # only set registered status if there are one ore more tunnels active
         r.sensorUp()
-	r.tunnelUp()
+        r.tunnelUp()
 
     return True
 
@@ -186,7 +186,7 @@ def sensorDown():
     if chk:
         client.deRegister(localip)
     else:
-	logging.warning("Could not find localip, skipping deregistration")
+        logging.warning("Could not find localip, skipping deregistration")
 
     # Shut everything down
     allTunnelsDown()
@@ -283,15 +283,15 @@ def getFirstIf(types):
     infs = [i for i in ifList() if c.getIf(i)['type'] in types]
     if infs: return infs[0]
     else:
-	raise excepts.InterfaceException, "No interface found with type in %s" % str(types)
-	return
+        raise excepts.InterfaceException, "No interface found with type in %s" % str(types)
+        return
 
 def getLocalIp():
     """ Get the localy configured IP address """
     logging.debugv("functions/__init__.py->getLocalIp()", [])
     for (dev, status) in r.listNet():
-	if status == 3:
-	    return True, getIp(dev)
+        if status == 3:
+            return True, getIp(dev)
     return False, ""
 
 def update():
@@ -361,29 +361,29 @@ def initRuntime():
     """ Initializes the runtime status dict """
     logging.debugv("functions/__init__.py->initRuntime()", [])
     try:
-	getFirstIf(["dhcp", "static"])
-	r.configUp()
+        getFirstIf(["dhcp", "static"])
+        r.configUp()
     except excepts.InterfaceException:
-	logging.warning("Could not find a configured interface")
-	r.configDown()
+        logging.warning("Could not find a configured interface")
+        r.configDown()
 
     if openvpnStatus():
-	r.sensorUp()
-	r.tunnelUp()
+        r.sensorUp()
+        r.tunnelUp()
     else:
-	r.sensorDown()
-	r.tunnelDown()
-	
+        r.sensorDown()
+        r.tunnelDown()
+        
     infs = ifList()
     for inf in infs:
-	if chkIf(inf):
-	    r.net(inf, 1)
+        if chkIf(inf):
+            r.net(inf, 1)
             flags = getIfFlags(inf).split()
             if flags[0] == "UP":
                 r.net(inf, 2)
                 if chkIfIp(inf):
                     r.net(inf, 3)
-		    r.networkUp()
+                    r.networkUp()
 
 def printDict(di, format="%-25s %s"):
     logging.debugv("functions/__init__.py->printDict(di, format)", [di, format])

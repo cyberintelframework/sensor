@@ -36,15 +36,15 @@ def Logger_debugv(msg, args):
     """ Self made function to handle debugv messages """
     loglevel = c.getLogLevel()
     if loglevel == "debugv":
-	logging.log(logging.DEBUGV, msg)
+        logging.log(logging.DEBUGV, msg)
     elif loglevel == "debugvv":
-	msg = msg + " % " + str(args)
-	logging.log(logging.DEBUGVV, msg)
+        msg = msg + " % " + str(args)
+        logging.log(logging.DEBUGVV, msg)
     elif loglevel == "trace":
-	msg = '"' + who_called_me(3) + '" -> "' + msg + '"'
-	msg = msg.replace("\'", "")
-	msg = msg.replace(",)", ")")
-	logging.log(logging.TRACE, msg)
+        msg = '"' + who_called_me(3) + '" -> "' + msg + '"'
+        msg = msg.replace("\'", "")
+        msg = msg.replace(",)", ")")
+        logging.log(logging.TRACE, msg)
 
 logging.debugv = Logger_debugv
 
@@ -81,8 +81,8 @@ def setLog():
         level = logging.DEBUGVV
         format='%(asctime)s %(levelname)s %(message)s'
     elif loglevel == "trace":
-	level = logging.TRACE
-	format='%(levelname)s %(message)s'
+        level = logging.TRACE
+        format='%(levelname)s %(message)s'
     elif loglevel == "warning":
         level = logging.WARNING
 

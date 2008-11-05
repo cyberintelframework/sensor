@@ -18,14 +18,14 @@ class Menu:
     def __init__(self):
         #self.d = dialog.Dialog(dialog="/usr/bin/Xdialog", compat="Xdialog")
         #self.d = dialog.Dialog(dialog="/usr/bin/zenity", compat="")
-	logging.debugv("menu/__init__.py->__init__(self)", [])
+        logging.debugv("menu/__init__.py->__init__(self)", [])
         self.d = dialog.Dialog()
 
         self.d.setBackgroundTitle('SURFnet IDS sensor v3 running on ' + functions.system())
 
     def run(self):
         """ The main menu """
-	logging.debugv("menu/__init__.py->run(self)", [])
+        logging.debugv("menu/__init__.py->run(self)", [])
         choice = self.d.menu("What's do you want to do today?",
             choices=[
                 ("Configure", "Configure this sensor"),
