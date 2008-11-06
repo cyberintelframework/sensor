@@ -183,7 +183,6 @@ def makeRequest(request, args):
         logging.debug("MRQ: Success")
         return result
     except urllib2.URLError, (strerror):
-        msg = "MRQ: Fail: " + strerror.reason[1]
+        msg = "Could not process HTTP request: " + str(strerror)
         logging.error(msg)
         raise excepts.NetworkException, msg
-

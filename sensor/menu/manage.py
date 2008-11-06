@@ -97,6 +97,10 @@ class Manage:
         except excepts.NetworkException:
             logging.info("No network connection, so can't deregister")
             functions.allInfsDown()
+
+            # Get network working again
+            functions.networkUp()
+
         self.d.msgbox("Sensor succesfully brought offline")
 
 

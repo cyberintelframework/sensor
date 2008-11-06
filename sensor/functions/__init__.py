@@ -36,22 +36,8 @@ else:
 def getVer(file):
     """ Get the version (changelog) of the given file """
     logging.debugv("functions/__init__.py->getVer(file)", [file])
-    if file == "client":
-        return client.changeset
-    elif file == "config":
-        return config.changeset
-    elif file == "dialog":
-        return dialog.changeset
-    elif file == "excepts":
-        return excepts.changeset
-    elif file == "log":
-        return log.changeset
-    elif file == "runtime":
-        return runtime.changeset
-    elif file == "tools":
-        return tools.changeset
-    elif file == "version":
-        return version.changeset
+    d = ["client": client.changeset, "config": config.changeset, "dialog": dialog.changeset, "excepts": excepts.changeset, "log": log.changeset, "runtime": runtime.changeset, "tools": tools.changeset, "version": version.changeset]
+    return d[file]
 
 
 def networkUp():
@@ -104,7 +90,13 @@ def sensorUp():
     # Always bring the main network interface up
     networkUp()
 
-    waitInterfaceLink('eth0')
+    try:
+        inf = getFirstIf(["dhcp", "static"])
+    except excepts.InterfaceException:
+        logging.error("Could not find an interface configuration.")
+        return
+
+    waitInterfaceLink(inf)
 
     # refresh config, maybe somebody changed something
     c.refresh()
