@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# you need live-helper package
+
+MIRROR="http://ftp.nl.debian.org/debian"
+
+lh_config -b usb-hdd -d lenny \
+   --mirror-binary $MIRROR --mirror-bootstrap $MIRROR \
+   --syslinux-timeout 1
+
+#sudo lh_clean
+#sudo lh_build
+
+#sudo qemu binary.img
+#dd if=binary.img of=/dev/sda bs=1M
+#   sudo parted -s /dev/sda mkpartfs primary ext3 146 1015
+#   sudo mke2fs /dev/sda2
+#   e2label /dev/sdb2 live-rw

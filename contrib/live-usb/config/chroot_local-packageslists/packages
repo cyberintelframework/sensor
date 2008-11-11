@@ -1,0 +1,22 @@
+
+# required
+vlan
+bridge-utils
+openvpn
+python-support
+python-configobj
+
+# we want SSH
+openssh-server
+
+# tool I use a lot..
+less
+
+# for nice console
+console-setup
+
+# for auto update
+cron-apt
+
+# bootscreen!
+#splashy

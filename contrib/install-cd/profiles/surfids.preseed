@@ -1,0 +1,3 @@
+d-i apt-setup/non-free  boolean true
+popularity-contest popularity-contest/participate boolean false
+base-config apt-setup/uri_type  select http
