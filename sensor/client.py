@@ -27,14 +27,29 @@ def checkNet():
 
 
 def saveConf(method, mainConf, trunkConf):
+#def saveConf(method, mainDev, mainConf, trunkDev, trunkConf, version="", dns1="", dns2="" ):
     """ Send the configuration to the server
 
-        mainConf =        "dhcp" | "ip|tap_ip|nm|bc|gw"
-        vlanDesc =        [a-zA-Z0-9 ]+
-        method =        "vlan" | "simple"
-        vlanConf =        VLAN_ID , MAINCONF , VLANDESC
-        trunkConf =        VLANCONF ! VLANCONF ! VLANCONF ! ...
-        request =        "save_config.php?method=METHOD&interface=MAINCONF&trunk=TRUNKCONF
+        mainConf = 	"dhcp" | "ip|tap_ip|nm|bc|gw"
+        vlanDesc = 	<description of vlan. May not contain comma's.>
+        vlanConf = 	VLAN_ID , MAINCONF , VLANDESC
+        trunkConf = 	VLANCONF ! VLANCONF ! VLANCONF ! ...
+
+        request:        	save_config.php
+	
+	required arguments:	strip_html_escape_interfacedev=<eth-device>
+				strip_html_escape_trunkdev=<eth-device>
+				strip_html_escape_keyname=<sensorN>
+				strip_html_escape_method=(vlan|simple)
+				strip_html_escape_interface=<mainConf>
+				strip_html_escape_trunk=<trunkConf>
+				int_rev=<revision number>
+
+	optional arguments: 	ip_dns1=<ip>
+				ip_dns2=<ip>
+				strip_html_escape_version=<string identifying sensor>
+			
+				
 
     """
     logging.debugv("client.py->saveConf(method, mainConf, trunkConf)", [method, mainConf, trunkConf])
@@ -46,6 +61,11 @@ def saveConf(method, mainConf, trunkConf):
         ('strip_html_escape_interface', str(mainConf)),
         ('strip_html_escape_keyname', sensor),
         ('strip_html_escape_trunk', str(trunkConf)))
+
+#	('strip_html_escape_version, str(version)),
+#	('ip_dns1', str(dns1)),
+#	('ip_dns2', str(dns2)),
+#	('int_rev', str(1)),
     )
 
     logging.debug(str(args))
