@@ -38,54 +38,18 @@ class Config:
             choices=[
                 ("Network", "Configure network..."),
                 ("DNS", "Nameservers settings..."),
-                ('serverurl', self.c.get('serverurl')),
-                ('user', self.c.get('user')),
-                ('passwd', len(self.c.get('passwd'))*'*'),
-                ('email', self.c.get('email')),
+                ('serverurl', self.c.getServerurl()),
+                ('user', self.c.getUser()),
+                ('passwd', len(self.c.getPasswd())*'*'),
+                ('email', self.c.getEmail()),
                 ('loglevel', self.c.getLogLevel() ),
                 ], cancel="back")
 
         # cancel 
         if choice[0] == 1:
             if self.changed:
-                method = self.c.config['sensortype']
-                try:
-                    mainIf = f.getFirstIf(["dhcp", "static"])
-                    self.r.configUp()
-                except excepts.InterfaceException:
-                    logging.error("Could not find an interface configuration. Updated config was not sent to the server")
-                    self.d.msgbox("No active configuration was found. Please configure your network!")
-                    self.r.configDown()
-                    return
-
-                mainInfConf = self.c.getIf(mainIf)
-                if mainInfConf["type"] == "static":
-                    mainConf = mainInfConf["address"] + "|" + mainInfConf["tunnel"] + "|" + mainInfConf["netmask"] + "|"
-                    mainConf += mainInfConf["broadcast"] + "|" + mainInfConf["gateway"]
-                elif mainInfConf["type"] == "dhcp":
-                    mainConf = "dhcp"
-
-                trunkConf = ""
-                if method == "vlan":
-                    for (vlan, vlanConf) in self.c.getVlans().items():
-                        desc = vlanConf["description"]
-                        tunnel = vlanConf["tunnel"]
-                        vlanid = vlanConf["vlanid"]
-                        vlanType = vlanConf["type"]
-                        logging.debug(vlanid + " - " + vlanType)
-                        if vlanType == "static":
-                            nm = vlanConf["netmask"]
-                            gw = vlanConf["gateway"]
-                            bc = vlanConf["broadcast"]
-                            vlanIf = "|" + tunnel + "|" + nm + "|" + nm + "|" + bc + "|" + gw
-                        else:
-                            vlanIf = "dhcp"
-                        trunkConf += vlanid + "," + vlanIf + "," + desc + "!"
-                    trunkConf = trunkConf.rstrip("!")
-
-                client.saveConf(method, mainConf, trunkConf)
-                if not self.d.yesno("Activate changes?"):
-                    manage.Manage(self.d).sensorUp()
+                client.saveConf()
+                self.activateChoice()
             return
         elif choice[1] == "Network": self.setNetwork()
         elif choice[1] == "DNS": self.dns()
@@ -94,6 +58,21 @@ class Config:
         elif choice[1] == "passwd": self.setPasswd()
         elif choice[1] == "loglevel": self.setLogLevel()
         self.run()
+
+    def activateChoice(self):
+        """ Choose to stop or restart sensor after changing the config """
+        logging.debugv("menu/config.py->activateChoice(self)", [])
+        choices = [
+                ("Stop", "Stop the sensor"),
+                ("Restart", "Restart the sensor"),
+                ]
+        choice = self.d.menu("Select the next action", choices=choices, cancel="back")
+        if choice[1] == "Stop":
+            manage.Manage(self.d).sensorDown()
+        elif choice[1] == "Restart":
+            manage.Manage(self.d).sensorUp()
+        else:
+            self.activateChoice()
 
     def setNetwork(self):
         """ Submenu for choosing a sensor type """
@@ -105,12 +84,12 @@ class Config:
         choice = self.d.menu("Select the type of sensor", choices=choices, cancel="back")
         if choice[0] == 1: return
         elif choice[1] == "Normal":
-            self.c.config['sensortype'] = "normal"
+            self.c.netconf['sensortype'] = "normal"
             self.c.resetTrunk()
             self.c.config.write()
             self.list()
         elif choice[1] == "Vlan":
-            self.c.config['sensortype'] = "vlan"
+            self.c.netconf['sensortype'] = "vlan"
             self.c.config.write()
             self.configVlan()
         self.setNetwork()
@@ -228,6 +207,9 @@ class Config:
     def edit(self, interface):
         """ submenu of network, for editing a interface """
         logging.debugv("menu/config.py->edit(self, interface)", [interface])
+        # Set this interface as the main IF
+        self.c.setMainIf(interface)
+        self.c.changed = True
         inf = self.c.getIf(interface)
 
         choices = [
@@ -241,7 +223,7 @@ class Config:
                     ]
 
             # Only add Endpoint option for simple sensors
-            if self.c.config['sensortype'] == "simple":
+            if self.c.netconf['sensortype'] == "simple":
                 choices += [
                                 ("Endpoint IP address", inf["tunnel"]),
                         ]
@@ -583,36 +565,36 @@ class Config:
     def setServerurl(self):
         """ Set or edit the server URL used for updates """
         logging.debugv("menu/config.py->setServerurl(self)", [])
-        url = self.c.get("serverurl")
+        url = self.c.getServerurl()
         input = self.d.inputbox("Full URL of IDS server:", init=url)
         if input[0] == 1: return
         url = input[1]
         logging.info("setting serverurl to: " + url)
         self.changed = True
-        self.c.set("serverurl", url)
+        self.c.setServerurl(url)
 
     def setUser(self):
         """ Set the https user to get updates with """
         logging.debugv("menu/config.py->setUser(self)", [])
-        user = self.c.get("user")
+        user = self.c.getUser()
         input = self.d.inputbox("Username for IDS server:", init=user)
         if input[0] == 1: return
         user = input[1]
         logging.info("setting user to: " + user)
         self.changed = True
-        self.c.set("user", user)
-
+        self.c.setUser( user)
 
     def setPasswd(self):
         """ Set the password for the https user """
         logging.debugv("menu/config.py->setPasswd(self)", [])
-        passwd = self.c.get("passwd")
+#        passwd = self.c.get("passwd")
+        passwd = self.c.getPasswd()
         input = self.d.inputbox("Passwd IDS server:", init=passwd)
         if input[0] == 1: return
         passwd = input[1]
         logging.info("setting passwd to: " + passwd)
         self.changed = True
-        self.c.set("passwd", passwd)
+        self.c.setPasswd(passwd)
 
     def setLogLevel(self):
         """ Set the logging level of the SURFids log file """

@@ -3,6 +3,7 @@ import logging
 import urllib
 import urllib2
 import os
+import platform
 
 from sensor import config
 from sensor import runtime
@@ -26,8 +27,8 @@ def checkNet():
         raise excepts.NetworkException("no network connection")
 
 
-def saveConf(method, mainConf, trunkConf):
-#def saveConf(method, mainDev, mainConf, trunkDev, trunkConf, version="", dns1="", dns2="" ):
+#def saveConf(method, mainConf, trunkConf):
+def saveConf(method, mainDev, mainConf, trunkDev, trunkConf):
     """ Send the configuration to the server
 
         mainConf = 	"dhcp" | "ip|tap_ip|nm|bc|gw"
@@ -36,8 +37,9 @@ def saveConf(method, mainConf, trunkConf):
         trunkConf = 	VLANCONF ! VLANCONF ! VLANCONF ! ...
 
         request:        	save_config.php
-	
-	required arguments:	strip_html_escape_interfacedev=<eth-device>
+
+	    required arguments:
+                strip_html_escape_interfacedev=<eth-device>
 				strip_html_escape_trunkdev=<eth-device>
 				strip_html_escape_keyname=<sensorN>
 				strip_html_escape_method=(vlan|simple)
@@ -45,36 +47,72 @@ def saveConf(method, mainConf, trunkConf):
 				strip_html_escape_trunk=<trunkConf>
 				int_rev=<revision number>
 
-	optional arguments: 	ip_dns1=<ip>
+	    optional arguments:
+                ip_dns1=<ip>
 				ip_dns2=<ip>
 				strip_html_escape_version=<string identifying sensor>
-			
-				
-
     """
     logging.debugv("client.py->saveConf(method, mainConf, trunkConf)", [method, mainConf, trunkConf])
 
-    sensor = c.get('sensorid')
+    method = self.c.netconf['sensortype']
+
+    mainIf = self.c.getMainIf()
+    trunkIf = self.c.getTrunkIf()
+
+    mainInfConf = self.c.getIf(mainIf)
+    if mainInfConf["type"] == "static":
+        mainConf = mainInfConf["address"] + "|" + mainInfConf["tunnel"] + "|" + mainInfConf["netmask"] + "|"
+        mainConf += mainInfConf["broadcast"] + "|" + mainInfConf["gateway"]
+    elif mainInfConf["type"] == "dhcp":
+        mainConf = "dhcp"
+
+    trunkConf = ""
+    if method == "vlan":
+        for (vlan, vlanConf) in self.c.getVlans().items():
+           desc = vlanConf["description"]
+           tunnel = vlanConf["tunnel"]
+           vlanid = vlanConf["vlanid"]
+           vlanType = vlanConf["type"]
+           logging.debug(vlanid + " - " + vlanType)
+           if vlanType == "static":
+               nm = vlanConf["netmask"]
+               gw = vlanConf["gateway"]
+               bc = vlanConf["broadcast"]
+               vlanIf = "|" + tunnel + "|" + nm + "|" + nm + "|" + bc + "|" + gw
+           else:
+               vlanIf = "dhcp"
+           trunkConf += vlanid + "," + vlanIf + "," + desc + "!"
+           trunkConf = trunkConf.rstrip("!")
+
+    sensor = c.getSensorID()
+    (dnstype, dns1, dns2) = c.getDNS()
+    (os, version, nr) = platform.dist()
+    osv = os + "-" + version + "-" + nr
     req = "save_config.php"
     args = urllib.urlencode((
         ('strip_html_escape_method', method),
         ('strip_html_escape_interface', str(mainConf)),
+        ('strip_html_escape_interfacedev', str(mainDev)),
         ('strip_html_escape_keyname', sensor),
-        ('strip_html_escape_trunk', str(trunkConf)))
-
-#	('strip_html_escape_version, str(version)),
-#	('ip_dns1', str(dns1)),
-#	('ip_dns2', str(dns2)),
-#	('int_rev', str(1)),
+        ('strip_html_escape_trunk', str(trunkConf)),
+        ('strip_html_escape_trunkdev', str(trunkDev)),
+    	('strip_html_escape_version', str(osv)),
+    	('ip_dns1', str(dns1)),
+	    ('ip_dns2', str(dns2)),
+    	('int_rev', str(1)))
     )
 
     logging.debug(str(args))
-    x = makeRequest(req, args)
-    for line in x.readlines(): logging.debug(line[:-1])
+    try:
+        x = makeRequest(req, args)
+        for line in x.readlines(): logging.debug(line[:-1])
+        c.changed = False
+    except excepts.NetworkException:
+        c.changed = True
 
 
 def register(localip, keyname):
-    """ register interface @ ids server.
+    """ Register sensor @ SURFids server
 
         localip: ip of interface
         method: method used for obtaining IP (dhcp, static, vland or vlans)
@@ -87,7 +125,7 @@ def register(localip, keyname):
 
     checkNet()
 
-    req ="startclient.php"
+    req = "startclient.php"
     args = urllib.urlencode((
         ('ip_localip', localip),
         ('strip_html_escape_keyname', keyname))
@@ -121,7 +159,7 @@ def deRegister(localip):
         logging.warning("Sensor not active, not deregistering")
         return
 
-    sensorid = c.get('sensorid')
+    sensorid = c.getSensorID()
     req = "stopclient.php"
     args = urllib.urlencode((
         ('ip_localip', localip),
@@ -140,14 +178,14 @@ def checkKey(localip):
 
     if not os.access(keyFile, os.R_OK) or \
             not os.access(certFile, os.R_OK) or \
-            c.get('sensorid') == "":
+            c.getSensorID() == "":
 
         (key, cert, sensorid) = getKey(localip)
         open(keyFile,'w').write(key)
         os.chmod(keyFile, 0600)
         open(certFile,'w').write(cert)
         os.chmod(certFile, 0600)
-        c.set('sensorid', sensorid)
+        c.setSensorID(sensorid)
     else:
         logging.debug("already got certificate, key and sensor id")
 
@@ -163,7 +201,7 @@ def update(localip, ssh, revision, mac):
 
     logging.info("updating @ IDS server")
 
-    sensorid = c.get('sensorid')
+    sensorid = c.getSensorID()
     req = "status.php"
     args = urllib.urlencode((
         ('strip_html_escape_keyname', sensorid),
@@ -186,9 +224,9 @@ def update(localip, ssh, revision, mac):
 def makeRequest(request, args):
     """ Send a request to the tunnel server.  """
 
-    serverurl = c.get('serverurl')
-    user = c.get('user')
-    passwd = c.get('passwd')
+    serverurl = c.getServerurl()
+    user = c.getUser()
+    passwd = c.getPasswd()
     url = serverurl + request + "?" + args
 
     logging.info("MRQ: Requesting " + url)

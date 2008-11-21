@@ -50,7 +50,8 @@ def networkUp():
 
     # Only use the first interface that is configured
     try:
-        inf = getFirstIf(["dhcp", "static"])
+#        inf = getFirstIf(["dhcp", "static"])
+        inf = c.getMainIf()
     except excepts.InterfaceException:
         logging.error("Could not find an interface configuration.")
         return
@@ -82,7 +83,6 @@ def sensorUp():
     """ Brings all interfaces up _and_ brings up tunnels """
     logging.debugv("functions/__init__.py->sensorUp()", [])
 
-#    pdb.set_trace()
     if not r.configStatus():
         logging.error("Could not find a configured interface")
         return False
@@ -91,7 +91,7 @@ def sensorUp():
     networkUp()
 
     try:
-        inf = getFirstIf(["dhcp", "static"])
+        inf = c.getMainIf()
     except excepts.InterfaceException:
         logging.error("Could not find an interface configuration.")
         return
@@ -102,13 +102,17 @@ def sensorUp():
     c.refresh()
 
     # Checking sensor type
-    sensortype = c.config['sensortype']
+    sensortype = c.netconf['sensortype']
 
     # Set some general values
     bridgeID = 0
     nm = ""
     bc = ""
     gw = ""
+
+    if c.changed:
+        if c.changed == True:
+            client.saveConf()
 
     if sensortype == "normal":
         # Steps to be taken:
@@ -120,7 +124,7 @@ def sensorUp():
 
         # Only use the first interface that is configured
         try:
-            inf = getFirstIf(["dhcp", "static"])
+            inf = c.getMainIf()
         except excepts.InterfaceException:
             logging.error("Could not find an interface configuration.")
             return
@@ -139,12 +143,13 @@ def sensorUp():
             bc = infConf['broadcast']
 
         client.checkKey(ip)
-        client.register(ip, c.get('sensorid'))
+        client.register(ip, c.getSensorID())
 
     elif sensortype == "vlan":
         # Only use the first interface that is configured
         try:
-            trunk = getFirstIf(["trunk"])
+#            trunk = getFirstIf(["trunk"])
+            trunk = c.getTrunkIf()
             logging.debug("trunk: " + trunk)
         except excepts.InterfaceException:
             logging.error("Could not find a trunk interface configuration.")
@@ -157,7 +162,7 @@ def sensorUp():
         (chk, ip) = getLocalIp()
 
         client.checkKey(ip)
-        client.register(ip, c.get('sensorid'))
+        client.register(ip, c.getSensorID())
 
     mkTunnel(bridgeID)
 

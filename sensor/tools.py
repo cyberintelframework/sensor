@@ -57,6 +57,15 @@ def formatLog(msg,result):
     logstr = "%s:%s%s\n" % (msg, tabstring, result)
     return logstr
 
+#def formatMenu(msg):
+#    """ Formats the string and result for usage in dialog menu """
+#    logging.debugv("tools.py->formatMenu(msg)", [msg])
+#    lent = len(msg)
+#    tabcount = int(math.ceil(40 - lent))
+#    tabstring = " " * tabcount
+#    logstr = "%s%s:\n" % (msg, tabstring)
+#    return logstr
+
 def formatTitle(msg):
     """ Formats the string for use as a title in dialog """
     logging.debugv("tools.py->formatTitle(msg)", [msg])

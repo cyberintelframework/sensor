@@ -16,6 +16,8 @@ class Config:
     def __init__(self):
         self.__dict__ = self.__shared_state
         self.config = ConfigObj(locations.SETTINGS)
+        self.netconf = ConfigObj(locations.NETCONF)
+        self.changed = False
         try:
             logging.debugv("config.py->__init__(self)", [])
         except AttributeError:
@@ -25,22 +27,41 @@ class Config:
         """ reloads config file from filesystem """
         logging.debugv("config.py->refresh(self)", [])
         logging.debug("refreshing configuration")
-        self.config = False
-        self.config = ConfigObj(locations.SETTINGS)
+        self.netconf = False
+        self.netconf = ConfigObj(locations.SETTINGS)
+        self.netconf = False
+        self.netconf = ConfigObj(locations.NETCONF)
 
     ############################
     # Interfaces functions
     ############################
 
+    def getMainIf(self):
+        """ Get the interface configured as main interface """
+        logging.debugv("config.py->getMainIf(self)", [])
+        try:
+            mainIf = self.netconf['mainIf']
+            return mainIf
+        except KeyError:
+            self.netconf['mainIf'] = ""
+            self.netconf.write()
+            return self.netconf['mainIf']
+
+    def setMainIf(self, interface):
+        """ Set the interface as main interface """
+        logging.debugv("config.py->setMainIf(self, interface)", [interface])
+        self.netconf['mainIf'] = interface
+        self.netconf.write()
+
     def getInfs(self):
         """ try to get the interfaces, create if not exists """
         logging.debugv("config.py->getInfs(self)", [])
         try:
-            return self.config['interfaces']
+            return self.netconf['interfaces']
         except KeyError:
-            self.config['interfaces'] = {}
-            self.config.write()
-            return self.config['interfaces']
+            self.netconf['interfaces'] = {}
+            self.netconf.write()
+            return self.netconf['interfaces']
 
 
     def getIf(self, interface):
@@ -50,7 +71,7 @@ class Config:
             return self.getInfs()[interface]
         except KeyError:
             self.getInfs()
-            self.config['interfaces'][interface] = {
+            self.netconf['interfaces'][interface] = {
                     'type': 'disabled',
                     'address': '',
                     'netmask': '',
@@ -58,8 +79,8 @@ class Config:
                     'gateway': '',
                     'tunnel': '',
                     }
-            self.config.write()
-            return self.config['interfaces'][interface]
+            self.netconf.write()
+            return self.netconf['interfaces'][interface]
 
 
     def resetOtherInfs(self, interface, types):
@@ -69,21 +90,21 @@ class Config:
             if inf != interface:
                 if self.getInfs()[inf]['type'] in types:
                     self.getInfs()[inf]['type'] = 'disabled'
-        self.config.write()
+        self.netconf.write()
 
     def setIfProp(self, interface, key, value):
         """ set interface property """
         logging.debugv("config.py->setIfProp(self, interface, key, value)", [interface, key, value])
         inf = self.getIf(interface)
         inf[key] = value
-        self.config['interfaces'][interface] = inf
-        self.config.write()
+        self.netconf['interfaces'][interface] = inf
+        self.netconf.write()
 
     def chkInfType(self, interface):
         """" Check the interface type of a given interfaces """
         logging.debugv("config.py->chkInfType(self, interface)", [interface])
         try:
-            type = self.config['interfaces'][interface]['type']
+            type = self.netconf['interfaces'][interface]['type']
             return type
         except KeyError:
             return "Unknown"
@@ -92,21 +113,32 @@ class Config:
     # Vlans functions
     ############################
 
+    def getTrunkIf(self):
+        """ Get the interface configured as trunk interface """
+        logging.debugv("config.py->getTrunkIf(self)", [])
+        try:
+            mainIf = self.netconf['trunkIf']
+            return mainIf
+        except KeyError:
+            self.netconf['trunkIf'] = ""
+            self.netconf.write()
+            return self.netconf['trunkIf']
+
     def flushVlans(self):
         """ Flush the vlans config, but do not write it to the config yet """
         logging.debugv("config.py->flushVlans(self)", [])
         logging.debug("Flushin internal vlans config")
-        self.config['vlans'] = {}
+        self.netconf['vlans'] = {}
 
     def getVlans(self):
         """ Retrieve the vlans config """
         logging.debugv("config.py->getVlans(self)", [])
         try:
-            return self.config['vlans']
+            return self.netconf['vlans']
         except KeyError:
-            self.config['vlans'] = {}
-            self.config.write()
-            return self.config['vlans']
+            self.netconf['vlans'] = {}
+            self.netconf.write()
+            return self.netconf['vlans']
 
     def getVlan(self, number):
         """ Get a single vlan config """
@@ -114,7 +146,7 @@ class Config:
         try:
             return self.getVlans()[str(number)]
         except KeyError:
-            self.config['vlans'][str(number)] = {
+            self.netconf['vlans'][str(number)] = {
                    'vlanid': '',
                    'type': 'disabled',
                    'description': '',
@@ -124,8 +156,8 @@ class Config:
                    'broadcast': '',
                    'tunnel': '',
                    }
-            self.config.write()
-            return self.config['vlans'][str(number)]
+            self.netconf.write()
+            return self.netconf['vlans'][str(number)]
 
     def getTotalVlans(self):
         """ Retrieve the amount of VLANs to be configured """
@@ -137,8 +169,8 @@ class Config:
         logging.debugv("config.py->setVlanProp(self, number, key, value)", [number, key, value])
         vlan = self.getVlan(number)
         vlan[key] = value
-        self.config['vlans'][number] = vlan
-        self.config.write()
+        self.netconf['vlans'][number] = vlan
+        self.netconf.write()
 
     def chkVlanID(self, number):
         """ Check the VLAN number and see if it is in use already or not """
@@ -152,7 +184,7 @@ class Config:
         """ Check if a given interface is selected as trunk device """
         logging.debugv("config.py->chkTrunk(self, interface)", [interface])
         try:
-            if self.config['interfaces'][interface]['type'] == "trunk":
+            if self.netconf['interfaces'][interface]['type'] == "trunk":
                 return "Selected"
             else:
                 return ""
@@ -163,20 +195,21 @@ class Config:
         """ Set the trunk interface for sensor type VLAN """
         logging.debugv("config.py->setTrunk(self, trunk)", [trunk])
         self.getIf(trunk)
-        self.config['interfaces'][trunk]['type'] = "trunk"
-        for inf in self.config['interfaces']: 
+        self.netconf['interfaces'][trunk]['type'] = "trunk"
+        self.netconf['trunkIf'] = trunk
+        for inf in self.netconf['interfaces']: 
             if inf != trunk:
-                if self.config['interfaces'][inf]['type'] == "trunk":
-                    self.config['interfaces'][inf]['type'] = "disabled"
-        self.config.write()
+                if self.netconf['interfaces'][inf]['type'] == "trunk":
+                    self.netconf['interfaces'][inf]['type'] = "disabled"
+        self.netconf.write()
 
     def resetTrunk(self):
         """ Reset all the trunk interfaces to disabled """
         logging.debugv("config.py->resetTrunk(self)", [])
         for inf in self.getInfs():
-            if self.config['interfaces'][inf]['type'] == "trunk":
-                self.config['interfaces'][inf]['type'] = "disabled"
-        self.config.write()
+            if self.netconf['interfaces'][inf]['type'] == "trunk":
+                self.netconf['interfaces'][inf]['type'] = "disabled"
+        self.netconf.write()
 
     ############################
     # Misc functions
@@ -186,22 +219,44 @@ class Config:
         """ get DNS configuration. (staticconfig, prim, sec) """
         logging.debugv("config.py->getDNS(self)", [])
         try:
-            (prim, sec) = self.config['dns']
-            return (self.config['dnstype'], prim, sec)
+            (prim, sec) = self.netconf['dns']
+            return (self.netconf['dnstype'], prim, sec)
         except KeyError:
-            self.config['dnstype'] = "dhcp"
-            self.config['dns'] = ("","")
-            self.config.write()
-            (prim, sec) = self.config['dns']
-            return (self.config['dnstype'], prim, sec)
+            self.netconf['dnstype'] = "dhcp"
+            self.netconf['dns'] = ("","")
+            self.netconf.write()
+            (prim, sec) = self.netconf['dns']
+            return (self.netconf['dnstype'], prim, sec)
 
     def setDNS(self, type="dhcp", prim="", sec=""):
         """ set DNS configuration. Set static to True if you want to specify a
             manual DNS configuration
         """
         logging.debugv("config.py->setDNS(self, type, prim, sec)", [type, prim, sec])
-        self.config['dnstype'] = type 
-        self.config['dns'] = (prim, sec)
+        self.netconf['dnstype'] = type 
+        self.netconf['dns'] = (prim, sec)
+        self.netconf.write()
+
+    def getServer(self):
+        """ Get the server """
+        logging.debugv("config.py->getServer(self)", [])
+        try:
+            return self.config['server']
+        except KeyError:
+            return '0.0.0.0'
+
+    def getSensorID(self):
+        """ Get the sensor ID """
+        logging.debugv("config.py->getSensorID(self)", [])
+        try:
+            return self.config['sensorid']
+        except KeyError:
+            return 'Unkown'
+
+    def setSensorID(self, sensorid):
+        """ Set the sensor ID """
+        logging.debugv("config.py->setSensorID(self, sensorid)", [sensorid])
+        self.config['sensorid'] = sensorid
         self.config.write()
 
     def getLogLevel(self):
@@ -215,17 +270,74 @@ class Config:
     def setLogLevel(self, loglevel):
         """ Set the level of logging """
         logging.debugv("config.py->setLogLevel(self, loglevel)", [loglevel])
-        self.set('loglevel', loglevel)
-
-    def get(self, key):
-        logging.debugv("config.py->get(self, key)", [key])
-        try:
-            return self.config[key]
-        except KeyError:
-            return ""
-
-    def set(self, key, value):
-        logging.debugv("config.py->set(self, key, value)", [key, value])
-        self.config[key] = value
+        self.config['loglevel'] = loglevel
         self.config.write()
+
+    def getPasswd(self):
+        """ Get the password """
+        logging.debugv("config.py->getPasswd(self)", [])
+        try:
+            return self.config['passwd']
+        except KeyError:
+            return ''
+
+    def setPasswd(self, passwd):
+        """ Set the password """
+        logging.debugv("config.py->setPasswd(self, passwd)", [passwd])
+        self.config['passwd'] = passwd
+        self.config.write()
+
+    def getUser(self):
+        """ Get the user """
+        logging.debugv("config.py->getUser(self)", [])
+        try:
+            return self.config['user']
+        except KeyError:
+            return ''
+
+    def setUser(self, user):
+        """ Set the user """
+        logging.debugv("config.py->setPasswd(self, user)", [user])
+        self.config['user'] = user
+        self.config.write()
+
+    def getServerurl(self):
+        """ Get the server URL """
+        logging.debugv("config.py->getServerurl(self)", [])
+        try:
+            return self.config['serverurl']
+        except KeyError:
+            return ''
+
+    def setServerurl(self, url):
+        """ Set the server URL """
+        logging.debugv("config.py->setServerurl(self, url)", [url])
+        self.config['serverurl'] = url
+        self.config.write()
+
+    def getEmail(self):
+        """ Get the email address """
+        logging.debugv("config.py->getEmail(self)", [])
+        try:
+            return self.config['email']
+        except KeyError:
+            return ''
+
+    def setEmail(self, email):
+        """ Set the email address """
+        logging.debugv("config.py->setEmail(self, email)", [email])
+        self.config['email'] = email
+        self.config.write()
+
+#    def get(self, key):
+#        logging.debugv("config.py->get(self, key)", [key])
+#        try:
+#            return self.netconf[key]
+#        except KeyError:
+#            return ""
+
+#    def set(self, key, value):
+#        logging.debugv("config.py->set(self, key, value)", [key, value])
+#        self.netconf[key] = value
+#        self.netconf.write()
 

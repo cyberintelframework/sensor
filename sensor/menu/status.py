@@ -28,6 +28,7 @@ class Status:
                 ("Interfaces", "Interface information"),
                 ("Version", "Version information"),
                 ("Debug", "Debug information"),
+#                ("NewConfig", "New configuration screen"),
                 ], cancel="back")
 
         # cancel
@@ -38,6 +39,7 @@ class Status:
         elif choice[1] == "Interfaces": self.interfaces()
         elif choice[1] == "Version": self.version()
         elif choice[1] == "Debug": self.debug()
+#        elif choice[1] == "NewConfig": self.networkConfig()
         self.run()
 
     def interfaces(self):
@@ -81,12 +83,13 @@ class Status:
         logging.debugv("menu/status.py->netconf(self)", [])
         infs = self.r.listInf()
         report = t.formatTitle("Main network configuration")
-        report += t.formatLog("Sensor type", self.c.config['sensortype'])
+        report += t.formatLog("Sensor type", self.c.netconf['sensortype'])
         report += "\n"
 
         # Only use the first interface that is configured
         try:
-            manInf = f.getFirstIf(["dhcp", "static"])
+#            manInf = f.getFirstIf(["dhcp", "static"])
+            manInf = self.c.getMainIf()
 
             manInfConf = self.c.getIf(manInf)
             manInfType = manInfConf['type']
@@ -119,11 +122,9 @@ class Status:
                 report += t.formatLog("    Secondary DNS", sec)
 
         report += "\n"
-        if self.c.config['sensortype'] == "vlan":
-            trunk = f.getFirstIf(["trunk"])
+        if self.c.netconf['sensortype'] == "vlan":
+            trunk = self.c.getTrunkIf()
             report += t.formatLog("Trunk network interface", trunk)
-#            vlannum = self.c.getVlanNum()
-#            report += t.formatLog("  Amount of VLANs", vlannum)
             for (vlan, vlanConf) in self.c.getVlans().items():
                 desc = vlanConf['description']
                 vlanID = vlanConf['vlanid']
@@ -142,11 +143,40 @@ class Status:
         report += "\n"
         return self.d.msgbox(report, width=70, height=40, no_collapse=1, colors=1)
 
+#    def networkConfig(self):
+#        """ Prints the network configuration as saved in the config file """
+#        logging.debugv("menu/status.py->netconf(self)", [])
+#        infs = self.r.listInf()
+#        report = t.formatTitle("Main network configuration")
+#        choices = [(t.formatMenu("Sensor type"), self.c.netconf['sensortype'])]
+#        choices += [("", "")]
+
+#        # Only use the first interface that is configured
+#        try:
+#            manInf = self.c.getMainIf()
+
+#            manInfConf = self.c.getIf(manInf)
+#            manInfType = manInfConf['type']
+#        except excepts.InterfaceException:
+#            logging.warning("No active interface configuration found")
+#            manInf = "None configured"
+#            manInfConf = "None configured"
+#            manInfType = "None"
+
+#        choices += [(t.formatMenu("Main network interface"), manInf)]
+#        choices += [(t.formatMenu("  Configuration"), manInfType)]
+
+#        choice = self.d.menu("Network configuration", choices=choices, width=70, height=40, no_collapse=1, colors=1, cancel="back")
+
+#        if choice[0] == 1: return
+#        elif choice[1] == "Endpoint IP address": self.editTunnelIP(interface)
+#        self.networkConfig()
+
 
     def sensor(self):
         """ Prints information about the sensor status """
         logging.debugv("menu/status.py->sensor(self)", [])
-        sid = self.c.config.get("sensorid", "Unknown")
+        sid = self.c.getSensorID()
         status = "Unknown"
         if self.r.config['status']:
             status = self.r.config['status']['sensor']
@@ -166,11 +196,11 @@ class Status:
         report += t.formatTitle("Sanity checks")
 
         # OpenVPN port check
-        ovnport = f.scanPort(self.c.config.get("server", "127.0.0.1"), 1194)
+        ovnport = f.scanPort(self.c.getServer(), 1194)
         report += t.formatLog("OpenVPN port", ovnport)
 
         # Updates port check
-        upport = f.scanPort(self.c.config.get("server", "127.0.0.1"), 4443)
+        upport = f.scanPort(self.c.getServer(), 4443)
         report += t.formatLog("Updates port", upport)
 
         # Check key existance
