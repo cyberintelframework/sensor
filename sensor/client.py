@@ -83,7 +83,7 @@ def saveConf():
            else:
                vlanIf = "dhcp"
            trunkConf += vlanid + "," + vlanIf + "," + desc + "!"
-           trunkConf = trunkConf.rstrip("!")
+       trunkConf = trunkConf.rstrip("!")
 
     sensor = c.getSensorID()
     (dnstype, dns1, dns2) = c.getDNS()
