@@ -86,11 +86,11 @@ class Config:
         elif choice[1] == "Normal":
             self.c.netconf['sensortype'] = "normal"
             self.c.resetTrunk()
-            self.c.config.write()
+            self.c.netconf.write()
             self.list()
         elif choice[1] == "Vlan":
             self.c.netconf['sensortype'] = "vlan"
-            self.c.config.write()
+            self.c.netconf.write()
             self.configVlan()
         self.setNetwork()
 

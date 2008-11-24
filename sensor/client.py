@@ -28,7 +28,8 @@ def checkNet():
 
 
 #def saveConf(method, mainConf, trunkConf):
-def saveConf(method, mainDev, mainConf, trunkDev, trunkConf):
+#def saveConf(method, mainDev, mainConf, trunkDev, trunkConf):
+def saveConf():
     """ Send the configuration to the server
 
         mainConf = 	"dhcp" | "ip|tap_ip|nm|bc|gw"
@@ -52,14 +53,14 @@ def saveConf(method, mainDev, mainConf, trunkDev, trunkConf):
 				ip_dns2=<ip>
 				strip_html_escape_version=<string identifying sensor>
     """
-    logging.debugv("client.py->saveConf(method, mainConf, trunkConf)", [method, mainConf, trunkConf])
+    logging.debugv("client.py->saveConf()", [])
 
-    method = self.c.netconf['sensortype']
+    method = c.netconf['sensortype']
 
-    mainIf = self.c.getMainIf()
-    trunkIf = self.c.getTrunkIf()
+    mainIf = c.getMainIf()
+    trunkIf = c.getTrunkIf()
 
-    mainInfConf = self.c.getIf(mainIf)
+    mainInfConf = c.getIf(mainIf)
     if mainInfConf["type"] == "static":
         mainConf = mainInfConf["address"] + "|" + mainInfConf["tunnel"] + "|" + mainInfConf["netmask"] + "|"
         mainConf += mainInfConf["broadcast"] + "|" + mainInfConf["gateway"]
@@ -68,7 +69,7 @@ def saveConf(method, mainDev, mainConf, trunkDev, trunkConf):
 
     trunkConf = ""
     if method == "vlan":
-        for (vlan, vlanConf) in self.c.getVlans().items():
+        for (vlan, vlanConf) in c.getVlans().items():
            desc = vlanConf["description"]
            tunnel = vlanConf["tunnel"]
            vlanid = vlanConf["vlanid"]
@@ -92,10 +93,10 @@ def saveConf(method, mainDev, mainConf, trunkDev, trunkConf):
     args = urllib.urlencode((
         ('strip_html_escape_method', method),
         ('strip_html_escape_interface', str(mainConf)),
-        ('strip_html_escape_interfacedev', str(mainDev)),
+        ('strip_html_escape_interfacedev', str(mainIf)),
         ('strip_html_escape_keyname', sensor),
         ('strip_html_escape_trunk', str(trunkConf)),
-        ('strip_html_escape_trunkdev', str(trunkDev)),
+        ('strip_html_escape_trunkdev', str(trunkIf)),
     	('strip_html_escape_version', str(osv)),
     	('ip_dns1', str(dns1)),
 	    ('ip_dns2', str(dns2)),
