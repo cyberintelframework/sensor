@@ -55,7 +55,7 @@ LH_GRUB_SPLASH=""
 
 # $LH_HOSTNAME: set hostname
 # (Default: debian)
-LH_HOSTNAME="surfids"
+LH_HOSTNAME="sensor"
 
 # $LH_ISO_APPLICATION: set iso author
 # (Default: Debian Live)
@@ -63,11 +63,11 @@ LH_ISO_APPLICATION="Debian Live"
 
 # $LH_ISO_PREPARER: set iso preparer
 # (Default: live-helper $VERSION; http://packages.qa.debian.org/live-helper)
-LH_ISO_PREPARER="live-helper $VERSION; http://packages.qa.debian.org/live-helper"
+LH_ISO_PREPARER="SURFids team; http://ids.surfnet.nl/; ids@surfnet.nl"
 
 # $LH_ISO_PUBLISHER: set iso publisher
 # (Default: Debian Live project; http://debian-live.alioth.debian.org/; debian-live@lists.debian.org)
-LH_ISO_PUBLISHER="Debian Live project; http://debian-live.alioth.debian.org/; debian-live@lists.debian.org"
+LH_ISO_PUBLISHER="SURFids team; http://ids.surfnet.nl/; ids@surfnet.nl"
 
 # $LH_ISO_VOLUME: set iso volume (max 32 chars)
 # (Default: Debian Live $(date +%Y%m%d-%H:%M))
@@ -83,7 +83,7 @@ LH_MEMTEST="memtest86+"
 
 # $LH_WIN32_LOADER: set win32-loader
 # (Default: enabled)
-LH_WIN32_LOADER="enabled"
+LH_WIN32_LOADER="disabled"
 
 # $LH_NET_ROOT_FILESYSTEM: set netboot filesystem
 # (Default: nfs)
@@ -127,7 +127,7 @@ LH_SYSLINUX_SPLASH=""
 
 # $LH_SYSLINUX_TIMEOUT: set custom syslinux timeout in seconds
 # (Default: 0)
-LH_SYSLINUX_TIMEOUT="1"
+LH_SYSLINUX_TIMEOUT="2"
 
 # $LH_SYSLINUX_CFG: set custom syslinux configuration file
 # (Default: empty)
@@ -139,7 +139,7 @@ LH_SYSLINUX_MENU="disabled"
 
 # $LH_SYSLINUX_MENU_LIVE_ENTRY: set text to be used on the menu for live entries
 # (Default: Start Debian Live)
-LH_SYSLINUX_MENU_LIVE_ENTRY="Start Debian Live"
+LH_SYSLINUX_MENU_LIVE_ENTRY="Start sensor"
 
 # $LH_SYSLINUX_MENU_LIVE_FAILSAFE_ENTRY: set text to be used on the menu for live entries (failsafe ones)
 # (Default: )
