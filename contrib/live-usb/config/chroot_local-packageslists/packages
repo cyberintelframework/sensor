@@ -20,3 +20,6 @@ cron-apt
 
 # bootscreen!
 #splashy
+
+# surfids package from repository
+surfids-sensor
