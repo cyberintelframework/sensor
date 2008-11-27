@@ -17,6 +17,7 @@ class Config:
         self.__dict__ = self.__shared_state
         self.config = ConfigObj(locations.SETTINGS)
         self.netconf = ConfigObj(locations.NETCONF)
+        self.ipmi = ConfigObj(locations.IPMI)
         self.changed = False
         try:
             logging.debugv("config.py->__init__(self)", [])
@@ -27,10 +28,71 @@ class Config:
         """ reloads config file from filesystem """
         logging.debugv("config.py->refresh(self)", [])
         logging.debug("refreshing configuration")
-        self.netconf = False
-        self.netconf = ConfigObj(locations.SETTINGS)
+        self.config = False
+        self.config = ConfigObj(locations.SETTINGS)
         self.netconf = False
         self.netconf = ConfigObj(locations.NETCONF)
+        self.ipmi = False
+        self.ipmi = ConfigObj(locations.IPMI)
+
+    ############################
+    # IPMI functions
+    ############################
+
+    def getIpmiAddress(self):
+        """ Get the address for the IPMI interface """
+        logging.debugv("config.py->getIpmiAddress(self)", [])
+        try:
+            ipmiAddress = self.ipmi['address']
+            return ipmiAddress
+        except KeyError:
+            self.ipmi['address'] = ""
+            self.ipmi.write()
+            return self.ipmi['address']
+
+    def getIpmiNetmask(self):
+        """ Get the netmask for the IPMI interface """
+        logging.debugv("config.py->getIpmiNetmask(self)", [])
+        try:
+            ipmiNetmask = self.ipmi['netmask']
+            return ipmiNetmask
+        except KeyError:
+            self.ipmi['netmask'] = ""
+            self.ipmi.write()
+            return self.ipmi['netmask']
+
+    def getIpmiGatewayIP(self):
+        """ Get the gateway IP address for the IPMI interface """
+        logging.debugv("config.py->getIpmiGatewayIP(self)", [])
+        try:
+            ipmiGwIp = self.ipmi['gwip']
+            return ipmiGwIp
+        except KeyError:
+            self.ipmi['gwip'] = ""
+            self.ipmi.write()
+            return self.ipmi['gwip']
+
+    def getIpmiGatewayMAC(self):
+        """ Get the gateway MAC address for the IPMI interface """
+        logging.debugv("config.py->getIpmiGatewayMAC(self)", [])
+        try:
+            ipmiGwMac = self.ipmi['gwmac']
+            return ipmiGwMac
+        except KeyError:
+            self.ipmi['gwmac'] = ""
+            self.ipmi.write()
+            return self.ipmi['gwmac']
+
+    def getIpmiVlanID(self):
+        """ Get the VLAN ID for the IPMI interface """
+        logging.debugv("config.py->getIpmiVlanID(self)", [])
+        try:
+            ipmiVlanID = self.ipmi['vlanid']
+            return ipmiVlanID
+        except KeyError:
+            self.ipmi['vlanid'] = ""
+            self.ipmi.write()
+            return self.ipmi['vlanid']
 
     ############################
     # Interfaces functions
