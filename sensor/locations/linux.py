@@ -32,6 +32,7 @@ ALL_FOL = [SYSCONF, LOG, DATA, RUNTIME, DOC, PID]
 # FILES
 SETTINGS = os.path.join(SYSCONF, "surfids.conf")
 NETCONF = os.path.join(SYSCONF, "network.conf")
+IPMI = os.path.join(SYSCONF, "ipmi.conf")
 CA = os.path.join(SYSCONF, "ca.crt")
 KEY = os.path.join(SYSCONF, "surfids.key")
 CRT = os.path.join(SYSCONF, "surfids.crt")
