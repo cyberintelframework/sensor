@@ -37,13 +37,14 @@ class Config:
         choice = self.d.menu("What do you want to network?",
             choices=[
                 ("Network", "Configure network..."),
+                ("IPMI", "Configure IPMI..."),
                 ("DNS", "Nameservers settings..."),
                 ('serverurl', self.c.getServerurl()),
                 ('user', self.c.getUser()),
                 ('passwd', len(self.c.getPasswd())*'*'),
                 ('email', self.c.getEmail()),
                 ('loglevel', self.c.getLogLevel() ),
-                ], cancel="back")
+                ], cancel="back", menu_height=10)
 
         # cancel 
         if choice[0] == 1:
@@ -52,6 +53,7 @@ class Config:
                 self.activateChoice()
             return
         elif choice[1] == "Network": self.setNetwork()
+        elif choice[1] == "IPMI": self.setIpmi()
         elif choice[1] == "DNS": self.dns()
         elif choice[1] == "serverurl": self.setServerurl()
         elif choice[1] == "user": self.setUser()
@@ -73,6 +75,107 @@ class Config:
             manage.Manage(self.d).sensorUp()
         else:
             self.activateChoice()
+
+    def setIpmi(self):
+        """ Submenu for configuring IPMI settings """
+        logging.debugv("menu/config.py->setIpmi(self)", [])
+        choices = [
+                ("Address", "IP address"),
+                ("Netmask", "Netmask"),
+                ("Gateway IP", "Gateway IP address"),
+                ("Gateway MAC", "Gateway MAC address"),
+                ("VLAN ID", "VLAN ID (optional)"),
+                ("Users", "IPMI User management"),
+                ]
+        choice = self.d.menu("Configure the IPMI interface", choices=choices, cancel="back")
+        if choice[0] == 1: return
+        elif choice[1] == "Address": self.editIpmiAddress()
+        elif choice[1] == "Netmask": self.editIpmiNetmask()
+        elif choice[1] == "Gateway IP": self.editIpmiGatewayIP()
+        elif choice[1] == "Gateway MAC": self.editIpmiGatewayMAC()
+        elif choice[1] == "VLAN ID": self.editIpmiVlanID()
+        elif choice[1] == "Users": self.editIpmiUsers()
+        self.setIpmi()
+
+    def editIpmiAddress(self):
+        """ Edit the statically set IPMI IP address """
+        logging.debugv("menu/config.py->editIpmiAddress(self)", [])
+        address = self.c.getIpmiAddress()
+        while True:
+            output = self.d.inputbox("IPMI Address", 10, 50, address)
+            if output[0]: return
+            if t.ipv4check(output[1]):
+                address = output[1]
+                logging.debug("Setting IPMI address to %s" % (address) )
+                self.c.ipmi["address"] = address
+                self.c.ipmi.write()
+                return
+            else:
+                self.d.msgbox("Please enter a valid IP address")
+
+    def editIpmiNetmask(self):
+        """ Edit the statically set IPMI netmask """
+        logging.debugv("menu/config.py->editIpmiNetmask(self)", [])
+        address = self.c.getIpmiNetmask()
+        while True:
+            output = self.d.inputbox("IPMI Netmask", 10, 50, address)
+            if output[0]: return
+            if t.ipv4check(output[1]):
+                netmask = output[1]
+                logging.debug("Setting IPMI netmask to %s" % (address) )
+                self.c.ipmi["netmask"] = netmask
+                self.c.ipmi.write()
+                return
+            else:
+                self.d.msgbox("Please enter a valid netmask address")
+
+    def editIpmiGatewayIP(self):
+        """ Edit the statically set IPMI gateway IP address """
+        logging.debugv("menu/config.py->editIpmiGatewayIP(self)", [])
+        gw = self.c.getIpmiGatewayIP()
+        while True:
+            output = self.d.inputbox("IPMI gateway IP address", 10, 50, gw)
+            if output[0]: return
+            if t.ipv4check(output[1]):
+                gw = output[1]
+                logging.debug("Setting IPMI gateway address to %s" % (gw))
+                self.c.ipmi["gwip"] = gw
+                self.c.ipmi.write()
+                return
+            else:
+                self.d.msgbox("Please enter a valid IP address")
+
+    def editIpmiGatewayMAC(self):
+        """ Edit the statically set IPMI gateway MAC address """
+        logging.debugv("menu/config.py->editIpmiGatewayMAC(self)", [])
+        gwmac = self.c.getIpmiGatewayMAC()
+        while True:
+            output = self.d.inputbox("IPMI gateway MAC address", 10, 50, gwmac)
+            if output[0]: return
+            if t.macCheck(output[1]):
+                gwmac = output[1]
+                logging.debug("Setting IPMI gateway MAC address to %s" % (gwmac))
+                self.c.ipmi["gwmac"] = gwmac
+                self.c.ipmi.write()
+                return
+            else:
+                self.d.msgbox("Please enter a valid MAC address")
+
+    def editIpmiVlanID(self):
+        """ Edit the statically set IPMI VLAN ID """
+        logging.debugv("menu/config.py->editIpmiVlanID(self)", [])
+        vlanid = self.c.getIpmiVlanID()
+        while True:
+            output = self.d.inputbox("IPMI VLAN ID", 10, 50, vlanid)
+            if output[0]: return
+            if output[1]:
+                vlanid = output[1]
+                logging.debug("Setting IPMI VLAN ID to %s" % (vlanid))
+                self.c.ipmi["vlanid"] = vlanid
+                self.c.ipmi.write()
+                return
+
+
 
     def setNetwork(self):
         """ Submenu for choosing a sensor type """
