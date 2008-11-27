@@ -16,6 +16,13 @@ def ipv4check(ip):
     compiled = re.compile(ipexpression)
     return (compiled.match(ip) != None)
 
+def macCheck(mac):
+    """ Check if MAC is a valid MAC address """
+    logging.debugv("tools.py->macCheck(mac)", [mac])
+    macexpression = r"^([a-fA-F0-9]{2}:{1}){5}[a-fA-F0-9]{2}$"
+    compiled = re.compile(macexpression)
+    return (compiled.match(mac) != None)
+
 def broadcast(ip, netmask):
     """ Calculates the broadcast address from a given IP address and netmask """
     logging.debugv("tools.py->broadcast(ip, netmask)", [ip, netmask])
