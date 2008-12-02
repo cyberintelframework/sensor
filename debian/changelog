@@ -1,3 +1,9 @@
+surfids-sensor (0.16) lenny; urgency=low
+
+  * Test release
+
+ -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Tue,  2 Dec 2008 17:17:59 +0100
+
 surfids-sensor (0.15) lenny; urgency=low
 
   * Removed SVN dependancy
