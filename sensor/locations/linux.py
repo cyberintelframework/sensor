@@ -12,9 +12,9 @@ DHCLIENT = "/sbin/dhclient"
 IFCONFIG = "/sbin/ifconfig"
 KILLALL = "/usr/bin/killall"
 SSHINIT = "/etc/init.d/ssh"
-SVN = "/usr/bin/svn"
+IPMITOOL = "/usr/bin/ipmitool"
 
-ALL_BIN = [OPENVPN, BRCTL, DHCLIENT, IFCONFIG, KILLALL, SSHINIT, SVN]
+ALL_BIN = [OPENVPN, BRCTL, DHCLIENT, IFCONFIG, KILLALL, SSHINIT]
 
 
 # FOLDERS
