@@ -1,3 +1,9 @@
+surfids-sensor (0.13) lenny; urgency=low
+
+  * testing the update mechanism 
+
+ -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Tue,  2 Dec 2008 15:33:45 +0100
+
 surfids-sensor (0.12) lenny; urgency=low
 
   * testing the update mechanism
