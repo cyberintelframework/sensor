@@ -1,7 +1,7 @@
 Source: surfids-sensor
 Section: python
 Priority: optional
-Maintainer: Gijs Molenaar <gijs.molenaar@surfnet.nl>
+Maintainer: SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>
 Standards-Version: 3.7.3
 Build-Depends: cdbs, python-dev, python-support, debhelper
 Homepage: http://surfids.surfnet.nl
