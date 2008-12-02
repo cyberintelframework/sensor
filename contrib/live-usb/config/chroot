@@ -42,7 +42,7 @@ LH_PACKAGES=""
 
 # $LH_PACKAGES_LISTS: set package list to install
 # (Default: standard)
-LH_PACKAGES_LISTS="standard"
+LH_PACKAGES_LISTS="standard sensor"
 
 # $LH_TASKS: set tasks to install
 # (Default: empty)
