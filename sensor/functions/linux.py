@@ -2,6 +2,7 @@
 linux specific system functions
 """
 
+import re
 import logging
 import os
 import socket
@@ -44,6 +45,158 @@ def checkRoot():
     """ Check if we are running as root """
     logging.debugv("functions/linux.py->checkRoot()", [])
     return (os.getuid() == 0)
+
+########################
+# IPMI USER COMMANDS
+########################
+
+def ipmiUserList():
+    """ List the configured IPMI users """
+    logging.debugv("functions/linux.py->ipmiUserList()", [])
+
+    cmd = locations.IPMITOOL + ' -I open user list | awk \'{print $1" "$2}\''
+    logging.debug(cmd)
+
+    users = os.popen(cmd)
+    users.readline()
+    choices = []
+    for line in users.readlines():
+        (id, user) = line.split()
+        choices += [(id, user)]
+    return choices
+
+def ipmiUserAdd(name):
+    """ Add a new IPMI user """
+    logging.debugv("functions/linux.py->ipmiUserAdd(name)", [name])
+
+    cmd = locations.IPMITOOL + ' -I open user list | tail -n1 | awk \'{print $1}\''
+    logging.debug(cmd)
+
+    getid = os.popen(cmd)
+    id = getid.readline()
+    id = id.rstrip()
+    if id == "":
+        id = 1
+    else:
+        id = int(id) + 1
+    logging.debug("New IPMI user ID: " + str(id))
+
+    cmd = [locations.IPMITOOL, "-I", "open", "user", "set", "name", str(id), str(name)]
+    runWrapper(cmd)
+    logging.info("Added new IPMI user (%s)" % str(name))
+
+def ipmiUserNameEdit(id, name):
+    """ Edit a given IPMI username """
+    logging.debugv("functions/linux.py->ipmiUserNameEdit(id, name)", [id, name])
+
+    if str(name) != "":
+        cmd = [locations.IPMITOOL, "-I", "open", "user", "set", "name", str(id), str(name)]
+        runWrapper(cmd)
+    else:
+        logging.warning("Trying to edit empty username!")
+
+def ipmiUserPassEdit(id, passwd):
+    """ Set a password for the given user ID """
+    logging.debugv("functions/linux.py->ipmiUserPassEdit(id, passwd)", [id])
+
+    if passwd != "":
+        cmd = [locations.IPMITOOL, "-I", "open", "user", "set", "password", str(id), str(passwd)]
+        runWrapper(cmd)
+    else:
+        logging.warning("Password was empty. Not set!")
+
+def getIpmiUser(id):
+    """ Function to get the username for a given user ID """
+    logging.debugv("functions/linux.py->getIpmiUser(id)", [id])
+
+    cmd = locations.IPMITOOL + ' -I open user list | grep \'' + str(id) + '\\b\' | awk \'{print $2}\''
+    logging.debug(cmd)
+    userline = os.popen(cmd)
+    user = userline.readline()
+    user = user.rstrip()
+    logging.debug("User: %s" % str(user))
+    return user
+
+def getIpmiUserPriv(id):
+    """ Function to get the privilege for a given user ID """
+    logging.debugv("functions/linux.py->getIpmiUserPriv(id)", [id])
+
+    cmd = locations.IPMITOOL + ' -I open user list | grep \'' + str(id) + '\\b\' | awk \'{print $6}\''
+    logging.debug(cmd)
+    privline = os.popen(cmd)
+    privtext = privline.readline()
+    privtext = privtext.rstrip()
+    if privtext == "NO":
+        privtext = "NO ACCESS"
+    privlist = {"NO ACCESS": 0, "CALLBACK": 1, "USER": 2, "OPERATOR": 3, "ADMINISTRATOR": 4}
+    level = privlist[privtext]
+    return (level, privtext)
+
+def ipmiUserDel(id):
+    """ Delete an IPMI user with a given ID """
+    logging.debugv("functions/linux.py->ipmiUserDel(id)", [id])
+
+    cmd = locations.IPMITOOL + " -I open user set password " + str(id) + " \"\" "
+    logging.debug(cmd)
+    os.popen(cmd)
+    cmd = locations.IPMITOOL + " -I open user set name " + str(id) + " \"\" "
+    logging.debug(cmd)
+    os.popen(cmd)
+    logging.info("Deleted IPMI user with ID %s" % str(id))
+
+def ipmiUserPriv(id, priv):
+    """ Set the privilege level of a user """
+    logging.debugv("functions/linux.py->ipmiUserPriv(id, priv)", [id, priv])
+
+    oldid = id
+    id = hex(int(id))
+    logging.debug("Converting " + str(oldid) + " to " + str(id))
+    priv = hex(int(priv))
+    cmd = [locations.IPMITOOL, "-I", "open", "raw", "0x6", "0x43", "0xe", id, priv, "0x1"]
+    logging.debug(cmd)
+    runWrapper(cmd)
+
+########################
+# IPMI LAN COMMANDS
+########################
+
+def ipmiSetNet(dict):
+    """ Set an IPMI lan property """
+    logging.debugv("functions/linux.py->ipmiSetNet(dict)", [str(dict)])
+
+    cmd = [locations.IPMITOOL, "-I", "open", "lan", "set", str(1)]
+    cmd += dict
+    ipmiWrapper(cmd)
+
+########################
+# IPMI STATUS
+########################
+
+def ipmiLanStatus():
+    """ Parse the network status output for IPMI """
+    logging.debugv("functions/linux.py->ipmiLanStatus()", [])
+
+    cmd = locations.IPMITOOL + " -I open lan print 1"
+    ipmi = os.popen(cmd)
+    info = {}
+    for line in ipmi.readlines():
+        regexp = r"^ *:.*$"
+        compiled = re.compile(regexp)
+        if compiled.match(line) != None:
+            ignore = 1
+        else:
+#            logging.debug(line)
+            (key, val) = line.split(":", 1)
+            key = key.strip()
+            val = val.strip()
+            info[key] = val
+            logging.debug(info)
+#            logging.debug(key + " -> " + val)
+    return info
+
+########################
+# NETWORK COMMANDS
+########################
 
 def ifList():
     """ Return a list of network interfaces """
@@ -184,12 +337,40 @@ def getMac(interface):
     #except IOError:
     #    raise exceptions.InterfaceException, "interface not found: " + interface
 
+def ipmiWrapper(cmd):
+    """ A wrapper for ipmitool commands. ipmitool always returns error code 0
+    even if the command didn't succeed, so we need to handle this differently
+    than in runWrapper """
+    logging.debug(" ".join(cmd))
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    rcode = os.waitpid(p.pid, 0)[1]
+    if rcode == 0:
+        error = p.stderr.readline().strip()
+        if error:
+            regexp = r"^Invalid.*$"
+            compiled = re.compile(regexp)
+            logging.debug(compiled.match(error))
+            if compiled.match(error) != None:
+                logging.error(error)
+                raise excepts.RunException, error    
+        log = p.stderr.read().strip()
+        if log: logging.debug(log)
+        return True
+    else:
+        msg = "%s returned error code %s" % (cmd[0], rcode)
+        logging.warning(msg)
+        log = p.stderr.read().strip()
+        if log: logging.warning(log)
+        raise excepts.RunException, msg
+        
+
 def runWrapper(cmd, ignoreError=False):
     """ A wrapper for external commands. if the command returns not 0, output
     is logged with ERROR level. cmd should be an array, first should be command, the rest args """
     logging.debug(" ".join(cmd))
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     rcode = os.waitpid(p.pid, 0)[1]
+    logging.debug("RCODE: %s" % str(rcode))
     if rcode == 0 or ignoreError == True:
         log = p.stderr.read().strip()
         if log: logging.debug(log)

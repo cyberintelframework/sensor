@@ -28,6 +28,7 @@ class Status:
                 ("Interfaces", "Interface information"),
                 ("Version", "Version information"),
                 ("Debug", "Debug information"),
+                ("IPMI", "IPMI information"),
 #                ("NewConfig", "New configuration screen"),
                 ], cancel="back")
 
@@ -39,6 +40,7 @@ class Status:
         elif choice[1] == "Interfaces": self.interfaces()
         elif choice[1] == "Version": self.version()
         elif choice[1] == "Debug": self.debug()
+        elif choice[1] == "IPMI": self.ipmi()
 #        elif choice[1] == "NewConfig": self.networkConfig()
         self.run()
 
@@ -217,6 +219,23 @@ class Status:
         if status:
             # Checking OpenVPN daemon
             report += t.formatLog("OpenVPN daemon running", f.openvpnStatus())
+
+        return self.d.msgbox(report, width=70, height=25, no_collapse=1, colors=1)
+
+    def ipmi(self):
+        """ Status overview of the configured IPMI interface """
+        info = f.ipmiLanStatus()
+        report = t.formatTitle("IPMI interface info")
+
+        report += t.formatLog("IP address", info["IP Address"])
+        report += t.formatLog("MAC address", info["MAC Address"])
+        report += t.formatLog("Subnet Mask", info["Subnet Mask"])
+        report += "\n"
+        report += t.formatLog("Gateway IP address", info["Default Gateway IP"])
+        report += t.formatLog("Gateway MAC address", info["Default Gateway MAC"])
+        if self.c.getIpmiVlanID():
+            report += "\n"
+            report += t.formatLog("VLAN ID", self.c.ipmi["vlanid"])
 
         return self.d.msgbox(report, width=70, height=25, no_collapse=1, colors=1)
 

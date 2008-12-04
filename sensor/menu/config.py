@@ -19,7 +19,7 @@ class Config:
         # d = dialog object
         self.d = d
 
-        # c = config object
+        # c = config object        self.c = config.Config()
         self.c = config.Config()
 
         # r = runtime object
@@ -79,17 +79,24 @@ class Config:
     def setIpmi(self):
         """ Submenu for configuring IPMI settings """
         logging.debugv("menu/config.py->setIpmi(self)", [])
+
+        address = self.c.getIpmiAddress()
+        netmask = self.c.getIpmiNetmask()
+        gwip = self.c.getIpmiGatewayIP()
+        gwmac = self.c.getIpmiGatewayMAC()
+        vlanid = self.c.getIpmiVlanID()
+
         choices = [
-                ("Address", "IP address"),
-                ("Netmask", "Netmask"),
-                ("Gateway IP", "Gateway IP address"),
-                ("Gateway MAC", "Gateway MAC address"),
-                ("VLAN ID", "VLAN ID (optional)"),
-                ("Users", "IPMI User management"),
+                    ("IP Address", "[%s]" % str(address)),
+                    ("Netmask", "[%s]" % str(netmask)),
+                    ("Gateway IP", "[%s]" % str(gwip)),
+                    ("Gateway MAC", "[%s]" % str(gwmac)),
+                    ("VLAN ID", "[%s] (optional)" % str(vlanid)),
+                    ("Users", "IPMI User management"),
                 ]
-        choice = self.d.menu("Configure the IPMI interface", choices=choices, cancel="back")
+        choice = self.d.menu("Configure the IPMI interface", choices=choices, cancel="back", width=60)
         if choice[0] == 1: return
-        elif choice[1] == "Address": self.editIpmiAddress()
+        elif choice[1] == "IP Address": self.editIpmiAddress()
         elif choice[1] == "Netmask": self.editIpmiNetmask()
         elif choice[1] == "Gateway IP": self.editIpmiGatewayIP()
         elif choice[1] == "Gateway MAC": self.editIpmiGatewayMAC()
@@ -106,9 +113,13 @@ class Config:
             if output[0]: return
             if t.ipv4check(output[1]):
                 address = output[1]
-                logging.debug("Setting IPMI address to %s" % (address) )
-                self.c.ipmi["address"] = address
-                self.c.ipmi.write()
+                try:
+                    f.ipmiSetNet(["ipaddr", address])
+                    logging.debug("Setting IPMI address to %s" % (address) )
+                    self.c.ipmi["address"] = address
+                    self.c.ipmi.write()
+                except excepts.RunException:
+                    self.d.msgbox("Could not set the IP address for the IPMI interface", 8, 55)
                 return
             else:
                 self.d.msgbox("Please enter a valid IP address")
@@ -116,15 +127,19 @@ class Config:
     def editIpmiNetmask(self):
         """ Edit the statically set IPMI netmask """
         logging.debugv("menu/config.py->editIpmiNetmask(self)", [])
-        address = self.c.getIpmiNetmask()
+        netmask = self.c.getIpmiNetmask()
         while True:
-            output = self.d.inputbox("IPMI Netmask", 10, 50, address)
+            output = self.d.inputbox("IPMI Netmask", 10, 50, netmask)
             if output[0]: return
             if t.ipv4check(output[1]):
                 netmask = output[1]
-                logging.debug("Setting IPMI netmask to %s" % (address) )
-                self.c.ipmi["netmask"] = netmask
-                self.c.ipmi.write()
+                try:
+                    f.ipmiSetNet(["netmask", netmask])
+                    logging.debug("Setting IPMI netmask to %s" % (netmask) )
+                    self.c.ipmi["netmask"] = netmask
+                    self.c.ipmi.write()
+                except excepts.RunException:
+                    self.d.msgbox("Could not set the subnet mask for the IPMI interface", 8, 55)
                 return
             else:
                 self.d.msgbox("Please enter a valid netmask address")
@@ -138,9 +153,13 @@ class Config:
             if output[0]: return
             if t.ipv4check(output[1]):
                 gw = output[1]
-                logging.debug("Setting IPMI gateway address to %s" % (gw))
-                self.c.ipmi["gwip"] = gw
-                self.c.ipmi.write()
+                try:
+                    f.ipmiSetNet(["defgw", "ipaddr", gw])
+                    logging.debug("Setting IPMI gateway address to %s" % (gw))
+                    self.c.ipmi["gwip"] = gw
+                    self.c.ipmi.write()
+                except excepts.RunException:
+                    self.d.msgbox("Could not set the gateway IP address for the IPMI interface", 8, 60)
                 return
             else:
                 self.d.msgbox("Please enter a valid IP address")
@@ -154,9 +173,13 @@ class Config:
             if output[0]: return
             if t.macCheck(output[1]):
                 gwmac = output[1]
-                logging.debug("Setting IPMI gateway MAC address to %s" % (gwmac))
-                self.c.ipmi["gwmac"] = gwmac
-                self.c.ipmi.write()
+                try:
+                    f.ipmiSetNet(["defgw", "macaddr", gwmac])
+                    logging.debug("Setting IPMI gateway MAC address to %s" % (gwmac))
+                    self.c.ipmi["gwmac"] = gwmac
+                    self.c.ipmi.write()
+                except excepts.RunException:
+                    self.d.msgbox("Could not set the gateway MAC address for the IPMI interface", 8, 60)
                 return
             else:
                 self.d.msgbox("Please enter a valid MAC address")
@@ -170,12 +193,129 @@ class Config:
             if output[0]: return
             if output[1]:
                 vlanid = output[1]
-                logging.debug("Setting IPMI VLAN ID to %s" % (vlanid))
-                self.c.ipmi["vlanid"] = vlanid
-                self.c.ipmi.write()
+                try:
+                    if vlanid == 0:
+                        f.ipmiSetNet(["vlan", "id", "off"])
+                    else:
+                        f.ipmiSetNet(["vlan", "id", vlanid])
+                    logging.debug("Setting IPMI VLAN ID to %s" % (vlanid))
+                    self.c.ipmi["vlanid"] = vlanid
+                    self.c.ipmi.write()
+                except excepts.RunException:
+                    self.d.msgbox("Could not set the VLAN ID for the IPMI interface", 8, 60)
                 return
 
+    def editIpmiUsers(self):
+        """ Edit the statically set IPMI VLAN ID """
+        logging.debugv("menu/config.py->editIpmiUsers(self)", [])
 
+        choices = f.ipmiUserList()
+        choices += [("Add", "Add a new user")]
+        choice = self.d.menu("Edit IPMI users", choices=choices, cancel="back")
+        if choice[0]: return
+        elif choice[1] == "Add":
+            self.addIpmiUser()
+#            self.editIpmiUsers()
+        else:
+            self.editIpmiUser(choice[1])
+#            self.editIpmiUsers()
+        return
+
+    def editIpmiUser(self, id):
+        """ Edit a single IPMI user """
+        logging.debugv("menu/config.py->editIpmiUser(self)", [])
+
+        user = f.getIpmiUser(id)
+        (level, privtext) = f.getIpmiUserPriv(id)
+
+        choices = [
+                    ("Username", "Edit the username [%s]" % str(user)),
+                    ("Password", "Edit the password"),
+                    ("Privilege", "Edit the privilege level [%s]" % str(privtext)),
+                    ("Delete", "Delete this user")
+                ]
+        choice = self.d.menu("Edit IPMI user: %s" % str(user), choices=choices, cancel="back")
+        if choice[0]: return
+        elif choice[1] == "Username": self.editIpmiUserName(id)
+        elif choice[1] == "Password": self.editIpmiUserPass(id)
+        elif choice[1] == "Privilege": self.editIpmiUserPriv(id)
+        elif choice[1] == "Delete": self.delIpmiUser(id)
+        self.editIpmiUser(id)
+
+    def editIpmiUserPriv(self, id):
+        """ Edit the privilege level of an IPMI user """
+        logging.debugv("menu/config.py->editIpmiUserPriv(self, id)", [id])
+
+        (level, privtext) = f.getIpmiUserPriv(id)
+
+        choices = [
+                    ("0", "NO ACCESS", int(level==0)),
+                    ("1", "CALLBACK", int(level==1)),
+                    ("2", "USER", int(level==2)),
+                    ("3", "OPERATOR", int(level==3)),
+                    ("4", "ADMINISTRATOR", int(level==4))
+                ]
+        choice = self.d.radiolist("Edit IPMI user privilege", choices=choices, cancel="back")
+        if choice[0]: return
+        elif choice[1]:
+            f.ipmiUserPriv(id, choice[1])
+            self.editIpmiUser(id)
+
+    def editIpmiUserPass(self, id):
+        """ Edit the password for a given user """
+        logging.debugv("menu/config.py->editIpmiUserPass(self, id)", [id])
+
+        output = self.d.inputbox("Enter password for this user:", 10, 50)
+        if output[0]: return
+        elif output[1] != "":
+            check = self.d.inputbox("Re-enter password for this user:", 10, 50)
+            if output[0]: return
+            elif check[1] != output[1]:
+                self.d.msgbox("Passwords didn't match, not saving password.")
+                self.editIpmiUser(id)
+            elif check[1] == output[1]:
+                f.ipmiUserPassEdit(id, check[1])
+                self.editIpmiUser(id)
+        elif output[1] == "":
+            self.d.editIpmiUserPass(id)
+        else: return
+                
+
+    def editIpmiUserName(self, id):
+        """ Edit the username for an IPMI user """
+        logging.debugv("menu/config.py->editIpmiUserName(self, id)", [id])
+
+        username = f.getIpmiUser(id)
+
+        output = self.d.inputbox("Edit username:", 10, 50, username)
+        if output[0]: return
+        elif output[1] != "":
+            f.ipmiUserNameEdit(id, output[1])
+            return
+        else:
+            self.editIpmiUser(id)
+
+    def delIpmiUser(self, id):
+        """ Ask for confirmation for deleting a given IPMI user """
+        logging.debugv("menu/config.py->delIpmiUser(self, id)", [id])
+
+        output = self.d.yesno("Are you sure you want to delete this user?")
+        if int(output) == 0:
+            f.ipmiUserDel(id)
+            self.editIpmiUsers()
+        else: self.editIpmiUsers()
+
+    def addIpmiUser(self):
+        """ Add a new IPMI user """
+        logging.debugv("menu/config.py->addIpmiUser(self)", [])
+
+        output = self.d.inputbox("New username:", 10, 50, "")
+        if output[0]: return
+        elif output[1] != "":
+            f.ipmiUserAdd(output[1])
+            return
+        else:
+            self.addIpmiUser()
 
     def setNetwork(self):
         """ Submenu for choosing a sensor type """
