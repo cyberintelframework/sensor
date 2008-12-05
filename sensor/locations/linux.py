@@ -13,8 +13,9 @@ IFCONFIG = "/sbin/ifconfig"
 KILLALL = "/usr/bin/killall"
 SSHINIT = "/etc/init.d/ssh"
 IPMITOOL = "/usr/bin/ipmitool"
+DIALOG = "/usr/bin/dialog"
 
-ALL_BIN = [OPENVPN, BRCTL, DHCLIENT, IFCONFIG, KILLALL, SSHINIT]
+ALL_BIN = [OPENVPN, BRCTL, DHCLIENT, IFCONFIG, KILLALL, SSHINIT, DIALOG]
 
 
 # FOLDERS
