@@ -43,7 +43,7 @@ def saveConf():
                 strip_html_escape_interfacedev=<eth-device>
 				strip_html_escape_trunkdev=<eth-device>
 				strip_html_escape_keyname=<sensorN>
-				strip_html_escape_method=(vlan|simple)
+				strip_html_escape_method=(vlan|normal)
 				strip_html_escape_interface=<mainConf>
 				strip_html_escape_trunk=<trunkConf>
 				int_rev=<revision number>

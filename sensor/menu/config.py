@@ -92,7 +92,7 @@ class Config:
                     ("Gateway IP", "[%s]" % str(gwip)),
                     ("Gateway MAC", "[%s]" % str(gwmac)),
                     ("VLAN ID", "[%s] (optional)" % str(vlanid)),
-                    ("Users", "IPMI User management"),
+                    ("Users", "IPMI User management..."),
                 ]
         choice = self.d.menu("Configure the IPMI interface", choices=choices, cancel="back", width=60)
         if choice[0] == 1: return
@@ -466,7 +466,7 @@ class Config:
                     ]
 
             # Only add Endpoint option for simple sensors
-            if self.c.netconf['sensortype'] == "simple":
+            if self.c.netconf['sensortype'] == "normal":
                 choices += [
                                 ("Endpoint IP address", inf["tunnel"]),
                         ]
