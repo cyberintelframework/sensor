@@ -459,8 +459,13 @@ def ifDown(interface):
         raise excepts.InterfaceException, "Interface %s doesn't exists" % interface
 
     pidfile = locations.PID + 'dhcp-' + interface + '.pid'
+    logging.info("Trying to kill DHCP daemon for %s" % interface)
+    killDhcp(pidfile)
+
+def killDhcp(pidfile):
+    """ Kills a dhclient instance given a pid file """
+    logging.debugv("functions/linux.py->killDhcp(pidfile)", [pidfile])
     if os.access(pidfile, os.R_OK):
-        logging.info("Killing DHCP daemon for %s" % interface)
         pid = open(pidfile, 'r').readline().strip()
         if not pid.isdigit(): raise excepts.RunException, "Invalid pidfile (%s)" % pidfile
         logging.debug("Killed DHCP daemon with PID %s" % pid)

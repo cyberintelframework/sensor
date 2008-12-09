@@ -166,7 +166,6 @@ def sensorUp():
 
     mkTunnel(bridgeID)
 
-#    pdb.set_trace()
     if openvpnStatus():
         # only set registered status if there are one ore more tunnels active
         r.sensorUp()
@@ -337,9 +336,16 @@ def reboot():
     os.system('reboot')
 
 def cleanUp():
-    """ Remove runtime file, used @ startup """
+    """ Cleanup sensor status stuff and dhcp instances """
     logging.debugv("functions/__init__.py->cleanUp()", [])
     os.unlink(locations.INTERFACES)
+
+    dhcpExp = r"^dhcp.*$"
+    compiled = re.compile(dhcpExp)
+
+    dhcpFiles = [x for x in os.listdir(locations.RUNTIME) if compiled.match(x) != None]
+    for pidfile in dhcpFiles:
+        killDhcp(pidfile)
 
 def checkKey():
     """ Checks if sensor key and crt are present """

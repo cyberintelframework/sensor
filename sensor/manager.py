@@ -15,6 +15,8 @@ class Manager:
         os.putenv('LANG', 'en_US.UTF-8')
         os.environ['LANG'] = 'en_US.UTF-8'
 
+        f.cleanUp()
+
         if not f.checkRoot():
             logging.error("not root, you should run the manager as root")
             sys.exit(1)
