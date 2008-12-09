@@ -353,6 +353,11 @@ def delKey():
     os.unlink(locations.KEY)
     os.unlink(locations.CRT)
 
+def ipmiStatus():
+    """ Checks for the existance of the ipmitool """
+    logging.debugv("functions/__init__.py->ipmiStatus()", [])
+    return os.access(locations.IPMITOOL, os.R_OK)
+
 def initRuntime():
     """ Initializes the runtime status dict """
     logging.debugv("functions/__init__.py->initRuntime()", [])
@@ -369,7 +374,7 @@ def initRuntime():
     else:
         r.sensorDown()
         r.tunnelDown()
-        
+
     infs = ifList()
     for inf in infs:
         if chkIf(inf):

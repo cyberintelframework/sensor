@@ -34,17 +34,25 @@ class Config:
     def run(self):
         """ submenu of main to for network configuration """
         logging.debugv("menu/config.py->run(self)", [])
-        choice = self.d.menu("What do you want to network?",
-            choices=[
-                ("Network", "Configure network..."),
-                ("IPMI", "Configure IPMI..."),
+        choices=[
+                ("Network", "Configure network...")
+            ]
+
+        if f.ipmiStatus():
+            choices += [
+                ("IPMI", "Configure IPMI...")
+                ]
+
+        choices += [
                 ("DNS", "Nameservers settings..."),
                 ('serverurl', self.c.getServerurl()),
                 ('user', self.c.getUser()),
                 ('passwd', len(self.c.getPasswd())*'*'),
                 ('email', self.c.getEmail()),
                 ('loglevel', self.c.getLogLevel() ),
-                ], cancel="back", menu_height=10)
+            ]
+
+        choice = self.d.menu("What do you want to network?", choices=choices, cancel="back", menu_height=10)
 
         # cancel 
         if choice[0] == 1:

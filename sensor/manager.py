@@ -10,7 +10,7 @@ from sensor import menu
 
 class Manager:
     def __init__(self):
-	logging.debugv("manager.py->__init__(self)", [])
+    	logging.debugv("manager.py->__init__(self)", [])
 
         os.putenv('LANG', 'en_US.UTF-8')
         os.environ['LANG'] = 'en_US.UTF-8'
@@ -20,11 +20,11 @@ class Manager:
             sys.exit(1)
 
     def run(self):
-	logging.debugv("manager.py->run(self)", [])
+    	logging.debugv("manager.py->run(self)", [])
         logging.info("SURFids manager starting")
         logging.debug("Initializing runtime info")
         f.initRuntime()
-	logging.info("Starting up menu")
+    	logging.info("Starting up menu")
         menu.Menu().run()
 
 

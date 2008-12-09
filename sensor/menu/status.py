@@ -21,16 +21,17 @@ class Status:
     def run(self):
         """ Submenu showing the different status overviews """
         logging.debugv("menu/status.py->run(self)", [])
-        choice = self.d.menu("Which status overview do you want to see?",
-            choices=[
+        choices=[
                 ("Sensor", "General information about the sensor"),
                 ("Netconf", "Network configuration info"),
                 ("Interfaces", "Interface information"),
                 ("Version", "Version information"),
                 ("Debug", "Debug information"),
-                ("IPMI", "IPMI information"),
-#                ("NewConfig", "New configuration screen"),
-                ], cancel="back")
+            ]
+        if f.ipmiStatus():        
+            choices += [("IPMI", "IPMI information")]
+
+        choice = self.d.menu("Which status overview do you want to see?", choices=choices, cancel="back")
 
         # cancel
         if choice[0] == 1:
