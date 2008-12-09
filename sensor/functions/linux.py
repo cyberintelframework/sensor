@@ -688,8 +688,10 @@ def punlock(fd, file):
         Acts as a proxy for unlocking.
     """
     logging.debugv("functions/linux.py->punlock(fd, file)", [fd, file])
-    fd.close()
-    os.unlink(file)
+    if fd:
+        fd.close()
+    if os.access(file, os.R_OK):
+        os.unlink(file)
 
 def waitInterfaceLink(interface):
     from time import sleep as time_sleep
