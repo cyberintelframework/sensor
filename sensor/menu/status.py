@@ -70,9 +70,9 @@ class Status:
                 bc = t.broadcast(ip, nm)
                 gw = f.getGw(inf)
                 if ip: report += t.formatLog("    Address", ip)
-                if gw: report += t.formatLog("    Gateway", gw)
                 if nm: report += t.formatLog("    Netmask", nm)
                 if bc: report += t.formatLog("    Broadcast", bc)
+                if gw: report += t.formatLog("    Gateway", gw)
             if status != 0:
                 active_flags = f.getIfFlags(inf)
                 report += t.formatLog("    Flags", active_flags)
@@ -106,7 +106,7 @@ class Status:
 
         if manInfType == "static":
             ip = manInfConf['address']
-#            bc = manInfConf['broadcast']
+            bc = manInfConf['broadcast']
             nm = manInfConf['netmask']
             gw = manInfConf['gateway']
             tn = manInfConf['tunnel']
@@ -114,7 +114,7 @@ class Status:
 
             report += t.formatLog("    IP address", ip)
             report += t.formatLog("    Netmask", nm)
-#            report += t.formatLog("    Broadcast address", bc)
+            report += t.formatLog("    Broadcast address", bc)
             report += t.formatLog("    Gateway", gw)
             report += t.formatLog("    Endpoint IP address", tn)
             report += "\n"
@@ -182,6 +182,7 @@ class Status:
         status = "Unknown"
         if self.r.config['status']:
             status = self.r.config['status']['sensor']
+        networkStatus = self.r.config['status']['network']
 
         # Subtitle
         report = t.formatTitle("General sensor info")
@@ -192,18 +193,25 @@ class Status:
         # Sensor status
         report += t.formatLog("Status", status)
 
+        # Network status
+        report += t.formatLog("Network", networkStatus)
+
         report += "\n"
 
         # Subtitle
         report += t.formatTitle("Sanity checks")
 
-        # OpenVPN port check
-        ovnport = f.scanPort(self.c.getServer(), 1194)
-        report += t.formatLog("OpenVPN port", ovnport)
+        if networkStatus == "enabled":
+            # OpenVPN port check
+            ovnport = f.scanPort(self.c.getServer(), 1194)
+            report += t.formatLog("OpenVPN port", ovnport)
 
-        # Updates port check
-        upport = f.scanPort(self.c.getServer(), 4443)
-        report += t.formatLog("Updates port", upport)
+            # Updates port check
+            upport = f.scanPort(self.c.getServer(), 4443)
+            report += t.formatLog("Updates port", upport)
+        else:
+            report += t.formatLog("OpenVPN port", "Unchecked")
+            report += t.formatLog("Updates port", "Unchecked")
 
         # Check key existance
         report += t.formatLog("Certificate check", f.checkKey())
