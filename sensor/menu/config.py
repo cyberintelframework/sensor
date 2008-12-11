@@ -328,11 +328,13 @@ class Config:
     def setNetwork(self):
         """ Submenu for choosing a sensor type """
         logging.debugv("menu/config.py->setNetwork(self)", [])
+        type = self.c.getSensorType()
         choices = [
-                ("Normal", "Normal sensor"),
-                ("Vlan", "VLAN sensor"),
+                    ("Normal", "Normal sensor", int(type=="normal")),
+                    ("Vlan", "VLAN sensor", int(type=="vlan")),
                 ]
-        choice = self.d.menu("Select the type of sensor", choices=choices, cancel="back")
+
+        choice = self.d.radiolist("Select the type of sensor", choices=choices, cancel="back")
         if choice[0] == 1: return
         elif choice[1] == "Normal":
             self.c.netconf['sensortype'] = "normal"
@@ -379,8 +381,8 @@ class Config:
         logging.debugv("menu/config.py->list(self)", [])
         # before listing, reset the trunks to disabled
         infs = f.ifList()
-        choices = [(x,self.c.chkInfType(x)) for x in infs]
-        choice = self.d.menu("Select the interface", choices=choices, cancel="back")
+        choices = [(x,self.c.chkInfType(x), int(self.c.chkInfType(x)!="disabled")) for x in infs]
+        choice = self.d.radiolist("Select the main interface (use space to select)", choices=choices, cancel="back")
         if choice[0] == 1: return
         else:
             self.edit(choice[1])

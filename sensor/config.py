@@ -277,6 +277,17 @@ class Config:
     # Misc functions
     ############################
 
+    def getSensorType(self):
+        """ Get the type of sensor (normal|vlan) """
+        logging.debugv("config.py->getSensorType(self)", [])
+
+        try:
+            return self.netconf['sensortype']
+        except KeyError:
+            self.netconf['sensortype'] = ""
+            self.netconf.write()
+            return self.netconf['sensortype']
+
     def getDNS(self):
         """ get DNS configuration. (staticconfig, prim, sec) """
         logging.debugv("config.py->getDNS(self)", [])

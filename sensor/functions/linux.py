@@ -764,7 +764,7 @@ def verifyKey():
     logging.debugv("functions/__init__.py->verifyKey()", [])
 
     if os.access(locations.KEY, os.R_OK):
-        cmd = locations.OPENSSL + ' rsa -in ' + locations.KEY + ' -text'
+        cmd = locations.OPENSSL + ' rsa -in ' + locations.KEY + ' -noout'
         status = os.system(cmd)
         logging.debug("Sensor key verification status: %s" % str(status))
         if status == 0:
