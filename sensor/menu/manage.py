@@ -26,6 +26,7 @@ class Manage:
 
         if self.r.sensorStatus():
             choices.append( ("Sensor Down", "Bring sensor down") )
+            choices.append( ("Sensor Restart", "Restart the sensor") )
         else:
             choices.append( ("Sensor Up", "Bring sensor up") )
 
@@ -48,12 +49,10 @@ class Manage:
 
         # cancel 
         if choice[0] == 1: return
-        elif choice[1] == "Sensor Up":
-            self.sensorUp()
-        elif choice[1] == "Sensor Down":
-            self.sensorDown()
-        elif choice[1] == "Update":
-            self.update()
+        elif choice[1] == "Sensor Up": self.sensorUp()
+        elif choice[1] == "Sensor Down": self.sensorDown()
+        elif choice[1] == "Sensor Restart": self.sensorUp()
+        elif choice[1] == "Update": self.update()
         elif choice[1] == "SSH server on":
             functions.sshUp()
             self.d.msgbox("SSH server enabled")
@@ -66,10 +65,8 @@ class Manage:
                 if self.sensorDown():
                     functions.delKey()
                     self.d.msgbox("Sensor cleaned (removed key & certificate)")
-        elif choice[1] == "Ping":
-            self.ping()
-        else:
-            self.d.msgbox("not yet implemented")
+        elif choice[1] == "Ping": self.ping()
+        else: self.d.msgbox("not yet implemented")
         self.run()
 
 
