@@ -222,6 +222,7 @@ _common_args_syntax = {
     "help_button": lambda enable: _simple_option("--help-button", enable),
     "help_label": lambda string: ("--help-label", string),
     "ignore": lambda enable: _simple_option("--ignore", enable),
+    "insecure": lambda enable: _simple_option("--insecure", enable),
     "item_help": lambda enable: _simple_option("--item-help", enable),
     "max_input": lambda size: ("--max-input", str(size)),
     "no_kill": lambda enable: _simple_option("--no-kill", enable),

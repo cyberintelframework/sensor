@@ -45,14 +45,11 @@ class Config:
 
         choices += [
                 ("DNS", "Nameservers settings..."),
-                ('serverurl', self.c.getServerurl()),
-                ('user', self.c.getUser()),
-                ('passwd', len(self.c.getPasswd())*'*'),
-                ('email', self.c.getEmail()),
+                ("Admin", "Administrator menu..."),
                 ('loglevel', self.c.getLogLevel() ),
             ]
 
-        choice = self.d.menu("What do you want to network?", choices=choices, cancel="back", menu_height=10)
+        choice = self.d.menu("What do you want to configure?", choices=choices, cancel="back", menu_height=10)
 
         # cancel 
         if choice[0] == 1:
@@ -63,11 +60,37 @@ class Config:
         elif choice[1] == "Network": self.setNetwork()
         elif choice[1] == "IPMI": self.setIpmi()
         elif choice[1] == "DNS": self.dns()
+        elif choice[1] == "Admin": self.chkAdmin()
+        elif choice[1] == "loglevel": self.setLogLevel()
+        self.run()
+
+    def chkAdmin(self):
+        """ Ask for password to enter the admin menu """
+        logging.debugv("menu/config.py->chkAdmin(self)", [])
+
+        choice = self.d.passwordbox("Enter admin password", 10, 50, "", insecure=1)
+        if choice[0]: return
+        elif self.c.validAdmin(choice[1]): self.adminMenu()
+        return
+
+    def adminMenu(self):
+        """ Administrator menu """
+        logging.debugv("menu/config.py->adminMenu(self)", [])
+
+        choices=[
+                ('serverurl', self.c.getServerurl()),
+                ('user', self.c.getUser()),
+                ('passwd', len(self.c.getPasswd())*'*'),
+                ('email', self.c.getEmail()),
+            ]
+        choice = self.d.menu("What do you want to configure?", choices=choices, cancel="back")
+
+        if choice[0] == 1: return
         elif choice[1] == "serverurl": self.setServerurl()
         elif choice[1] == "user": self.setUser()
         elif choice[1] == "passwd": self.setPasswd()
-        elif choice[1] == "loglevel": self.setLogLevel()
-        self.run()
+        self.adminMenu()
+
 
     def activateChoice(self):
         """ Choose to stop or restart sensor after changing the config """
@@ -842,7 +865,7 @@ class Config:
         logging.debugv("menu/config.py->setPasswd(self)", [])
 #        passwd = self.c.get("passwd")
         passwd = self.c.getPasswd()
-        input = self.d.inputbox("Passwd IDS server:", init=passwd)
+        input = self.d.passwordbox("Passwd IDS server:", init=passwd, insecure=1)
         if input[0] == 1: return
         passwd = input[1]
         logging.info("setting passwd to: " + passwd)

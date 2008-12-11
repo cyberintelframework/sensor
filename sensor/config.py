@@ -1,6 +1,7 @@
 from configobj import ConfigObj
 import logging
 import pdb
+import md5
 
 from sensor import locations
 
@@ -276,6 +277,27 @@ class Config:
     ############################
     # Misc functions
     ############################
+
+    def validAdmin(self, passwd):
+        """ Checks the given pass against admin pass """
+        logging.debugv("config.py->validAdmin(self, passwd)", [])
+
+        if passwd == "": return False
+        else:
+            m = md5.new()
+            m.update(passwd)
+            passwd = m.hexdigest()
+
+            try:
+                if passwd == self.config['adminpass']:
+                    logging.info("Successful admin login")
+                    return True
+                else:
+                    logging.warning("Failed admin login")
+                    return False
+            except KeyError:
+                logging.error("No admin password was set")
+                return False
 
     def getSensorType(self):
         """ Get the type of sensor (normal|vlan) """
