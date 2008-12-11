@@ -11,8 +11,10 @@ BRCONFIG = "/sbin/brconfig"
 DHCLIENT="/sbin/dhclient"
 IFCONFIG="/sbin/ifconfig"
 PKILL="/usr/bin/pkill"
+# FIXME
+OPENSSL="/usr/bin/openssl"
 
-ALL_BIN = [OPENVPN, BRCONFIG, DHCLIENT, IFCONFIG, PKILL]
+ALL_BIN = [OPENVPN, BRCONFIG, DHCLIENT, IFCONFIG, PKILL, OPENSSL]
 
 
 # FOLDERS

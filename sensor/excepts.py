@@ -3,6 +3,15 @@ import exceptions
 
 changeset = "001"
 
+class ConfigException(exceptions.Exception):
+    """ Used for configuration problems """
+    def __init__(self, valui):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
 class InterfaceException(exceptions.Exception):
     """ used for interface problems """
     def __init__(self, value):

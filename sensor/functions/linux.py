@@ -725,6 +725,19 @@ def killAllDhcp():
     runWrapper(cmd, ignoreError=True)
     return True
 
+def verifyCrt():
+    """ Checks if the sensor crt is valid """
+    logging.debugv("functions/__init__.py->verfiyCrt()", [])
+    if os.access(locations.KEY, os.R_OK):
+        try:
+            cmd = [locations.OPENSSL, "verify", "-CAfile", locations.CA, locations.CRT, "2>&1", "|", "grep OK"]
+            runWrapper(cmd)
+        except excepts.RunException, msg:
+            return False
+        return True
+    else:
+        logging.warning("No sensor key present yet")
+        return False
 
 
 if __name__ == '__main__':

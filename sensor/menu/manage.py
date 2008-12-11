@@ -26,6 +26,7 @@ class Manage:
 
         if self.r.sensorStatus():
             choices.append( ("Sensor Down", "Bring sensor down") )
+            choices.append( ("Sensor Restart", "Restart the sensor") )
         else:
             choices.append( ("Sensor Up", "Bring sensor up") )
 
@@ -50,6 +51,8 @@ class Manage:
         if choice[0] == 1: return
         elif choice[1] == "Sensor Up":
             self.sensorUp()
+        elif choice[1] == "Sensor Restart":
+            self.sensorRestart()
         elif choice[1] == "Sensor Down":
             self.sensorDown()
         elif choice[1] == "Update":
@@ -72,12 +75,22 @@ class Manage:
             self.d.msgbox("not yet implemented")
         self.run()
 
+    def sensorRestart(self):
+        """ Restart the sensor """
+        logging.debugv("menu/manage.py->sensorRestart(self)", [])
+
+        self.sensorUp()
 
     def sensorUp(self):
         """ Bring the sensor up """
         logging.debugv("menu/manage.py->sensorUp(self)", [])
         self.d.infobox("Bringing sensor up...")
-        functions.sensorDown()
+        try:
+            functions.sensorDown()
+        except excepts.NetworkException, msg:
+            self.d.msgbox(str(msg) + "\nplease see logfile for details", width=70)
+            logging.error("Bringing sensor down failed")
+            return
         try:
             if functions.sensorUp():
                 self.d.msgbox("Sensor succesfully brought online")
@@ -86,7 +99,6 @@ class Manage:
         except excepts.NetworkException, msg:
             self.d.msgbox(str(msg) + "\nplease see logfile for details", width=70)
             self.sensorDown()
-
 
     def sensorDown(self):
         """ Bring down the sensor """

@@ -58,6 +58,7 @@ def saveConf():
     method = c.netconf['sensortype']
 
     mainIf = c.getMainIf()
+#    mainIfMac = r.getMainIfMac()
     trunkIf = c.getTrunkIf()
 
     mainInfConf = c.getIf(mainIf)

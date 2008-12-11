@@ -214,8 +214,8 @@ class Status:
             report += t.formatLog("OpenVPN port", "Unchecked")
             report += t.formatLog("Updates port", "Unchecked")
 
-        # Check key existance
-        report += t.formatLog("Certificate check", f.checkKey())
+        # Check crt existance
+        report += t.formatLog("Sensor certificate", f.verifyCrt())
 
         report += "\n"
 

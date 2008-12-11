@@ -164,7 +164,11 @@ def sensorUp():
         client.checkKey(ip)
         client.register(ip, c.getSensorID())
 
-    mkTunnel(bridgeID)
+    # Check if the sensor certificate is valid, if not, don't start
+    if verifyCrt():
+        mkTunnel(bridgeID)
+    else:
+        return False
 
     if openvpnStatus():
         # only set registered status if there are one ore more tunnels active
