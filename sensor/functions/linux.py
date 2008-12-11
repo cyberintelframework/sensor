@@ -421,7 +421,19 @@ def ifUpStatic(interface,ip,netmask):
 def ifUpDhcp(interface):
     """ Configures a dynamic IP address for a given interface """
     logging.debugv("functions/linux.py->ifUpDhcp(interface)", [interface])
-    ifUp(interface)
+
+    # If interface isn't up, bring it up
+    if r.config['net'][interface] < 2:
+        logging.debug("%s already UP, not calling ifUp" % str(interface))
+        ifUp(interface)
+    else:
+        logging.debug("%s already UP, not calling ifUp" % str(interface))
+
+    # If the interface already has an IP address, return
+    if r.config['net'][interface] == 3:
+        logging.debug("%s already has an IP address, returning" % str(interface))
+        return
+
     logging.info("configuring %s with dynamic address" % interface)
     cmd = [locations.DHCLIENT, interface, '-pf', locations.PID + 'dhcp-' + interface + '.pid']
     logging.debug(" ".join(cmd))
@@ -633,6 +645,11 @@ def bridgify(inf, infConf, bridgeNumber):
     logging.debugv("functions/linux.py->bridgify(inf, infConf, bridgeNumber)", [inf, infConf, bridgeNumber])
     tapdev = addTap(bridgeNumber)
     brdev = addBridge(bridgeNumber, [tapdev, inf])
+
+    pidfile = locations.PID + 'dhcp-' + inf + '.pid'
+    if os.access(pidfile, os.R_OK):
+        logging.info("Trying to kill DHCP daemon for %s" % inf)
+        killDhcp(pidfile)
 
     ip = False
     if infConf['type'] == "dhcp":
