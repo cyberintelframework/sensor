@@ -591,7 +591,8 @@ def mkTunnel(id):
     cmd = [locations.OPENVPN, '--config', locations.VPNTEMPLATE, '--dev', 'tap'+str(id), \
             '--writepid', locations.OPENVPNPID]
     logging.debug(" ".join(cmd))
-    pid = os.fork() 
+    pid = os.fork()
+    logging.debug("WATCHME PID: %s" % str(pid))
     if pid == 0:
         fd = plock(locations.LOCKFILE)
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -744,18 +745,35 @@ def killAllDhcp():
 
 def verifyCrt():
     """ Checks if the sensor crt is valid """
-    logging.debugv("functions/__init__.py->verfiyCrt()", [])
-    if os.access(locations.KEY, os.R_OK):
-        try:
-            cmd = [locations.OPENSSL, "verify", "-CAfile", locations.CA, locations.CRT, "2>&1", "|", "grep OK"]
-            runWrapper(cmd)
-        except excepts.RunException, msg:
+    logging.debugv("functions/__init__.py->verifyCrt()", [])
+
+    if os.access(locations.CRT, os.R_OK):
+        cmd = locations.OPENSSL + ' verify -CAfile ' + locations.CA + ' ' + locations.CRT + ' 2>&1 | grep OK'
+        status = os.system(cmd)
+        logging.debug("Sensor certificate verification status: %s" % str(status))
+        if status == 0:
+            return True
+        else:
+            logging.error("Sensor certificate verification failed")
             return False
-        return True
     else:
-        logging.warning("No sensor key present yet")
         return False
 
+def verifyKey():
+    """ Checks if the sensor key is valid """
+    logging.debugv("functions/__init__.py->verifyKey()", [])
+
+    if os.access(locations.KEY, os.R_OK):
+        cmd = locations.OPENSSL + ' rsa -in ' + locations.KEY + ' -text'
+        status = os.system(cmd)
+        logging.debug("Sensor key verification status: %s" % str(status))
+        if status == 0:
+            return True
+        else:
+            logging.error("Sensor key verification failed")
+            return False
+    else:
+        return False
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,

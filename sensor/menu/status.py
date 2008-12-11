@@ -216,6 +216,8 @@ class Status:
 
         # Check crt existance
         report += t.formatLog("Sensor certificate", f.verifyCrt())
+        # Check key existance
+        report += t.formatLog("Sensor key", f.verifyKey())
 
         report += "\n"
 

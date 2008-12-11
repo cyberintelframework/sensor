@@ -166,7 +166,11 @@ def sensorUp():
 
     # Check if the sensor certificate is valid, if not, don't start
     if verifyCrt():
-        mkTunnel(bridgeID)
+        # Check if the sensor key is valid, if not, don't start
+        if verifyKey():
+            mkTunnel(bridgeID)
+        else:
+            return False
     else:
         return False
 
