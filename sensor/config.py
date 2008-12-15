@@ -278,6 +278,33 @@ class Config:
     # Misc functions
     ############################
 
+    def getRev(self):
+        """ Retrieve the current netconf revision number """
+        logging.debugv("config.py->getRev(self)", [])
+
+        try:
+            rev = self.netconf['revision']
+            return rev
+        except KeyError:
+            self.netconf['revision'] = 1
+            self.netconf.write()
+            return self.netconf['revision']
+
+    def addRev(self):
+        """ Increases the network configuration revision by one 
+            and saves it
+        """
+        logging.debugv("config.py->addRev(self)", [])
+
+        try:
+            rev = int(self.netconf['revision'])
+            rev = rev + 1
+            self.netconf['revision'] = rev
+            self.netconf.write()
+        except KeyError:
+            self.netconf['revision'] = 1
+            self.netconf.write()
+
     def validAdmin(self, passwd):
         """ Checks the given pass against admin pass """
         logging.debugv("config.py->validAdmin(self, passwd)", [])

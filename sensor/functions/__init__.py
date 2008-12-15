@@ -372,6 +372,25 @@ def ipmiStatus():
     logging.debugv("functions/__init__.py->ipmiStatus()", [])
     return os.access(locations.IPMITOOL, os.R_OK)
 
+def saveNetConf(config):
+    """ Save the given config as the current netconf """
+    logging.debugv("saveNetConf(config)", [config])
+
+    if os.access(locations.NETCONF, os.R_OK):
+        rev = c.getRev()
+        backup = locations.NETCONF + "." + str(rev)
+        logging.debug("Creating backup of the netconf file (%s)" % str(backup))
+        os.rename(locations.NETCONF, backup)
+
+        try:
+            nc = open(locations.NETCONF, "w")
+        except:
+            logging.error("Could not save netconf")
+            return
+        nc.write(config)
+        nc.close()
+        logging.info("Saved network configuration with revision %s" % str(rev))
+
 def initRuntime():
     """ Initializes the runtime status dict """
     logging.debugv("functions/__init__.py->initRuntime()", [])

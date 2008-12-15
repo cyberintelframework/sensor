@@ -8,6 +8,7 @@ from sensor import config
 from sensor import tools
 from sensor import runtime
 from sensor import excepts
+from sensor import client
 
 class Manage:
     def __init__(self, d):
@@ -32,6 +33,7 @@ class Manage:
 
         if self.r.networkStatus():
             choices.append( ("Update", "Sync with server now") )
+            choices.append( ("Get Config", "Get the latest network configuration") )
             choices.append( ("Ping", "Check if connection is okay") )
 
         if functions.sshStatus():
@@ -53,6 +55,7 @@ class Manage:
         elif choice[1] == "Sensor Down": self.sensorDown()
         elif choice[1] == "Sensor Restart": self.sensorUp()
         elif choice[1] == "Update": self.update()
+        elif choice[1] == "Get Config": self.getConfig()
         elif choice[1] == "SSH server on":
             functions.sshUp()
             self.d.msgbox("SSH server enabled")
@@ -69,7 +72,6 @@ class Manage:
         else: self.d.msgbox("not yet implemented")
         self.run()
 
-
     def sensorUp(self):
         """ Bring the sensor up """
         logging.debugv("menu/manage.py->sensorUp(self)", [])
@@ -83,7 +85,6 @@ class Manage:
         except excepts.NetworkException, msg:
             self.d.msgbox(str(msg) + "\nplease see logfile for details", width=70)
             self.sensorDown()
-
 
     def sensorDown(self):
         """ Bring down the sensor """
@@ -101,6 +102,14 @@ class Manage:
         self.d.msgbox("Sensor succesfully brought offline")
 
 
+    def getConfig(self):
+        """ Display the latest configuration from the server """
+        logging.debugv("menu/manage.py->getConfig(self)", [])
+
+        config = client.getConfig()
+        self.d.msgbox(config, height=20, width=60)
+
+
     def update(self):
         """ Update the sensor scripts """
         logging.debugv("menu/manage.py->update(self)", [])
@@ -108,11 +117,11 @@ class Manage:
         functions.update()
         self.d.msgbox("sensor succesfully updated")
 
-
     def ping(self):
         """ Send a ping to predefined addresses """
         logging.debugv("menu/manage.py->ping(self)", [])
-        self.d.infobox("sending ping...")
-        result = tools.ping(tools.hosts)
-        if result: self.d.msgbox("ping successful")
-        else: self.d.msgbox("ping unsuccesfull, there is something wrong with your settings or you can't sent ICMP packages")
+        self.d.infobox("Sending ping...")
+        (result, log) = tools.ping(tools.hosts)
+        logging.debug(log)
+        if result: self.d.msgbox("Ping OK")
+        else: self.d.msgbox("Ping failed, there is something wrong with your settings or you can't sent ICMP packages")

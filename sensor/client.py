@@ -91,6 +91,7 @@ def saveConf():
     (os, version, nr) = platform.dist()
     osv = os + "-" + version + "-" + nr
     req = "save_config.php"
+    rev = c.getRev()
     args = urllib.urlencode((
         ('strip_html_escape_method', method),
         ('strip_html_escape_interface', str(mainConf)),
@@ -101,7 +102,7 @@ def saveConf():
     	('strip_html_escape_version', str(osv)),
     	('ip_dns1', str(dns1)),
 	    ('ip_dns2', str(dns2)),
-    	('int_rev', str(1)))
+    	('int_rev', str(rev)))
     )
 
     logging.debug(str(args))
@@ -191,6 +192,26 @@ def checkKey(localip):
     else:
         logging.debug("already got certificate, key and sensor id")
 
+
+def getConfig():
+    """ Get the latest configuration from the server """
+    logging.debugv("client.py->getConfig()", [])
+
+    if r.networkStatus():
+        sensorid = c.getSensorID()
+        req = "get_config.php"
+        args = urllib.urlencode((
+            ('strip_html_escape_keyname', str(sensorid)),
+        ))
+        x = makeRequest(req, args)
+        config = ""
+        for line in [x for x in x.readlines()]:
+            logging.debug(line)
+            config += line
+        return config
+    else:
+        logging.warning("No network connection available. Can't get new configuration.")
+        return False
 
 def update(localip, ssh, revision, mac):
     """ updates interface @ ids server """

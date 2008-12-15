@@ -46,7 +46,7 @@ class Config:
         choices += [
                 ("DNS", "Nameservers settings..."),
                 ("Admin", "Administrator menu..."),
-                ('loglevel', self.c.getLogLevel() ),
+                ('Loglevel', self.c.getLogLevel() ),
             ]
 
         choice = self.d.menu("What do you want to configure?", choices=choices, cancel="back", menu_height=10)
@@ -54,6 +54,7 @@ class Config:
         # cancel 
         if choice[0] == 1:
             if self.changed:
+                self.c.addRev()
                 client.saveConf()
                 self.activateChoice()
             return
@@ -61,7 +62,7 @@ class Config:
         elif choice[1] == "IPMI": self.setIpmi()
         elif choice[1] == "DNS": self.dns()
         elif choice[1] == "Admin": self.chkAdmin()
-        elif choice[1] == "loglevel": self.setLogLevel()
+        elif choice[1] == "Loglevel": self.setLogLevel()
         self.run()
 
     def chkAdmin(self):
