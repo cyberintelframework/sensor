@@ -33,7 +33,7 @@ class Manage:
 
         if self.r.networkStatus():
             choices.append( ("Update", "Sync with server now") )
-            choices.append( ("Get Config", "Get the latest network configuration") )
+            choices.append( ("Get Config", "Get the latest network config") )
             choices.append( ("Ping", "Check if connection is okay") )
 
         if functions.sshStatus():
@@ -107,6 +107,7 @@ class Manage:
         logging.debugv("menu/manage.py->getConfig(self)", [])
 
         config = client.getConfig()
+        functions.saveNetConf(config)
         self.d.msgbox(config, height=20, width=60)
 
 

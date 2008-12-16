@@ -50,7 +50,6 @@ def networkUp():
 
     # Only use the first interface that is configured
     try:
-#        inf = getFirstIf(["dhcp", "static"])
         inf = c.getMainIf()
     except excepts.InterfaceException:
         logging.error("Could not find an interface configuration.")
