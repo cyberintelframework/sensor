@@ -20,15 +20,6 @@ c = config.Config()
 # runtime object, stores active interfaces
 r = runtime.Runtime()
 
-def checkNet():
-    """ check if we have network, of not raise network exception """
-    logging.debugv("client.py->checkNet()", [])
-    if not r.networkStatus():
-        raise excepts.NetworkException("no network connection")
-
-
-#def saveConf(method, mainConf, trunkConf):
-#def saveConf(method, mainDev, mainConf, trunkDev, trunkConf):
 def saveConf():
     """ Send the configuration to the server
 
@@ -126,7 +117,9 @@ def register(localip, keyname):
     """
     logging.debugv("client.py->register(localip, keyname)", [localip, keyname])
 
-    checkNet()
+    if not r.networkStatus():
+        logging.error("No network connection available, not registering")
+        return
 
     req = "startclient.php"
     args = urllib.urlencode((
@@ -155,8 +148,6 @@ def getKey(localip):
 def deRegister(localip):
     """ Deregisters interface from IDS server """
     logging.debugv("client.py->deRegister(localip)", [localip])
-
-    checkNet()
 
     if not r.networkStatus():
         logging.warning("Sensor not active, not deregistering")
@@ -213,16 +204,15 @@ def getConfig():
         logging.warning("No network connection available. Can't get new configuration.")
         return False
 
-def update(localip, ssh, revision, mac):
+def update(localip, ssh, mac):
     """ updates interface @ ids server """
-    logging.debugv("client.py->update(localip, ssh, revision, mac)", [localip, ssh, revision, mac])
+    logging.debugv("client.py->update(localip, ssh, mac)", [localip, ssh, mac])
 
-    checkNet()
-    if not r.sensorStatus():
-        logging.debug("sensor not active, not updating")
+    if not r.networkStatus():
+        logging.debug("Sensor not active, not syncing")
         return
 
-    logging.info("updating @ IDS server")
+    logging.info("Updating @ IDS server")
 
     sensorid = c.getSensorID()
     req = "status.php"
@@ -230,7 +220,6 @@ def update(localip, ssh, revision, mac):
         ('strip_html_escape_keyname', sensorid),
         ('ip_localip', localip),
         ('int_ssh', ssh),
-        ('int_rev', revision),
         ('mac_mac', mac))
     )
 
@@ -241,7 +230,10 @@ def update(localip, ssh, revision, mac):
         if line.startswith("ACTION:"):
             action = line.split()[1]
             logging.debug("Received action: " + action)
-    return action.lower()
+    if action:
+        return action.lower()
+    else:
+        return False
 
 
 def makeRequest(request, args):

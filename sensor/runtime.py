@@ -228,6 +228,16 @@ class Runtime:
         self.config['net'][inf] = status
         self.config.write()
 
+    def chkNet(self, inf):
+        """ Returns the status of a given interface """
+        logging.debugv("runtime.py->chkNet(self, inf)", [inf])
+
+        try:
+            status = self.config['net'][inf]
+            return int(status)
+        except KeyError:
+            return int(9)
+
     def listNet(self):
         """ Returns a list with the network status """
         logging.debugv("runtime.py->listNet(self)", [])

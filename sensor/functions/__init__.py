@@ -132,7 +132,7 @@ def sensorUp():
  
         infConf = c.getIf(inf)
         infType = infConf['type']
-        (brdev, ip) = bridgify(inf, infConf, bridgeID)
+        (brdev, localIp) = bridgify(inf, infConf, bridgeID)
         r.addInf(inf, brdev, infType, bridgeID)
         ifDelIp(inf)
 
@@ -141,8 +141,8 @@ def sensorUp():
             gw = infConf['gateway']
             bc = infConf['broadcast']
 
-        client.checkKey(ip)
-        client.register(ip, c.getSensorID())
+        client.checkKey(localIp)
+        client.register(localIp, c.getSensorID())
 
     elif sensortype == "vlan":
         # Only use the first interface that is configured
@@ -158,10 +158,14 @@ def sensorUp():
         tapdev = addTap(bridgeID)
         brdev = addBridge(bridgeID, [tapdev, trunk])
 
-        (chk, ip) = getLocalIp()
+        try:
+            localIp = getLocalIp(inf)
+        except excepts.InterfaceException, msg:
+            logging.error(msg)
+            localIp = "0.0.0.0";
 
-        client.checkKey(ip)
-        client.register(ip, c.getSensorID())
+        client.checkKey(localIp)
+        client.register(localIp, c.getSensorID())
 
     # Check if the sensor certificate is valid, if not, don't start
     if verifyCrt():
@@ -184,12 +188,20 @@ def sensorUp():
 def sensorDown():
     """ Brings tunnels and interfaces down and restore network afterwards """
     logging.debugv("functions/__init__.py->sensorDown()", [])
+
+    # Get the main interface, return if no interface has been configured
+    try:
+        inf = c.getMainIf()
+    except excepts.InterfaceException:
+        logging.error("Could not find an interface configuration.")
+        return
+    
     # deregister at the server
-    (chk, localip) = getLocalIp()
-    if chk:
+    try:
+        localip = getLocalIp(inf)
         client.deRegister(localip)
-    else:
-        logging.warning("Could not find localip, skipping deregistration")
+    except excepts.InterfaceException, msg:
+        logging.warning(msg + ", skipping deregistration")
 
     # Shut everything down
     allTunnelsDown()
@@ -288,52 +300,63 @@ def getFirstIf(types):
         raise excepts.InterfaceException, "No interface found with type in %s" % str(types)
         return
 
-def getLocalIp():
+def getLocalIp(inf):
     """ Get the localy configured IP address """
-    logging.debugv("functions/__init__.py->getLocalIp()", [])
-    for (dev, status) in r.listNet():
-        if status == 3:
-            return True, getIp(dev)
-    return False, ""
+    logging.debugv("functions/__init__.py->getLocalIp(inf)", [inf])
+
+    # Check if the interface has been configured with an IP
+    if r.chkNet(inf) == 3:
+        localIP = getIp(inf)
+        return localIP
+    else:
+        raise excepts.InterfaceException, "No local IP address could be found"
+        return
+
 
 def update():
     """ Update status info to the server """
     logging.debugv("functions/__init__.py->update()", [])
-    logging.info("updating sensor @ ids server")
-    rev = version.getRev()
+
+    # Get the main interface, return if no interface has been configured
+    try:
+        inf = c.getMainIf()
+    except excepts.InterfaceException:
+        logging.error("Could not find an interface configuration.")
+        return
+
+    try:
+        localIp = getLocalIp(inf)
+    except excepts.InterfaceException, msg:
+        loggging.error(msg)
+        return
     ssh = int(sshStatus())
-    for (inf, infprops) in r.listInf():
-        infConf = c.getIf(inf)
-        infType = infConf['type']
-        if infType in ["dhcp", "static"]:
-            ip = getIp(infprops['bridgedev'])
-            mac = getMac(inf)
-            client.checkKey(ip)
-            action(client.update(ip, 0, ssh, rev, mac ))
+    mac = getMac(inf)
 
-        elif infType == "vlan":
-            for (vlan, vlanprops) in infprops['vlans'].items():
-                ip = getIp(vlanprops['bridgedev'])
-                mac = getMac(inf)
-                vlanid = vlanprops['vlanid']
-                client.checkKey(ip)
-                action(client.update(ip, vlanid, 0, rev, mac ))
-
+    action = client.update(localIp, ssh, mac)
+    if action:
+        action(action)
+    
 
 def action(action):
     """ Functions that exececutes action received by server """
     logging.debugv("functions/__init__.py->action(action)", [action])
     if action == "reboot":
+        logging.info("Server request: Reboot")
         reboot()
     elif action =="sshon":
+        logging.info("Server request: SSH Enable")
         sshUp()
     elif action == "sshoff":
+        logging.info("Server request: SSH Disable")
         sshDown()
     elif action == "start":
+        logging.info("Server request: Start/Restart sensor")
         allDown()
         allUp()
     elif action == "stop":
+        logging.info("Server request: Stop sensor")
         allTunnelsDown()
+        networkUp()
 
 
 def reboot():

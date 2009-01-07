@@ -114,9 +114,9 @@ class Manage:
     def update(self):
         """ Update the sensor scripts """
         logging.debugv("menu/manage.py->update(self)", [])
-        self.d.infobox("syncing sensor with surfids server...")
+        self.d.infobox("Syncing sensor with SURFids server...")
         functions.update()
-        self.d.msgbox("sensor succesfully updated")
+        self.d.msgbox("Sensor succesfully synced")
 
     def ping(self):
         """ Send a ping to predefined addresses """
