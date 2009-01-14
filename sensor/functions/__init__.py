@@ -5,6 +5,7 @@ import urllib2
 import os
 import time
 import configobj
+import pdb
 
 from sensor import config
 from sensor import runtime
@@ -332,10 +333,9 @@ def update():
     ssh = int(sshStatus())
     mac = getMac(inf)
 
-    action = client.update(localIp, ssh, mac)
-    if action:
-        action(action)
-    
+    ac = client.update(localIp, ssh, mac)
+    if ac:
+        action(ac)    
 
 def action(action):
     """ Functions that exececutes action received by server """
@@ -357,6 +357,9 @@ def action(action):
         logging.info("Server request: Stop sensor")
         allTunnelsDown()
         networkUp()
+    elif action == "saveconf":
+        logging.info("Server request: Save config")
+        client.saveConf()
 
 
 def reboot():
