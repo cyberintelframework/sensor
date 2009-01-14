@@ -100,7 +100,7 @@ class Config:
                 ("Stop", "Stop the sensor"),
                 ("Restart", "Restart the sensor"),
                 ]
-        choice = self.d.menu("Select the next action", choices=choices, cancel="back")
+        choice = self.d.menu("The configuration of the sensor has changed. What would you like to do?", choices=choices, cancel="back")
         if choice[1] == "Stop":
             manage.Manage(self.d).sensorDown()
         elif choice[1] == "Restart":
@@ -309,7 +309,7 @@ class Config:
                 f.ipmiUserPassEdit(id, check[1])
                 self.editIpmiUser(id)
         elif output[1] == "":
-            self.d.editIpmiUserPass(id)
+            self.editIpmiUserPass(id)
         else: return
                 
 
