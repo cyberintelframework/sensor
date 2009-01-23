@@ -123,7 +123,7 @@ LH_NET_TARBALL="gzip"
 
 # $LH_SYSLINUX_SPLASH: set custom syslinux splash
 # (Default: empty)
-LH_SYSLINUX_SPLASH=""
+LH_SYSLINUX_SPLASH="config/binary_syslinux/splash.rle"
 
 # $LH_SYSLINUX_TIMEOUT: set custom syslinux timeout in seconds
 # (Default: 0)
