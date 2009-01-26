@@ -62,7 +62,7 @@ class Runtime:
         try:
             return self.config['infs'][interface]['bridgedev']
         except KeyError:
-            return false
+            return False
 
     def listInf(self):
         """ returns a list of interfaces with config from runtime db"""
