@@ -133,7 +133,6 @@ def register(localip, keyname):
 def getKey(localip):
     """ download certificate, key and sensor ID """
     logging.debugv("client.py->getKey(localip)", [localip])
-    checkNet()
 
     req = "cert.php"
     args = urllib.urlencode((
