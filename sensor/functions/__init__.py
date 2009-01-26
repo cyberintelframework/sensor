@@ -312,7 +312,7 @@ def getLocalIp():
     # Determine which interface needs to be checked
     sensortype = c.getSensorType()
     if sensortype == "":
-        raise excepts.ConfigException, "Could not find a sensor type in the configuration")
+        raise excepts.ConfigException, "Could not find a sensor type in the configuration"
     else if sensortype == "normal":
         mainIf = c.getMainIf()
         if r.sensorStatus():
