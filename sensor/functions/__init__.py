@@ -102,7 +102,10 @@ def sensorUp():
     c.refresh()
 
     # Checking sensor type
-    sensortype = c.netconf['sensortype']
+    sensortype = c.getSensorType()
+    if sensortype == "":
+        logging.error("Could not find a sensor type in configuration")
+        raise excepts.ConfigException, "Could not find sensor type"
 
     # Set some general values
     bridgeID = 0
@@ -146,7 +149,6 @@ def sensorUp():
         client.register(localIp, c.getSensorID())
 
     elif sensortype == "vlan":
-        # Only use the first interface that is configured
         try:
             trunk = c.getTrunkIf()
             logging.debug("trunk: " + trunk)
@@ -162,7 +164,10 @@ def sensorUp():
             localIp = getLocalIp(inf)
         except excepts.InterfaceException, msg:
             logging.error(msg)
-            localIp = "0.0.0.0";
+            localIp = "0.0.0.0"
+        except excepts.ConfigException, msg:
+            logging.error(msg)
+            localIp = "0.0.0.0"
 
         client.checkKey(localIp)
         client.register(localIp, c.getSensorID())
@@ -300,9 +305,22 @@ def getFirstIf(types):
         raise excepts.InterfaceException, "No interface found with type in %s" % str(types)
         return
 
-def getLocalIp(inf):
+def getLocalIp():
     """ Get the localy configured IP address """
-    logging.debugv("functions/__init__.py->getLocalIp(inf)", [inf])
+    logging.debugv("functions/__init__.py->getLocalIp()", [])
+
+    # Determine which interface needs to be checked
+    sensortype = c.getSensorType()
+    if sensortype == "":
+        raise excepts.ConfigException, "Could not find a sensor type in the configuration")
+    else if sensortype == "normal":
+        mainIf = c.getMainIf()
+        if r.sensorStatus():
+            inf = r.getBridgeDev(mainIf)
+        else:
+            inf = mainIf    
+    else if sensortype == "vlan":
+        inf = c.getMainIf()
 
     # Check if the interface has been configured with an IP
     if r.chkNet(inf) == 3:
@@ -324,15 +342,13 @@ def update():
         logging.error("Could not find an interface configuration.")
         return
 
-    if r.sensorStatus():
-        brDev = r.getBridgeDev(inf)
-        localIp = getLocalIp(brDev)
-    else:
-        try:
-            localIp = getLocalIp(inf)
-        except excepts.InterfaceException, msg:
-            logging.error(msg)
-            return
+    # Get the localIp
+    try:
+        localIp = getLocalIp()
+    except excepts.ConfigException, msg
+        logging.warning("Could not sync with the server")
+        logging.error(msg)
+        return
 
     ssh = int(sshStatus())
     mac = getMac(inf)
