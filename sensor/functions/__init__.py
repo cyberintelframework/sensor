@@ -148,7 +148,6 @@ def sensorUp():
     elif sensortype == "vlan":
         # Only use the first interface that is configured
         try:
-#            trunk = getFirstIf(["trunk"])
             trunk = c.getTrunkIf()
             logging.debug("trunk: " + trunk)
         except excepts.InterfaceException:
@@ -419,10 +418,10 @@ def saveNetConf(config):
 def initRuntime():
     """ Initializes the runtime status dict """
     logging.debugv("functions/__init__.py->initRuntime()", [])
-    try:
-        getFirstIf(["dhcp", "static"])
+    mainIf = c.getMainIf()
+    if mainIf != "":
         r.configUp()
-    except excepts.InterfaceException:
+    else:
         logging.warning("Could not find a configured interface")
         r.configDown()
 
