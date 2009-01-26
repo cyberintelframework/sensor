@@ -324,11 +324,16 @@ def update():
         logging.error("Could not find an interface configuration.")
         return
 
-    try:
-        localIp = getLocalIp(inf)
-    except excepts.InterfaceException, msg:
-        logging.error(msg)
-        return
+    if r.sensorStatus():
+        brDev = r.getBridgeDev(inf)
+        localIp = getLocalIp(brDev)
+    else:
+        try:
+            localIp = getLocalIp(inf)
+        except excepts.InterfaceException, msg:
+            logging.error(msg)
+            return
+
     ssh = int(sshStatus())
     mac = getMac(inf)
 

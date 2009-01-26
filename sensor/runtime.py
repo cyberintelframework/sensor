@@ -56,6 +56,14 @@ class Runtime:
         self.config['infs'].pop(interface)
         self.config.write()
 
+    def getBridgeDev(self, interface):
+        """ Get the bridge device of a given interface """
+        logging.debugv("runtime.py->getBridgeDev(self, interface)", [interface])
+        try:
+            return self.config['infs'][interface]['bridgedev']
+        exception KeyError:
+            return false
+
     def listInf(self):
         """ returns a list of interfaces with config from runtime db"""
         logging.debugv("runtime.py->listInf(self)", [])
