@@ -61,7 +61,7 @@ class Runtime:
         logging.debugv("runtime.py->getBridgeDev(self, interface)", [interface])
         try:
             return self.config['infs'][interface]['bridgedev']
-        exception KeyError:
+        except KeyError:
             return false
 
     def listInf(self):
