@@ -327,7 +327,7 @@ def update():
     try:
         localIp = getLocalIp(inf)
     except excepts.InterfaceException, msg:
-        loggging.error(msg)
+        logging.error(msg)
         return
     ssh = int(sshStatus())
     mac = getMac(inf)
