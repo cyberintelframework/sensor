@@ -9,7 +9,7 @@ from sensor import runtime
 r = runtime.Runtime()
 
 # only update if we have tunnels
-if r.sensorStatus():
+if r.networkStatus():
     functions.update()
 else:
     logging.debug("sensor not active, not updating")
