@@ -313,13 +313,13 @@ def getLocalIp():
     sensortype = c.getSensorType()
     if sensortype == "":
         raise excepts.ConfigException, "Could not find a sensor type in the configuration"
-    else if sensortype == "normal":
+    elif sensortype == "normal":
         mainIf = c.getMainIf()
         if r.sensorStatus():
             inf = r.getBridgeDev(mainIf)
         else:
             inf = mainIf    
-    else if sensortype == "vlan":
+    elif sensortype == "vlan":
         inf = c.getMainIf()
 
     # Check if the interface has been configured with an IP
