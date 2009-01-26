@@ -345,7 +345,7 @@ def update():
     # Get the localIp
     try:
         localIp = getLocalIp()
-    except excepts.ConfigException, msg
+    except excepts.ConfigException, msg:
         logging.warning("Could not sync with the server")
         logging.error(msg)
         return
