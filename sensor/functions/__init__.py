@@ -202,7 +202,7 @@ def sensorDown():
         localip = getLocalIp(inf)
         client.deRegister(localip)
     except excepts.InterfaceException, msg:
-        logging.warning(msg + ", skipping deregistration")
+        logging.warning("%s, skipping deregistration" % (str(msg)))
 
     # Shut everything down
     allTunnelsDown()
