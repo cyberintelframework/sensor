@@ -75,13 +75,11 @@ class Config:
         """ Enabling default tunnel startup """
         logging.debugv("menu/config.py->enableAutoStart(self)", [])
         self.c.setAutoStart("Enabled")
-        f.writeAutoStart("true")
 
     def disableAutoStart(self):
         """ Disabling default tunnel startup """
         logging.debugv("menu/config.py->disableAutoStart(self)", [])
         self.c.setAutoStart("Disabled")
-        f.writeAutoStart("false")
 
     def chkAdmin(self):
         """ Ask for password to enter the admin menu """

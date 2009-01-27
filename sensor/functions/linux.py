@@ -553,6 +553,7 @@ def addTap(id):
 def delTap(tap):
     """ Removes given tap device """
     logging.debugv("functions/linux.py->delTap(tap)", [tap])
+    ifDown(tap)
     cmd = [locations.OPENVPN, '--rmtun', '--dev', tap]
     if runWrapper(cmd):
         r.net(tap, 0)
@@ -780,18 +781,6 @@ def verifyKey():
             logging.error("Sensor key verification failed")
             return False
     else:
-        return False
-
-def writeAutoStart(toggle):
-    """ Writes the default file for the surfids-sensor """
-    logging.debugv("functions/linux.py->writeAutoStart(toggle)", [toggle])
-
-    cmd = 'echo "ENABLED=\\"' + toggle + '\\"" > ' + locations.DEFAULT
-    status = os.system(cmd)
-    if status == 0:
-        return True
-    else:
-        logging.error("Could not set the default state")
         return False
 
 if __name__ == '__main__':
