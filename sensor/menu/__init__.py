@@ -1,6 +1,9 @@
  
 import logging
 
+from sensor import functions
+from sensor import dialog
+
 # menu modules
 import status
 import about
@@ -10,23 +13,14 @@ import config
 import manage
 import console
 
-from sensor import functions
-from sensor import dialog
-from sensor import config
-
-
-
 class Menu:
     def __init__(self):
         #self.d = dialog.Dialog(dialog="/usr/bin/Xdialog", compat="Xdialog")
         #self.d = dialog.Dialog(dialog="/usr/bin/zenity", compat="")
         logging.debugv("menu/__init__.py->__init__(self)", [])
         self.d = dialog.Dialog()
-        self.c = config.Config()
 
         self.d.setBackgroundTitle('SURFids sensor v2.10 running on ' + functions.system())
-        if self.c.getAutoStart() == "Enabled":
-            manage.Manage(self.d).sensorUp()
 
     def run(self):
         """ The main menu """

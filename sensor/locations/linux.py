@@ -15,8 +15,9 @@ SSHINIT = "/etc/init.d/ssh"
 IPMITOOL = "/usr/bin/ipmitool"
 DIALOG = "/usr/bin/dialog"
 OPENSSL = "/usr/bin/openssl"
+DMESG = "/bin/dmesg"
 
-ALL_BIN = [OPENVPN, BRCTL, DHCLIENT, IFCONFIG, KILLALL, SSHINIT, DIALOG, OPENSSL]
+ALL_BIN = [OPENVPN, BRCTL, DHCLIENT, IFCONFIG, KILLALL, SSHINIT, DIALOG, OPENSSL, DMESG]
 
 
 # FOLDERS

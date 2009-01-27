@@ -46,6 +46,14 @@ def checkRoot():
     logging.debugv("functions/linux.py->checkRoot()", [])
     return (os.getuid() == 0)
 
+def suppressDmesg():
+    """ Suppress syslog messages from showing on the console
+        except panic messages
+    """
+    logging.debugv("functions/linux.py->suppressDmesg()", [])
+    cmd = [locations.DMESG, "-n", "1"]
+    runWrapper(cmd)
+
 ########################
 # IPMI USER COMMANDS
 ########################

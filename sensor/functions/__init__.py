@@ -230,6 +230,8 @@ def allTunnelsDown():
         except OSError:
             logging.warning("Openvpn daemon with PID %s already died?" % pid)
         os.unlink(locations.OPENVPNPID)
+    else:
+        logging.debug("Could not find any tunnel PID files")
 
     # set runtime status to tunnels down
     r.sensorDown()
