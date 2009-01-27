@@ -161,7 +161,7 @@ def sensorUp():
         brdev = addBridge(bridgeID, [tapdev, trunk])
 
         try:
-            localIp = getLocalIp(inf)
+            localIp = getLocalIp()
         except excepts.InterfaceException, msg:
             logging.error(msg)
             localIp = "0.0.0.0"
