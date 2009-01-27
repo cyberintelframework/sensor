@@ -203,8 +203,8 @@ def sensorDown():
     
     # deregister at the server
     try:
-        localip = getLocalIp(inf)
-        client.deRegister(localip)
+        localIp = getLocalIp()
+        client.deRegister(localIp)
     except excepts.InterfaceException, msg:
         logging.warning("%s, skipping deregistration" % (str(msg)))
 
