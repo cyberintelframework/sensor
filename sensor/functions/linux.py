@@ -717,6 +717,11 @@ def punlock(fd, file):
         os.unlink(file)
 
 def waitInterfaceLink(interface):
+    """ Waits for an interface to get ready. Some interfaces need some 
+        time before they are able to send/receive packets after coming
+        up.
+    """
+    logging.debugv("functions/linux.py->waitInterfaceLink(interface)", [interface])
     from time import sleep as time_sleep
     
     gw = getGw(interface)
@@ -739,13 +744,15 @@ def waitInterfaceLink(interface):
     logging.debug("network device up after %d seconds" % (60-timeout))
 
 def killAllDhcp():
+    """ Kills all dhclient instances """
+    logging.debugv("functions/linux.py->killAllDhcp()", [])
     cmd=[locations.KILLALL, '-q', locations.DHCLIENT]
     runWrapper(cmd, ignoreError=True)
     return True
 
 def verifyCrt():
     """ Checks if the sensor crt is valid """
-    logging.debugv("functions/__init__.py->verifyCrt()", [])
+    logging.debugv("functions/linux.py->verifyCrt()", [])
 
     if os.access(locations.CRT, os.R_OK):
         cmd = locations.OPENSSL + ' verify -CAfile ' + locations.CA + ' ' + locations.CRT + ' 2>&1 | grep OK 1>/dev/null 2>/dev/null'
@@ -761,7 +768,7 @@ def verifyCrt():
 
 def verifyKey():
     """ Checks if the sensor key is valid """
-    logging.debugv("functions/__init__.py->verifyKey()", [])
+    logging.debugv("functions/linux.py->verifyKey()", [])
 
     if os.access(locations.KEY, os.R_OK):
         cmd = locations.OPENSSL + ' rsa -in ' + locations.KEY + ' -noout'
@@ -773,6 +780,18 @@ def verifyKey():
             logging.error("Sensor key verification failed")
             return False
     else:
+        return False
+
+def writeAutoStart(toggle):
+    """ Writes the default file for the surfids-sensor """
+    logging.debugv("functions/linux.py->writeAutoStart(toggle)", [toggle])
+
+    cmd = 'echo "ENABLED=\\"' + toggle + '\\"" > ' + locations.DEFAULT
+    status = os.system(cmd)
+    if status == 0:
+        return True
+    else:
+        logging.error("Could not set the default state")
         return False
 
 if __name__ == '__main__':

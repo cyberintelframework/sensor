@@ -48,6 +48,18 @@ class Config:
                 ("Admin", "Administrator menu..."),
                 ('Loglevel', self.c.getLogLevel() ),
             ]
+        if self.c.getAutoStart() == "Disabled":
+            choices += [
+                ('Enable AutoStart', "Enable the tunnel at startup"),
+            ]
+        elif self.c.getAutoStart() == "Enabled":
+            choices += [
+                ('Disable AutoStart', "Disable the tunnel at startup"),
+            ]
+        else:
+            choices += [
+                ('Enable AutoStart', "Enable the tunnel at startup"),
+            ]
 
         choice = self.d.menu("What do you want to configure?", choices=choices, cancel="back", menu_height=10)
 
@@ -63,7 +75,21 @@ class Config:
         elif choice[1] == "DNS": self.dns()
         elif choice[1] == "Admin": self.chkAdmin()
         elif choice[1] == "Loglevel": self.setLogLevel()
+        elif choice[1] == "Enable AutoStart": self.enableAutoStart()
+        elif choice[1] == "Disable AutoStart": self.disableAutoStart()
         self.run()
+
+    def enableAutoStart(self):
+        """ Enabling default tunnel startup """
+        logging.debugv("menu/config.py->enableAutoStart(self)", [])
+        self.c.setAutoStart("Enabled")
+        f.writeAutoStart("true")
+
+    def disableAutoStart(self):
+        """ Disabling default tunnel startup """
+        logging.debugv("menu/config.py->disableAutoStart(self)", [])
+        self.c.setAutoStart("Disabled")
+        f.writeAutoStart("false")
 
     def chkAdmin(self):
         """ Ask for password to enter the admin menu """

@@ -264,3 +264,4 @@ class Runtime:
         logging.info("Setting runtime SSH status to disabled")
         self.config['status']['ssh'] = "disabled"
         self.config.write()
+        

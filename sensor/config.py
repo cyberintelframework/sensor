@@ -451,6 +451,23 @@ class Config:
         self.config['email'] = email
         self.config.write()
 
+    def getAutoStart(self):
+        """ Get the autostart value """
+        logging.debugv("config.py->getAutoStart(self)", [])
+        try:
+            autoStart = self.config['autostart']
+            return autoStart
+        except KeyError:
+            self.config['autostart'] = "Disabled"
+            self.config.write()
+            return self.config['autostart']
+
+    def setAutoStart(self, toggle):
+        """ Set the autostart value """
+        logging.debugv("config.py->setAutoStart(self, toggle)", [toggle])
+        self.config['autostart'] = toggle
+        self.config.write()
+
 #    def get(self, key):
 #        logging.debugv("config.py->get(self, key)", [key])
 #        try:

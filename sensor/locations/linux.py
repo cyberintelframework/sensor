@@ -46,6 +46,7 @@ ABOUT = os.path.join(DOC, "ABOUT")
 SSHPID = "/var/run/sshd.pid"
 SSHINIT = "/etc/init.d/ssh"
 OPENVPNPID = os.path.join(DATA, "tunnel.pid")
+DEFAULT = "/etc/default/surfids-sensor"
 
 # CONSTANTS
 OPENVPN_INIT_RDY = "Initialization Sequence Completed"
