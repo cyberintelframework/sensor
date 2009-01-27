@@ -46,19 +46,8 @@ class Config:
         choices += [
                 ("DNS", "Nameservers settings..."),
                 ("Admin", "Administrator menu..."),
+                ('AutoStart', self.c.getAutoStart()),
                 ('Loglevel', self.c.getLogLevel() ),
-            ]
-        if self.c.getAutoStart() == "Disabled":
-            choices += [
-                ('Enable AutoStart', "Enable the tunnel at startup"),
-            ]
-        elif self.c.getAutoStart() == "Enabled":
-            choices += [
-                ('Disable AutoStart', "Disable the tunnel at startup"),
-            ]
-        else:
-            choices += [
-                ('Enable AutoStart', "Enable the tunnel at startup"),
             ]
 
         choice = self.d.menu("What do you want to configure?", choices=choices, cancel="back", menu_height=10)
@@ -75,8 +64,11 @@ class Config:
         elif choice[1] == "DNS": self.dns()
         elif choice[1] == "Admin": self.chkAdmin()
         elif choice[1] == "Loglevel": self.setLogLevel()
-        elif choice[1] == "Enable AutoStart": self.enableAutoStart()
-        elif choice[1] == "Disable AutoStart": self.disableAutoStart()
+        elif choice[1] == "AutoStart":
+            if self.c.getAutoStart() == "Enabled":
+                self.disableAutoStart()
+            else:
+                self.enableAutoStart()
         self.run()
 
     def enableAutoStart(self):
