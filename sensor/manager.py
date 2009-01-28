@@ -9,6 +9,7 @@ from sensor import functions as f
 from sensor import menu
 from sensor import runtime
 from sensor import config
+from sensor import dialog
 
 class Manager:
     def __init__(self):
@@ -19,12 +20,17 @@ class Manager:
 
         self.r = runtime.Runtime()
         self.c = config.Config()
+        self.d = dialog.Dialog()
 
-        f.cleanUp()
+        if not f.managerStatus():
+            logging.debug("WATCHME No manager running, cleaning up, writing PID")
+            f.cleanUp()
+            f.writePID()
+
         f.suppressDmesg()
 
         if not f.checkRoot():
-            logging.error("not root, you should run the manager as root")
+            logging.error("Not root, you should run the manager as root")
             sys.exit(1)
 
     def run(self):
@@ -34,6 +40,9 @@ class Manager:
         f.initRuntime()
         if not self.r.sensorStatus():
             if self.c.getAutoStart() == "Enabled":
+                logging.info("Sensor not active - Auto Starting")
+                self.d.setBackgroundTitle('SURFids v2.10 running on ' + f.system())
+                self.d.infobox("Auto Starting sensor...")
                 f.sensorUp()
     	logging.info("Starting up menu")
         menu.Menu().run()

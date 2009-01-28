@@ -57,8 +57,22 @@ class LogErr:
 def inthandler(signum, frame):
     """ Signal handler for ctrl-c """
     import os
-    if os.path.exists(locations.OPENVPNPID):
-        os.unlink(locations.OPENVPNPID)
+    from sensor import functions as f
+    from sensor import dialog
+    di = dialog.Dialog()
+
+    if f.managerStatus(str(os.getpid())):
+        logging.debug("WATCHME inthandler cleanup phase")
+        # Cleaning up temporary files
+        f.cleanUp()
+
+        di.setBackgroundTitle('SURFids v2.10 sensor running on ' + f.system())
+        di.infobox("CTRL-C received, shutting down sensor...")
+        # Shutting down the sensor
+        f.sensorDown()
+
+#    if os.path.exists(locations.OPENVPNPID):
+#        os.unlink(locations.OPENVPNPID)
     os.system('clear')
     logging.warning("SURFids menu stopped (received ctrl-c)")
     sys.exit(1)

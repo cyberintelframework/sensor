@@ -224,14 +224,14 @@ def allTunnelsDown():
     if os.path.exists(locations.OPENVPNPID):
         pid = open(locations.OPENVPNPID, 'r').readline().strip()
         if not pid.isdigit(): raise excepts.RunException, "Invalid pidfile (%s)" % pidfile
-        logging.debug("Kill openvpn daemon with PID " + pid)
+        logging.debug("WATCHME Kill openvpn daemon with PID " + pid)
         try:
             os.kill(int(pid), 15)
         except OSError:
-            logging.warning("Openvpn daemon with PID %s already died?" % pid)
+            logging.warning("WATCHME Openvpn daemon with PID %s already died?" % pid)
         os.unlink(locations.OPENVPNPID)
     else:
-        logging.debug("Could not find any tunnel PID files")
+        logging.debug("WATCHME Could not find any tunnel PID files")
 
     # set runtime status to tunnels down
     r.sensorDown()
@@ -390,10 +390,20 @@ def reboot():
     logging.info("rebooting system")
     os.system('reboot')
 
+def writePID():
+    """ Write a PID file for the manager """
+    logging.debugv("functions/__init__.py->writePID()", [])
+    file(locations.MANAGERPID, 'w').write("%s\n" % os.getpid())
+
 def cleanUp():
     """ Cleanup sensor status stuff and dhcp instances """
     logging.debugv("functions/__init__.py->cleanUp()", [])
-    os.unlink(locations.INTERFACES)
+    if os.access(locations.INTERFACES, os.R_OK):
+        os.unlink(locations.INTERFACES)
+    if os.access(locations.MANAGERPID, os.R_OK):
+        os.unlink(locations.MANAGERPID)
+    if os.access(locations.OPENVPNPID, os.R_OK):
+        os.unlink(locations.OPENVPNPID)
 
     dhcpExp = r"^dhcp.*$"
     compiled = re.compile(dhcpExp)

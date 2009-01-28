@@ -676,6 +676,23 @@ def bridgify(inf, infConf, bridgeNumber):
 
     return (brdev, ip)
 
+def managerStatus(chkPID = 0):
+    """ Returns the status of the sensor manager
+        ie, if there's already one running or not.
+        If a chkPID is given, it checks to see if the given PID
+        is equal to the PID in the pidfile.
+    """
+    logging.debugv("functions/linux.py->managerStatus(chkPID)", [chkPID])
+    if os.access(locations.MANAGERPID, os.F_OK):
+        pid = str(open(locations.MANAGERPID).read())
+        pid = pid.rstrip()
+        if chkPID == 0:
+            return os.access(locations.PROC + pid + "/", os.F_OK)
+        elif chkPID == pid:
+            return True
+        else:
+            return False
+
 def sshStatus():
     """ Returns the status of the SSH daemon """
     logging.debugv("functions/linux.py->sshStatus()", [])

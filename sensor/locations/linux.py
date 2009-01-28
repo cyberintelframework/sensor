@@ -47,6 +47,7 @@ ABOUT = os.path.join(DOC, "ABOUT")
 SSHPID = "/var/run/sshd.pid"
 SSHINIT = "/etc/init.d/ssh"
 OPENVPNPID = os.path.join(DATA, "tunnel.pid")
+MANAGERPID = os.path.join(DATA, "manager.pid")
 DEFAULT = "/etc/default/surfids-sensor"
 
 # CONSTANTS
