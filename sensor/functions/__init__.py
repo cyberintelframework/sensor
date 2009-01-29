@@ -96,7 +96,11 @@ def sensorUp():
         logging.error("Could not find an interface configuration.")
         return
 
-    waitInterfaceLink(inf)
+    try:
+        waitInterfaceLink(inf)
+    except excepts.NetworkException, msg:
+        logging.error(msg)
+        return False
 
     # refresh config, maybe somebody changed something
     c.refresh()

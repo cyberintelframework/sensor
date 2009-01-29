@@ -548,6 +548,11 @@ def addTap(id):
     """ Create a tap device, ID is a unique id """
     logging.debugv("functions/linux.py->addTap(id)", [id])
     dev = 'tap' + str(id)
+    if chkIf(dev):
+        if ifUp(dev):
+            return dev
+        else:
+            return False
     cmd = [locations.OPENVPN, '--mktun', '--dev', dev]
     if runWrapper(cmd):
         r.net(dev, 1)
@@ -751,7 +756,11 @@ def waitInterfaceLink(interface):
     from time import sleep as time_sleep
     
     gw = getGw(interface)
-    cmd= ['ping',  '-I', interface,  '-c 1', gw]
+    if not gw:
+        msg = "No default gateway was present"
+        raise excepts.NetworkException, msg
+
+    cmd = ['ping',  '-I', interface, '-c 1', gw]
     timeout = 60
     done = 0
 

@@ -406,8 +406,10 @@ class Config:
         logging.debugv("menu/config.py->listTrunk(self)", [])
         self.c.refresh()
         infs = f.ifList()
-        choices = [(x,self.c.chkTrunk(x)) for x in infs]
-        output = self.d.menu("Select the trunk interface", choices=choices)
+#        choices = [(x,self.c.chkTrunk(x)) for x in infs]
+#        output = self.d.menu("Select the trunk interface", choices=choices)
+        choices = [(x,self.c.chkInfType(x), int(self.c.getTrunkIf() == x)) for x in infs]
+        output = self.d.radiolist("Select the trunk interface (use space to select)", choices=choices, cancel="back")
         if not output[0]:
             interface = output[1]
             logging.info("Setting trunk interface to %s" % interface)
@@ -421,7 +423,7 @@ class Config:
         logging.debugv("menu/config.py->list(self)", [])
         # before listing, reset the trunks to disabled
         infs = f.ifList()
-        choices = [(x,self.c.chkInfType(x), int(self.c.chkInfType(x)!="disabled")) for x in infs]
+        choices = [(x,self.c.chkInfType(x), int(self.c.getMainIf() == x)) for x in infs]
         choice = self.d.radiolist("Select the main interface (use space to select)", choices=choices, cancel="back")
         if choice[0] == 1: return
         else:
