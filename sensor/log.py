@@ -60,16 +60,17 @@ def inthandler(signum, frame):
     from sensor import functions as f
     from sensor import dialog
     di = dialog.Dialog()
+    logging.debug("SIGINT received")
 
     if f.managerStatus(str(os.getpid())):
-        logging.debug("WATCHME inthandler cleanup phase")
-        # Cleaning up temporary files
-        f.cleanUp()
-
         di.setBackgroundTitle('SURFids v2.10 sensor running on ' + f.system())
         di.infobox("CTRL-C received, shutting down sensor...")
         # Shutting down the sensor
         f.sensorDown()
+
+        logging.debug("WATCHME inthandler cleanup phase")
+        # Cleaning up temporary files
+        f.cleanUp()
 
 #    if os.path.exists(locations.OPENVPNPID):
 #        os.unlink(locations.OPENVPNPID)
@@ -82,7 +83,7 @@ def setLog():
     loglevel = c.getLogLevel()
 
     level = logging.INFO
-    format='%(asctime)s %(message)s'
+    format = '%(asctime)s %(message)s'
     logfile = locations.LOGFILE
 
     if loglevel in "debug":
