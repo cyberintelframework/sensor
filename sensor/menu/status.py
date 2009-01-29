@@ -86,21 +86,28 @@ class Status:
         logging.debugv("menu/status.py->netconf(self)", [])
         infs = self.r.listInf()
         report = t.formatTitle("Main network configuration")
-        report += t.formatLog("Sensor type", self.c.netconf['sensortype'])
+        sensorType = self.c.getSensorType()
+        if sensorType == "":
+            report += t.formatLog("Sensor type", "Not configured")
+        else:
+            report += t.formatLog("Sensor type", sensorType)
         report += "\n"
 
         # Only use the first interface that is configured
         try:
-#            manInf = f.getFirstIf(["dhcp", "static"])
             manInf = self.c.getMainIf()
-
-            manInfConf = self.c.getIf(manInf)
-            manInfType = manInfConf['type']
+            if manInf == "":
+                manInf = "Not configured"
+                manInfConf = "Not configured"
+                manInfType = "Not configured"
+            else:
+                manInfConf = self.c.getIf(manInf)
+                manInfType = manInfConf['type']
         except excepts.InterfaceException:
             logging.warning("No active interface configuration found")
-            manInf = "None configured"
-            manInfConf = "None configured"
-            manInfType = "None"
+            manInf = "Not configured"
+            manInfConf = "Not configured"
+            manInfType = "Not configured"
 
         report += t.formatLog("Main network interface", manInf)
         report += t.formatLog("  Configuration", manInfType)
@@ -180,10 +187,11 @@ class Status:
         """ Prints information about the sensor status """
         logging.debugv("menu/status.py->sensor(self)", [])
         sid = self.c.getSensorID()
-        status = "Unknown"
-        if self.r.config['status']:
-            status = self.r.config['status']['sensor']
-        networkStatus = self.r.config['status']['network']
+        status = self.r.sensorStatus()
+#        if self.r.sensorStatus():
+#            status = self.r.config['status']['sensor']
+        networkStatus = self.r.networkStatus()
+#        networkStatus = self.r.config['status']['network']
 
         # Subtitle
         report = t.formatTitle("General sensor info")
@@ -202,7 +210,7 @@ class Status:
         # Subtitle
         report += t.formatTitle("Sanity checks")
 
-        if networkStatus == "enabled":
+        if networkStatus:
             # OpenVPN port check
             ovnport = f.scanPort(self.c.getServer(), 1194)
             report += t.formatLog("OpenVPN port", ovnport)

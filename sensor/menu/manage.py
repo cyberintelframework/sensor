@@ -23,6 +23,12 @@ class Manage:
     def run(self):
         """ Submenu of main to for sensor management """
         logging.debugv("menu/manage.py->run(self)", [])
+
+        # Checking for network configuration
+        if not self.r.configStatus():
+            self.d.msgbox("Network configuration was not found. Configure network first!")
+            return
+
         choices = []
 
         if self.r.sensorStatus():
@@ -83,6 +89,9 @@ class Manage:
             else:
                 self.d.msgbox("Unable to start the sensor")
         except excepts.NetworkException, msg:
+            self.d.msgbox(str(msg) + "\nplease see logfile for details", width=70)
+            self.sensorDown()
+        except excepts.ConfigException, msg:
             self.d.msgbox(str(msg) + "\nplease see logfile for details", width=70)
             self.sensorDown()
 

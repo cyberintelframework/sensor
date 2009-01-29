@@ -59,6 +59,7 @@ def inthandler(signum, frame):
     import os
     from sensor import functions as f
     from sensor import dialog
+    from sensor import runtime as r
     di = dialog.Dialog()
     logging.debug("SIGINT received")
 
@@ -66,7 +67,10 @@ def inthandler(signum, frame):
         di.setBackgroundTitle('SURFids v2.10 sensor running on ' + f.system())
         di.infobox("CTRL-C received, shutting down sensor...")
         # Shutting down the sensor
-        f.sensorDown()
+        try:
+            f.sensorDown()
+        except:
+            logging.error("Could not shutdown the sensor during SIGINT")
 
         logging.debug("WATCHME inthandler cleanup phase")
         # Cleaning up temporary files

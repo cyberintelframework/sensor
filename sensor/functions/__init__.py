@@ -50,11 +50,9 @@ def networkUp():
     c.refresh()
 
     # Only use the first interface that is configured
-    try:
-        inf = c.getMainIf()
-    except excepts.InterfaceException:
-        logging.error("Could not find an interface configuration.")
-        return
+    inf = c.getMainIf()
+    if inf == "":
+        raise excepts.ConfigException, "Could not find a configured interface"
 
     logging.debug("First interface: %s" % inf)
     infConf = c.getIf(inf)
@@ -85,16 +83,15 @@ def sensorUp():
 
     if not r.configStatus():
         logging.error("Could not find a configured interface")
-        return False
+        raise excepts.ConfigException, "Could not find a configured interface"
 
     # Always bring the main network interface up
     networkUp()
 
-    try:
-        inf = c.getMainIf()
-    except excepts.InterfaceException:
-        logging.error("Could not find an interface configuration.")
-        return
+    inf = c.getMainIf()
+    if inf == "":
+        logging.error("Could not find a configured interface")
+        raise excepts.ConfigException, "Could not find a configured interface"
 
     try:
         waitInterfaceLink(inf)
@@ -210,6 +207,8 @@ def sensorDown():
         localIp = getLocalIp()
         client.deRegister(localIp)
     except excepts.InterfaceException, msg:
+        logging.warning("%s, skipping deregistration" % (str(msg)))
+    except excepts.ConfigException, msg:
         logging.warning("%s, skipping deregistration" % (str(msg)))
 
     # Shut everything down

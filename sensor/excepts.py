@@ -5,7 +5,7 @@ changeset = "001"
 
 class ConfigException(exceptions.Exception):
     """ Used for configuration problems """
-    def __init__(self, valui):
+    def __init__(self, value):
         self.value = value
 
     def __str__(self):

@@ -128,8 +128,10 @@ class Config:
 
 
     def getIf(self, interface):
-        """ get interface info, return empty info if not existing """
+        """ Get interface info, return empty info if not existing """
         logging.debugv("config.py->getIf(self, interface)", [interface])
+        if interface == "":
+            return ""
         try:
             return self.getInfs()[interface]
         except KeyError:

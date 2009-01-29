@@ -10,6 +10,7 @@ from sensor import menu
 from sensor import runtime
 from sensor import config
 from sensor import dialog
+from sensor import excepts
 
 class Manager:
     def __init__(self):
@@ -43,7 +44,15 @@ class Manager:
                 logging.info("Sensor not active - Auto Starting")
                 self.d.setBackgroundTitle('SURFids v2.10 running on ' + f.system())
                 self.d.infobox("Auto Starting sensor...")
-                f.sensorUp()
+                try:
+                    f.sensorUp()
+                except excepts.NetworkException, msg:
+                    msg = str(msg)
+                    self.d.msgbox("NETWORK ERROR: " + msg)
+                except excepts.ConfigException, msg:
+                    msg = str(msg)
+                    self.d.msgbox("CONFIG ERROR: " + msg)
+
     	logging.info("Starting up menu")
         menu.Menu().run()
 
