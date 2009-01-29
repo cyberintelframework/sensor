@@ -55,10 +55,21 @@ def dec2bin(n):
         n = n >> 1
     return bStr
 
-def formatLog(msg,result):
+def formatBool(msg):
+    """ Formats a msg based on a boolean value """
+    logging.debugv("tools.py->formatBool(msg)", [msg])
+    msg = str(msg)
+    if msg == "enabled" or msg == "True":
+        return "\Z2" + str(msg) + "\Z0"
+    else:
+        return "\Z1" + str(msg) + "\Z0"
+
+def formatLog(msg,result,color = 0):
     """ Formats the string and result for usage in dialog """
     logging.debugv("tools.py->formatLog(msg, result)", [msg, result])
     lent = len(msg)
+    if color:
+        result = formatBool(result)
     tabcount = int(math.ceil(30 - lent))
     tabstring = " " * tabcount
     logstr = "%s:%s%s\n" % (msg, tabstring, result)

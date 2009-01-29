@@ -25,8 +25,8 @@ class Status:
                 ("Sensor", "General information about the sensor"),
                 ("Netconf", "Network configuration info"),
                 ("Interfaces", "Interface information"),
-                ("Version", "Version information"),
-                ("Debug", "Debug information"),
+#                ("Version", "Version information"),
+#                ("Debug", "Debug information"),
             ]
         if f.ipmiStatus():        
             choices += [("IPMI", "IPMI information")]
@@ -39,8 +39,8 @@ class Status:
         elif choice[1] == "Sensor": self.sensor()
         elif choice[1] == "Netconf": self.netconf()
         elif choice[1] == "Interfaces": self.interfaces()
-        elif choice[1] == "Version": self.version()
-        elif choice[1] == "Debug": self.debug()
+#        elif choice[1] == "Version": self.version()
+#        elif choice[1] == "Debug": self.debug()
         elif choice[1] == "IPMI": self.ipmi()
 #        elif choice[1] == "NewConfig": self.networkConfig()
         self.run()
@@ -200,10 +200,10 @@ class Status:
         report += t.formatLog("Sensor", sid)
 
         # Sensor status
-        report += t.formatLog("Status", status)
+        report += t.formatLog("Status", status, 1)
 
         # Network status
-        report += t.formatLog("Network", networkStatus)
+        report += t.formatLog("Network", networkStatus, 1)
 
         report += "\n"
 
@@ -213,19 +213,19 @@ class Status:
         if networkStatus:
             # OpenVPN port check
             ovnport = f.scanPort(self.c.getServer(), 1194)
-            report += t.formatLog("OpenVPN port", ovnport)
+            report += t.formatLog("OpenVPN port", ovnport, 1)
 
             # Updates port check
             upport = f.scanPort(self.c.getServer(), 4443)
-            report += t.formatLog("Updates port", upport)
+            report += t.formatLog("Updates port", upport, 1)
         else:
             report += t.formatLog("OpenVPN port", "Unchecked")
             report += t.formatLog("Updates port", "Unchecked")
 
         # Check crt existance
-        report += t.formatLog("Sensor certificate", f.verifyCrt())
+        report += t.formatLog("Sensor certificate", f.verifyCrt(), 1)
         # Check key existance
-        report += t.formatLog("Sensor key", f.verifyKey())
+        report += t.formatLog("Sensor key", f.verifyKey(), 1)
 
         report += "\n"
 
@@ -233,11 +233,11 @@ class Status:
         report += t.formatTitle("Program checks")
 
         # Check SSH status
-        report += t.formatLog("SSH daemon running", f.sshStatus())
+        report += t.formatLog("SSH daemon running", f.sshStatus(), 1)
 
         if status:
             # Checking OpenVPN daemon
-            report += t.formatLog("OpenVPN daemon running", f.openvpnStatus())
+            report += t.formatLog("OpenVPN daemon running", f.openvpnStatus(), 1)
 
         return self.d.msgbox(report, width=70, height=25, no_collapse=1, colors=1)
 
@@ -247,8 +247,8 @@ class Status:
         report = t.formatTitle("IPMI interface info")
 
         report += t.formatLog("IP address", info["IP Address"])
-        report += t.formatLog("MAC address", info["MAC Address"])
         report += t.formatLog("Subnet Mask", info["Subnet Mask"])
+        report += t.formatLog("MAC address", info["MAC Address"])
         report += "\n"
         report += t.formatLog("Gateway IP address", info["Default Gateway IP"])
         report += t.formatLog("Gateway MAC address", info["Default Gateway MAC"])
