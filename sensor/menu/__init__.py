@@ -20,12 +20,12 @@ class Menu:
         logging.debugv("menu/__init__.py->__init__(self)", [])
         self.d = dialog.Dialog()
 
-        self.d.setBackgroundTitle('SURFids sensor v2.10 running on ' + functions.system())
+        self.d.setBackgroundTitle('SURFids sensor v3.0 running on ' + functions.system())
 
     def run(self):
         """ The main menu """
         logging.debugv("menu/__init__.py->run(self)", [])
-        choice = self.d.menu("What's do you want to do today?",
+        choice = self.d.menu("What do you want to do today?",
             choices=[
                 ("Configure", "Configure this sensor"),
                 ("Manage", "Start/stop sensor functions"),
@@ -33,7 +33,7 @@ class Menu:
                 ("Log", "View the logfile of this sensor"),
                 #("Update", "Update the sensor scripts"),
                 #("Console", "Open a management console"),
-                ("About", "Learn more about the SURFnet IDS sensor"),
+                ("About", "Learn more about the SURFids sensor"),
             ], nocancel=1, width="63")
         #cancel
         if choice[0] == 1: return

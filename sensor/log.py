@@ -64,7 +64,7 @@ def inthandler(signum, frame):
     logging.debug("SIGINT received")
 
     if f.managerStatus(str(os.getpid())):
-        di.setBackgroundTitle('SURFids v2.10 sensor running on ' + f.system())
+        di.setBackgroundTitle('SURFids v3.0 sensor running on ' + f.system())
         di.infobox("CTRL-C received, shutting down sensor...")
         # Shutting down the sensor
         try:

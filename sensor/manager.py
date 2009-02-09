@@ -42,7 +42,7 @@ class Manager:
         if not self.r.sensorStatus():
             if self.c.getAutoStart() == "Enabled":
                 logging.info("Sensor not active - Auto Starting")
-                self.d.setBackgroundTitle('SURFids v2.10 running on ' + f.system())
+                self.d.setBackgroundTitle('SURFids v3.0 running on ' + f.system())
                 self.d.infobox("Auto Starting sensor...")
                 try:
                     f.sensorUp()
