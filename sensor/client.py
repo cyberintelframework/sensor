@@ -149,18 +149,22 @@ def deRegister(localip):
     logging.debugv("client.py->deRegister(localip)", [localip])
 
     if not r.networkStatus():
-        logging.warning("Sensor not active, not deregistering")
+        logging.warning("No network connection available, not deregistering")
         return
 
-    sensorid = c.getSensorID()
-    req = "stopclient.php"
-    args = urllib.urlencode((
-        ('ip_localip', localip),
-        ('strip_html_escape_keyname', sensorid))
-    ) 
+    if r.sensorStatus():
+        sensorid = c.getSensorID()
+        req = "stopclient.php"
+        args = urllib.urlencode((
+            ('ip_localip', localip),
+            ('strip_html_escape_keyname', sensorid))
+        ) 
 
-    x = makeRequest(req, args)
-    for line in x.readlines(): logging.debug(line[:-1])
+        x = makeRequest(req, args)
+        for line in x.readlines(): logging.debug(line[:-1])
+    else:
+        logging.warning("Sensor not active, not deregistering")
+        return
 
 
 def checkKey(localip):
