@@ -1,0 +1,55 @@
+#!/usr/bin/perl
+
+# Set the size of the USB image (binary.img) file in Mb
+$image_size = 0;
+
+# Set the maximum size of your USB drive in Mb
+#$max_size = 1024;
+$max_size = 0;
+
+#########################
+# DO NOT EDIT BELOW
+#########################
+
+$dev = $ARGV[0];
+if ("$dev" eq "") {
+    print "No device for the USB stick was given!\n";
+    print "Example: ./createusb /dev/sdb\n";
+    exit 1;
+}
+
+if ($image_size == 0) {
+    print "The size of the USB image was not set!\n";
+    exit 1;
+}
+
+if ($max_size == 0) {
+    print "The maximum size of the USB drive was not set!\n";
+    exit 1;
+}
+
+$image_size = $image_size + 15;
+
+if (-e "binary.img") {
+    # Creating the first partition
+    `dd if=binary.img of=$dev bs=1M`;
+
+    # Creating the 2nd partition
+    `sudo parted -s $dev mkpartfs primary ext2 $image_size $max_size`;
+
+    # Give the USB some time to be done writing the changes
+    sleep 10;
+
+    # Unmount the 2nd partition
+    `umount ${dev}2`;
+
+    # Setting up a ext2 filesystem on the 2nd partition
+    `sudo mke2fs ${dev}2`;
+
+    # Set the name of the 2nd partition to live-rw
+    `e2label ${dev}2 live-rw`;
+} else {
+    print "Could not find binary.img in local path!\n";
+    print "Maybe run mkimage first?\n";
+    exit 1;
+}
