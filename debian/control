@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>
 Standards-Version: 3.7.3
 Build-Depends: cdbs, python-dev, python-support, debhelper
-Homepage: http://surfids.surfnet.nl
+Homepage: http://ids.surfnet.nl
 
 Package: surfids-sensor
 Architecture: all
