@@ -1,3 +1,9 @@
+surfids-sensor (0.20) lenny; urgency=low
+
+  * New release.
+
+ -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Wed,  1 Apr 2009 11:58:15 +0200
+
 surfids-sensor (0.19) lenny; urgency=low
 
   * New test release, several bugfixes.
