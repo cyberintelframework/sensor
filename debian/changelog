@@ -1,3 +1,9 @@
+surfids-sensor (0.21) lenny; urgency=low
+
+  * Fixed a bug with static VLANs.
+
+ -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Wed,  8 Apr 2009 11:01:44 +0200
+
 surfids-sensor (0.20) lenny; urgency=low
 
   * New release.
