@@ -71,7 +71,7 @@ def saveConf():
                nm = vlanConf["netmask"]
                gw = vlanConf["gateway"]
                bc = vlanConf["broadcast"]
-               vlanIf = "|" + tunnel + "|" + nm + "|" + nm + "|" + bc + "|" + gw
+               vlanIf = "|" + tunnel + "|" + nm + "|" + bc + "|" + gw
            else:
                vlanIf = "dhcp"
            trunkConf += vlanid + "," + vlanIf + "," + desc + "!"
