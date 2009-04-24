@@ -13,7 +13,7 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 NAME="surfids-sensor"
-DESC="The SURFids honeypot sensor"
+DESC="The SURFids sensor"
 
 # Include flowd defaults if available
 if [ -f /etc/default/$NAME ] ; then
