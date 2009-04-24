@@ -16,6 +16,7 @@ IPMITOOL = "/usr/bin/ipmitool"
 DIALOG = "/usr/bin/dialog"
 OPENSSL = "/usr/bin/openssl"
 DMESG = "/bin/dmesg"
+REBOOT = "/sbin/reboot"
 
 ALL_BIN = [OPENVPN, BRCTL, DHCLIENT, IFCONFIG, KILLALL, SSHINIT, DIALOG, OPENSSL, DMESG]
 
@@ -40,7 +41,7 @@ CA = os.path.join(SYSCONF, "ca.crt")
 KEY = os.path.join(SYSCONF, "surfids.key")
 CRT = os.path.join(SYSCONF, "surfids.crt")
 LOGFILE = os.path.join(LOG, "surfids.log")
-VPNTEMPLATE = os.path.join(DATA, "openvpn.conf")
+VPNTEMPLATE = os.path.join(SYSCONF, "openvpn.conf")
 INTERFACES = os.path.join(RUNTIME, "connections")
 LOCKFILE = os.path.join(RUNTIME, "openvpn.lock")
 ABOUT = os.path.join(DOC, "ABOUT")

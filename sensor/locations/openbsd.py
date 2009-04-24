@@ -11,6 +11,7 @@ BRCONFIG = "/sbin/brconfig"
 DHCLIENT="/sbin/dhclient"
 IFCONFIG="/sbin/ifconfig"
 PKILL="/usr/bin/pkill"
+REBOOT = "/sbin/reboot"
 # FIXME
 OPENSSL="/usr/bin/openssl"
 

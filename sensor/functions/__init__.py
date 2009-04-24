@@ -391,7 +391,7 @@ def reboot():
     """ Tell the system to reboot the system """
     logging.debugv("functions/__init__.py->reboot()", [])
     logging.info("rebooting system")
-    os.system('reboot')
+    os.system(locations.REBOOT)
 
 def writePID():
     """ Write a PID file for the manager """

@@ -1,1 +1,3 @@
-data/openvpn.conf /var/lib/surfids/
+data/openvpn.conf.dist /etc/surfids/
+data/surfids.conf.dist /etc/surfids/
+data/tty1.conf /var/lib/surfids/tty1.conf
