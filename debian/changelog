@@ -1,3 +1,63 @@
+surfids-sensor (0.31) lenny; urgency=low
+
+  * Added logrotate configuration
+
+ -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Mon, 27 Apr 2009 14:07:26 +0200
+
+surfids-sensor (0.30) lenny; urgency=low
+
+  * Fixed install bug
+
+ -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Mon, 27 Apr 2009 13:41:24 +0200
+
+surfids-sensor (0.29) lenny; urgency=low
+
+  * new postinst 
+
+ -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 15:49:58 +0200
+
+surfids-sensor (0.28) lenny; urgency=low
+
+  * Added more info
+
+ -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 15:21:06 +0200
+
+surfids-sensor (0.27) lenny; urgency=low
+
+  * Added some info messages at the end.
+
+ -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 15:00:51 +0200
+
+surfids-sensor (0.26) lenny; urgency=low
+
+  * fixed else if bug
+
+ -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 14:23:32 +0200
+
+surfids-sensor (0.25) lenny; urgency=low
+
+  * new postinst
+
+ -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 14:07:35 +0200
+
+surfids-sensor (0.24) lenny; urgency=low
+
+  * New postinst
+
+ -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 13:59:03 +0200
+
+surfids-sensor (0.23) lenny; urgency=low
+
+  * Fixed sed expression in postinst
+
+ -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 13:33:33 +0200
+
+surfids-sensor (0.22) lenny; urgency=low
+
+  * Testing new postinst
+
+ -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 13:10:39 +0200
+
 surfids-sensor (0.21) lenny; urgency=low
 
   * Fixed a bug with static VLANs.
