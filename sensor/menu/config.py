@@ -98,7 +98,6 @@ class Config:
                 ('serverurl', self.c.getServerurl()),
                 ('user', self.c.getUser()),
                 ('passwd', len(self.c.getPasswd())*'*'),
-                ('email', self.c.getEmail()),
             ]
         choice = self.d.menu("What do you want to configure?", choices=choices, cancel="back")
 
