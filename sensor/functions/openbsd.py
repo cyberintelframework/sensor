@@ -310,6 +310,8 @@ def sshStatus():
         pid = str(open(locations.SSHPID).read())
         pid = pid.rstrip()
         return True
+    else:
+        return False
 
 def killAllDhcp():
     """ Kills all DHCP servers """

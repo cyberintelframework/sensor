@@ -705,6 +705,8 @@ def sshStatus():
         pid = str(open(locations.SSHPID).read())
         pid = pid.rstrip()
         return os.access(locations.PROC + pid + "/", os.F_OK)
+    else:
+        return False
 
 def openvpnStatus():
     """ Returns the status of the OpenVPN daemon """
@@ -714,6 +716,8 @@ def openvpnStatus():
         pid = str(open(opid).read())
         pid = pid.rstrip()
         return os.access(locations.PROC + pid + "/", os.F_OK)
+    else:
+        return False
 
 def sshUp():
     """ Starts the SSH daemon """
