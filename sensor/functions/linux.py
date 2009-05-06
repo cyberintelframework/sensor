@@ -680,6 +680,8 @@ def bridgify(inf, infConf, bridgeNumber):
     elif infConf['type'] == "static":
         ip = ifUpStatic(brdev, infConf['address'], infConf['netmask'])
         # set gateway
+        if getGw(inf):
+            delGw(inf)
         if infConf['gateway']:
             addGw(infConf['gateway'])
 
