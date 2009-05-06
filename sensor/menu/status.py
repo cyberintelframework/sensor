@@ -63,7 +63,10 @@ class Status:
             report += t.formatLog("Interface", inf)
             report += t.formatLog("  Status", statustxt)
             if status != 0:
-                mac = f.getMac(inf)
+                try:
+                    mac = f.getMac(inf)
+                except excepts.InterfaceException:
+                    mac = "false"
                 report += t.formatLog("    MAC", mac)
             if status == 3:
                 ip = f.getIp(inf)

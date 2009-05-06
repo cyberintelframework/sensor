@@ -24,7 +24,7 @@ class Manager:
         self.d = dialog.Dialog()
 
         if not f.managerStatus():
-            logging.debug("WATCHME No manager running, cleaning up, writing PID")
+            logging.debug("No manager running, cleaning up, writing PID")
             f.cleanUp()
             f.writePID()
 
@@ -48,10 +48,13 @@ class Manager:
                     f.sensorUp()
                 except excepts.NetworkException, msg:
                     msg = str(msg)
-                    self.d.msgbox("NETWORK ERROR: " + msg)
+                    self.d.msgbox("Autostart Failed\n\nNETWORK ERROR: " + msg)
                 except excepts.ConfigException, msg:
                     msg = str(msg)
-                    self.d.msgbox("CONFIG ERROR: " + msg)
+                    self.d.msgbox("Autostart Failed\n\nCONFIG ERROR: " + msg)
+                except excepts.InterfaceException, msg:
+                    msg = str(msg)
+                    self.d.msgbox("Autostart Failed\n\nINTERFACE ERROR: " + msg)
 
     	logging.info("Starting up menu")
         menu.Menu().run()

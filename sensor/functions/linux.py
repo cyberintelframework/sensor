@@ -332,8 +332,8 @@ def getMac(interface):
     """ Return hardware address of interface"""
     logging.debugv("functions/linux.py->getMac(interface)", [interface])
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    #try:
-    if True:
+    try:
+    #if True:
         info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', interface[:15]))
         hwaddr = []
         for char in info[18:24]:
@@ -342,8 +342,8 @@ def getMac(interface):
             elif len(hdigit) == 1 : hwaddr.append('0' + hdigit)
             else: hwaddr.append('00')
         return ":".join(hwaddr)
-    #except IOError:
-    #    raise exceptions.InterfaceException, "interface not found: " + interface
+    except IOError:
+        raise exceptions.InterfaceException, "interface not found: " + interface
 
 def ipmiWrapper(cmd):
     """ A wrapper for ipmitool commands. ipmitool always returns error code 0
@@ -431,8 +431,12 @@ def ifUpDhcp(interface):
     logging.debugv("functions/linux.py->ifUpDhcp(interface)", [interface])
 
     # If interface isn't up, bring it up
+    try:
+        temp = r.config['net'][interface]
+    except KeyError:
+        raise excepts.InterfaceException, "Could not find runtime configuration for %s" % str(interface)
+
     if r.config['net'][interface] < 2:
-        logging.debug("%s already UP, not calling ifUp" % str(interface))
         ifUp(interface)
     else:
         logging.debug("%s already UP, not calling ifUp" % str(interface))

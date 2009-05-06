@@ -68,13 +68,18 @@ def networkUp():
             if getGw(inf):
                 delGw(inf)
             addGw(gw)
+            r.networkUp()
         else:
-            ifUpDhcp(inf)
+            try:
+                ifUpDhcp(inf)
+                r.networkUp()
+            except excepts.InterfaceException:
+                logging.error("Could not setup %s with DHCP" % str(inf))
+                raise excepts.InterfaceException, "Could not setup %s with DHCP" % str(inf)
 
     # set DNS
     (type, prim, sec) = c.getDNS()
     if type == 'static': setDNS(prim, sec)
-    r.networkUp()
 
 
 def sensorUp():
@@ -356,7 +361,10 @@ def update():
         return
 
     ssh = int(sshStatus())
-    mac = getMac(inf)
+    try:
+        mac = getMac(inf)
+    except excepts.InterfaceException:
+        mac = "00:00:00:00:00:00"
 
     ac = client.update(localIp, ssh, mac)
     if ac:
