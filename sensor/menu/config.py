@@ -554,6 +554,7 @@ class Config:
             type = output[1]
             logging.info("setting type for %s to %s" % (interface, type) )
             self.changed = True
+            self.r.configUp()
             self.c.setIfProp(interface, "type", type)
             self.c.resetOtherInfs(interface, ["dhcp", "static"])
             
