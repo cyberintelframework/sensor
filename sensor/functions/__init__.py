@@ -142,9 +142,9 @@ def sensorUp():
  
         infConf = c.getIf(inf)
         infType = infConf['type']
+        ifDelIp(inf)
         (brdev, localIp) = bridgify(inf, infConf, bridgeID)
         r.addInf(inf, brdev, infType, bridgeID)
-        ifDelIp(inf)
 
         if infType == "static":
             nm = infConf['netmask']
