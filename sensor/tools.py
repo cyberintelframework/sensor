@@ -122,6 +122,7 @@ class Pinger(Thread):
         Thread.__init__(self)
         self.host = host
         self.alive = False
+        self.log = ""
 
     def run(self):
         logging.debugv("tools.py->Pinger->run(Thread)", [Thread])
@@ -130,7 +131,7 @@ class Pinger(Thread):
             line = pingaling.readline()
             if not line: break
             igot = re.findall(self.lifeline,line)
-            if igot and int(igot[0]): self.alive = True
+            if igot and int(igot[0]) > 0: self.alive = True
 
 
 # TODO: for now this is here, don't know a better place yet. These hosts will be pinged
@@ -141,10 +142,9 @@ def ping(hosts):
     logging.debugv("tools.py->ping(hosts)", [hosts])
     pings = []
     for host in hosts:
-        current = Pinger(host) 
+        current = Pinger(host)
         pings.append(current)
         current.start()
-
     for pingi in pings:
         pingi.join()
         if pingi.alive: return True

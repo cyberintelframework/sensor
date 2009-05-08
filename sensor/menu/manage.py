@@ -131,7 +131,6 @@ class Manage:
         """ Send a ping to predefined addresses """
         logging.debugv("menu/manage.py->ping(self)", [])
         self.d.infobox("Sending ping...")
-        (result, log) = tools.ping(tools.hosts)
-        logging.debug(log)
+        result = tools.ping(tools.hosts)
         if result: self.d.msgbox("Ping OK")
         else: self.d.msgbox("Ping failed, there is something wrong with your settings or you can't sent ICMP packages")
