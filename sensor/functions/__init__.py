@@ -384,11 +384,11 @@ def action(action):
         sshDown()
     elif action == "start":
         logging.info("Server request: Start/Restart sensor")
-        allDown()
-        allUp()
+        sensorDown()
+        sensorUp()
     elif action == "stop":
         logging.info("Server request: Stop sensor")
-        allTunnelsDown()
+        sensorDown()
         networkUp()
     elif action == "saveconf":
         logging.info("Server request: Save config")
