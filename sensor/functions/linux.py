@@ -529,7 +529,12 @@ def setDNS(prim, sec):
     logging.debugv("functions/linux.py->setDNS(prim, sec)", [prim, sec])
     logging.info("Setting DNS to %s and %s" % (prim, sec) )
     resolv = open('/etc/resolv.conf', 'w')
-    resolv.write("nameserver %s\nnameserver %s\n" % (prim, sec) )
+    if prim != "":
+        resolv.write("nameserver %s\n" % (prim))
+        logging.debug("Writing primary server %s" % str(prim))
+    if sec != "":
+        resolv.write("nameserver %s\n" % (sec))
+        logging.debug("Writing secondary server % s" % str(sec))
     resolv.close()
 
 def addVlan(interface, vlanid):

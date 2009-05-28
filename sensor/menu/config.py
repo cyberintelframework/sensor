@@ -489,9 +489,12 @@ class Config:
         logging.debugv("menu/config.py->dnsSec(self)", [])
         (type, prim, sec) = self.c.getDNS()
         while True:
-            input = self.d.inputbox("secondary DNS:", 10, 50, prim)
+            input = self.d.inputbox("secondary DNS:", 10, 50, sec)
             if input[0]: return
-            if t.ipv4check(input[1]):
+            if input[1] == "":
+                sec = ""
+                break
+            elif t.ipv4check(input[1]):
                 sec = input[1]
                 break
         self.changed = True
