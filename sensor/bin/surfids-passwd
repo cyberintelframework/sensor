@@ -25,7 +25,7 @@ if len(sys.argv) == 2:
         m = md5.new()
         m.update(o)
         p = m.hexdigest()
-        print "%s -> %s" % (o, p)
+        print "%s" % (p)
 else:
     usage()
     exit
