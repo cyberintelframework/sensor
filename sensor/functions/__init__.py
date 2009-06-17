@@ -359,6 +359,10 @@ def update():
         logging.warning("Could not sync with the server")
         logging.error(msg)
         return
+    # FIXME
+    #except excepts.InterfaceException, msg:
+    #   logging.error(msg)
+    #   return
 
     ssh = int(sshStatus())
     try:
