@@ -1,7 +1,8 @@
-from configobj import ConfigObj
+from configobj import ConfigObj, ConfigObjError
 import logging
 import pdb
 import md5
+import sys
 
 from sensor import locations
 
@@ -16,9 +17,24 @@ class Config:
 
     def __init__(self):
         self.__dict__ = self.__shared_state
-        self.config = ConfigObj(locations.SETTINGS)
-        self.netconf = ConfigObj(locations.NETCONF)
-        self.ipmi = ConfigObj(locations.IPMI)
+        try:
+            self.config = ConfigObj(locations.SETTINGS)
+        except (ConfigObjError), e:
+            logging.critical("(S09) SURFids config: %s" % str(e))
+            sys.exit(1)
+
+        try:
+            self.netconf = ConfigObj(locations.NETCONF)
+        except (ConfigObjError), e:
+            logging.critical("(S08) Network config: %s" % str(e))
+            sys.exit(1)
+
+        try:
+            self.ipmi = ConfigObj(locations.IPMI)
+        except (ConfigObjError), e:
+            logging.critical("(S10) IPMI config: %s" % str(e))
+            sys.exit(1)
+
         self.changed = False
         try:
             logging.debugv("config.py->__init__(self)", [])

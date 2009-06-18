@@ -864,12 +864,16 @@ class Config:
         """ Set or edit the server URL used for updates """
         logging.debugv("menu/config.py->setServerurl(self)", [])
         url = self.c.getServerurl()
-        input = self.d.inputbox("Full URL of IDS server:", init=url)
+        input = self.d.inputbox("Full URL of IDS server:", init=url, width=100)
         if input[0] == 1: return
-        url = input[1]
-        logging.info("setting serverurl to: " + url)
-        self.changed = True
-        self.c.setServerurl(url)
+        if t.urlCheck(input[1]):
+            url = input[1]
+            logging.info("Setting serverurl to: %s" + str(url))
+            self.changed = True
+            self.c.setServerurl(url)
+        else:
+            self.d.msgbox("You entered an invalid URL. Make sure it ends with a forward slash.")
+            self.setServerurl()
 
     def setUser(self):
         """ Set the https user to get updates with """
@@ -878,7 +882,7 @@ class Config:
         input = self.d.inputbox("Username for IDS server:", init=user)
         if input[0] == 1: return
         user = input[1]
-        logging.info("setting user to: " + user)
+        logging.info("Setting user to: " + user)
         self.changed = True
         self.c.setUser( user)
 
@@ -890,7 +894,7 @@ class Config:
         input = self.d.passwordbox("Passwd IDS server:", init=passwd, insecure=1)
         if input[0] == 1: return
         passwd = input[1]
-        logging.info("setting passwd to: " + passwd)
+        logging.info("Setting passwd to: " + passwd)
         self.changed = True
         self.c.setPasswd(passwd)
 

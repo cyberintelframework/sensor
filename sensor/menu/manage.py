@@ -39,7 +39,7 @@ class Manage:
 
         if self.r.networkStatus():
             choices.append( ("Update", "Sync with server now") )
-            choices.append( ("Get Config", "Get the latest network config") )
+            #choices.append( ("Get Config", "Get the latest network config") )
             choices.append( ("Ping", "Check if connection is okay") )
 
         if functions.sshStatus():
@@ -61,7 +61,7 @@ class Manage:
         elif choice[1] == "Sensor Down": self.sensorDown()
         elif choice[1] == "Sensor Restart": self.sensorUp()
         elif choice[1] == "Update": self.update()
-        elif choice[1] == "Get Config": self.getConfig()
+        #elif choice[1] == "Get Config": self.getConfig()
         elif choice[1] == "SSH server on":
             functions.sshUp()
             self.d.msgbox("SSH server enabled")
@@ -116,7 +116,7 @@ class Manage:
         logging.debugv("menu/manage.py->getConfig(self)", [])
 
         config = client.getConfig()
-        functions.saveNetConf(config)
+        #functions.saveNetConf(config)
         self.d.msgbox(config, height=20, width=60)
 
 

@@ -23,6 +23,13 @@ def macCheck(mac):
     compiled = re.compile(macexpression)
     return (compiled.match(mac) != None)
 
+def urlCheck(url):
+    """ Check if an URL is starting with http:// and ending with a valid / """
+    logging.debugv("tools.py->urlCheck(url)", [url])
+    urlexpression = r"^http{1}s?:\/\/.*\/$"
+    compiled = re.compile(urlexpression)
+    return (compiled.match(url) != None)
+
 def broadcast(ip, netmask):
     """ Calculates the broadcast address from a given IP address and netmask """
     logging.debugv("tools.py->broadcast(ip, netmask)", [ip, netmask])
