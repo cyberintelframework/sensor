@@ -37,6 +37,12 @@ class Manager:
     def run(self):
     	logging.debugv("manager.py->run(self)", [])
         logging.info("SURFids manager starting")
+        try:
+            f.networkUp()
+        except excepts.ConfigException, msg:
+            logging.warn(msg)
+        except excepts.InterfaceException, msg:
+            logging.warn(msg)
         logging.debug("Initializing runtime info")
         f.initRuntime()
         if not self.r.sensorStatus():
