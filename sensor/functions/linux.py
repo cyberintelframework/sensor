@@ -627,7 +627,8 @@ def mkTunnel(id):
                     buffer += out
                 else:
                     logging.debug(buffer[25:])
-                    if buffer[25:] == locations.OPENVPN_INIT_RDY:
+                    regex = ".*" + locations.OPENVPN_INIT_RDY + ".*"
+                    if tools.chkReg(regex, buffer[25:]):
                         punlock(fd, locations.LOCKFILE)
                     buffer = ""
         if p.poll() > 0:
