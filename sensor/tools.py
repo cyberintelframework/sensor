@@ -9,9 +9,9 @@ from threading import Thread
 
 changeset = "001"
 
-def chkRegExp(expr, match):
+def chkReg(expr, match):
     """ Check a string against a regular expression """
-    logging.debugv("tools.py->chkRegExp(expr, match)", [expr, match])
+    logging.debugv("tools.py->chkReg(expr, match)", [expr, match])
     compiled = re.compile(expr)
     return (compiled.match(match) != None)
 
