@@ -9,6 +9,12 @@ from threading import Thread
 
 changeset = "001"
 
+def chkRegExp(expr, match):
+    """ Check a string against a regular expression """
+    logging.debugv("tools.py->chkRegExp(expr, match)", [expr, match])
+    compiled = re.compile(expr)
+    return (compiled.match(match) != None)
+
 def ipv4check(ip):
     """ Check if IP is a valid IP address """
     logging.debugv("tools.py->ipv4check(ip)", [ip])
