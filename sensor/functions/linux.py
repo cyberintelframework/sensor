@@ -503,14 +503,14 @@ def addGw(ip):
     """ Add gw to routing table """
     logging.debugv("functions/linux.py->addGw(ip)", [ip])
     logging.info("setting default gateway to %s" % (ip) )
-    cmd = ["route", "add", "default", "gw", ip]
+    cmd = ["ip", "route", "add", "default", "via", ip]
     runWrapper(cmd)
 
 def delGw(interface):
     """ Remove gateway of device """
     logging.debugv("functions/linux.py->delGw(interface)", [interface])
     logging.info("removing default gateway of device " + interface)
-    cmd = ["route", "del", "default", interface]
+    cmd = ["ip", "route", "del", "default", "dev", interface]
     runWrapper(cmd)
 
 def getGw(interface):
