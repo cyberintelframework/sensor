@@ -369,6 +369,10 @@ def update():
     except excepts.InterfaceException:
         mac = "00:00:00:00:00:00"
 
+    # Do all the APT stuff
+#    aptUpdate()
+#    aptInstall()
+
     ac = client.update(localIp, ssh, mac)
     if ac:
         action(ac)    

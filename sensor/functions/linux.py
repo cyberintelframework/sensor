@@ -54,6 +54,24 @@ def suppressDmesg():
     cmd = [locations.DMESG, "-n", "1"]
     runWrapper(cmd)
 
+def aptUpdate():
+    """ Updated the apt cache """
+    logging.debugv("functions/linux.py->aptUpdate()", [])
+    cmd = ["apt-get", "-qqv", "update"]
+    try:
+        runWrapper(cmd)
+    except excepts.RunException, msg:
+        logging.error("APT update error: %s", % str(msg))
+
+def aptInstall():
+    """ Install a new sensor package via APT """
+    logging.debugv("functions/linux.py->aptInstall()", [])
+    cmd = ["apt-get", "-qqv", "--force-yes", "install", "surfids-sensor"]
+    try:
+        runWrapper(cmd)
+    except excepts.RunException, msg:
+        logging.error("APT install error: %s", % str(msg))
+
 ########################
 # IPMI USER COMMANDS
 ########################
