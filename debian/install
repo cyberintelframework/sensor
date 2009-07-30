@@ -1,4 +1,2 @@
-data/openvpn.conf /etc/surfids/
-data/surfids.conf /etc/surfids/
 data/tty1.conf /var/lib/surfids/
 data/logrotate.conf /var/lib/surfids/
