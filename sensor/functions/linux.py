@@ -61,7 +61,7 @@ def aptUpdate():
     try:
         runWrapper(cmd)
     except excepts.RunException, msg:
-        logging.error("APT update error: %s", % str(msg))
+        logging.error("APT update error: %s" % str(msg))
 
 def aptInstall():
     """ Install a new sensor package via APT """
@@ -70,7 +70,7 @@ def aptInstall():
     try:
         runWrapper(cmd)
     except excepts.RunException, msg:
-        logging.error("APT install error: %s", % str(msg))
+        logging.error("APT install error: %s" % str(msg))
 
 ########################
 # IPMI USER COMMANDS
