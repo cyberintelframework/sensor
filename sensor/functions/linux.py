@@ -66,9 +66,12 @@ def aptUpdate():
 def aptInstall():
     """ Install a new sensor package via APT """
     logging.debugv("functions/linux.py->aptInstall()", [])
-    cmd = "apt-get -qqy --force-yes install surfids-sensor"
+    cmd = "DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install surfids-sensor"
     try:
         apt = os.popen(cmd)
+        for line in apt.readlines():
+            line.rstrip()
+            logging.debug("APT: %s" % str(line))
     except excepts.RunException, msg:
         logging.error("APT install error: %s" % str(msg))
 
