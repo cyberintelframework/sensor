@@ -57,18 +57,18 @@ def suppressDmesg():
 def aptUpdate():
     """ Updated the apt cache """
     logging.debugv("functions/linux.py->aptUpdate()", [])
-    cmd = ["apt-get", "-qqv", "update"]
+    cmd = "apt-get -qqy update"
     try:
-        runWrapper(cmd)
+        apt = os.popen(cmd)
     except excepts.RunException, msg:
         logging.error("APT update error: %s" % str(msg))
 
 def aptInstall():
     """ Install a new sensor package via APT """
     logging.debugv("functions/linux.py->aptInstall()", [])
-    cmd = ["apt-get", "-qqv", "--force-yes", "install", "surfids-sensor"]
+    cmd = "apt-get -qqy --force-yes install surfids-sensor"
     try:
-        runWrapper(cmd)
+        apt = os.popen(cmd)
     except excepts.RunException, msg:
         logging.error("APT install error: %s" % str(msg))
 
