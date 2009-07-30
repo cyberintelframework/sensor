@@ -370,8 +370,8 @@ def update():
         mac = "00:00:00:00:00:00"
 
     # Do all the APT stuff
-#    aptUpdate()
-#    aptInstall()
+    aptUpdate()
+    aptInstall()
 
     ac = client.update(localIp, ssh, mac)
     if ac:

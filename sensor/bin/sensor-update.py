@@ -12,4 +12,4 @@ r = runtime.Runtime()
 if r.networkStatus():
     functions.update()
 else:
-    logging.debug("sensor not active, not updating")
+    logging.debug("Sensor not active, not updating")
