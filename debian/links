@@ -3,5 +3,5 @@ usr/share/python-support/surfids-sensor/sensor/bin/sensor-up.py /usr/sbin/sensor
 usr/share/python-support/surfids-sensor/sensor/bin/sensor-down.py /usr/sbin/sensor-down
 usr/share/python-support/surfids-sensor/sensor/bin/sensor-update.py /usr/sbin/sensor-update
 usr/share/python-support/surfids-sensor/sensor/bin/sensor-apt-update.py /usr/sbin/sensor-apt-update
-usr/share/python-support/surfids-sensor/sensor/bin/surfids-passwd /usr/sbin/surfids-passwd
+usr/share/python-support/surfids-sensor/sensor/bin/surfids-passwd.py /usr/sbin/surfids-passwd
 
