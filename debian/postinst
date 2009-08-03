@@ -41,6 +41,7 @@ if [ ! -e "/etc/surfids/openvpn.conf" ]; then
     mv -f /etc/surfids/openvpn.conf.dist /etc/surfids/openvpn.conf
     echo "*) Configure /etc/surfids/openvpn.conf"
 fi
+echo ""
 echo "NOTE: If this is the first time you have installed surfids-sensor,"
 echo "reboot your machine to startup the sensor environment!"
 echo ""
