@@ -8,7 +8,7 @@ Homepage: http://ids.surfnet.nl
 
 Package: surfids-sensor
 Architecture: all
-Depends: ${python:Depends}, openvpn, bridge-utils, vlan, python-configobj, dialog, openssh-server, psmisc
+Depends: ${python:Depends}, openvpn, bridge-utils, vlan, python-configobj, dialog, openssh-server, psmisc, openssl
 Conflicts: surfids-tunnel
 Priority: optional
 Description: A sensor for SURFids, written in python
