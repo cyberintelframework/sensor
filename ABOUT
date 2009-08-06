@@ -15,9 +15,16 @@ Configure: This menu enables you to configure various aspects of the sensor, inc
     Loglevel - The amount of messages that will be logged.
 
 Manage: Managing the sensor.
+    Sensor (Up/Down/Restart) - Manages the status of the OpenVPN tunnel.
+    Update - Initiates keepalive signal to the server.
+    Ping - Does a ping diagnostic check.
+    SSH server - Disables or enables SSH on the sensor.
+    Reinit sensor - Removes the sensor certificates and sensor name from the sensor. Use with caution!
+    
 
 Status: Various status overviews.
     Sensor - General sensor overview. Here several status checks are done to see if everything is working correctly.
     Netconf - This overview is the network configuration of your sensor.
     Interfaces - This overview is an actual overview of the current network interfaces of the sensor.
 
+Log: The log file of the sensor.
