@@ -24,17 +24,23 @@ r = runtime.Runtime()
 inf_flags = ["UP", "BROADCAST", "DEBUG", "LOOPBACK", "POINTTOPOINT", "NOTRAILERS", "RUNNING", "NOARP", "PROMISC", "ALLMULTI", "MASTER", "SLAVE", "MULTICAST", "PORTSEL", "AUTOMEDIA", "DYNAMIC"]
 
 def scanPort(IP, port):
-   """ Scan A single port\nScanPort(IP, Port)\nReturn a boolean value """
-   logging.debugv("functions/linux.py->scanPort(IP, port)", [IP, port])
-   scan = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-   scan.settimeout(int(4))
-   logging.debug("Scanning %s with port %s" % (IP, port))
-   if scan.connect_ex((IP, port)) == 0:
-      scan.close()
-      return True
-   else:
-      scan.close()
-      return False
+    """ Scan A single port\nScanPort(IP, Port)\nReturn a boolean value """
+    logging.debugv("functions/linux.py->scanPort(IP, port)", [IP, port])
+    scan = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    scan.settimeout(int(4))
+    logging.debug("Scanning %s with port %s" % (IP, port))
+    try:
+        scanresult = scan.connect_ex((IP, port))
+    except:
+        logging.error("Connection to %s could not be made with port %s" % (str(IP), str(port)))
+        return False
+
+    if scan.connect_ex((IP, port)) == 0:
+       scan.close()
+       return True
+    else:
+       scan.close()
+       return False
 
 def system():
     """ Returns the system type """
