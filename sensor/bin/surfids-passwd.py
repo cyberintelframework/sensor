@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import md5
+import hashlib
 import sys
 
 def usage():
@@ -22,7 +22,7 @@ if len(sys.argv) == 2:
         usage()
         exit
     else:
-        m = md5.new()
+        m = hashlib.md5()
         m.update(o)
         p = m.hexdigest()
         print "%s" % (p)
