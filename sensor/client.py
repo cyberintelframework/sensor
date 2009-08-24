@@ -183,6 +183,9 @@ def checkKey(localip):
         open(certFile,'w').write(cert)
         os.chmod(certFile, 0600)
         c.setSensorID(sensorid)
+        # After we got a sensor ID we need to save the configuration
+        # We could not do this before due to missing a sensor ID
+        saveConf()
     else:
         logging.debug("already got certificate, key and sensor id")
 
