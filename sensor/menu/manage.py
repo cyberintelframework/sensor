@@ -71,9 +71,9 @@ class Manage:
         elif choice[1] == "Reinit sensor":
             if not self.d.yesno("Are you sure you want to reinit this sensor? " + 
                     "This will result in a new sensor ID"):
-                if self.sensorDown():
-                    functions.delKey()
-                    self.d.msgbox("Sensor cleaned (removed key & certificate)")
+                functions.sensorDown()
+                functions.delKey()
+                self.d.msgbox("Sensor cleaned (removed key & certificate). Ignore the old sensor in the web interface. Restart the sensor.", width=70)
         elif choice[1] == "Ping": self.ping()
         else: self.d.msgbox("not yet implemented")
         self.run()
