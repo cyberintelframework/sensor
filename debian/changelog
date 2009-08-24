@@ -1,138 +1,15 @@
-surfids-sensor (0.31) lenny; urgency=low
+surfids-sensor (3.0) lenny; urgency=low
 
-  * Added logrotate configuration
+    * Complete rewrite of the sensor in Python.
+    * Sensor support for regular Debian-like systems.
+    * USB sensor based on Debian Live.
+    * No more Knoppix remastering.
+    * VLAN sensors now only require 1 IP address per VLAN (instead of 2) resulting in a total amount of IP addresses of VLANs + 1.
 
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Mon, 27 Apr 2009 14:07:26 +0200
+ -- SURFids Development Team <ids@surfnet.nl>  Wed, 19 Aug 2009 16:28:50 +0200
 
-surfids-sensor (0.30) lenny; urgency=low
+surfids-sensor (beta) lenny; urgency=low
 
-  * Fixed install bug
+  * Beta packages
 
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Mon, 27 Apr 2009 13:41:24 +0200
-
-surfids-sensor (0.29) lenny; urgency=low
-
-  * new postinst 
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 15:49:58 +0200
-
-surfids-sensor (0.28) lenny; urgency=low
-
-  * Added more info
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 15:21:06 +0200
-
-surfids-sensor (0.27) lenny; urgency=low
-
-  * Added some info messages at the end.
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 15:00:51 +0200
-
-surfids-sensor (0.26) lenny; urgency=low
-
-  * fixed else if bug
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 14:23:32 +0200
-
-surfids-sensor (0.25) lenny; urgency=low
-
-  * new postinst
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 14:07:35 +0200
-
-surfids-sensor (0.24) lenny; urgency=low
-
-  * New postinst
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 13:59:03 +0200
-
-surfids-sensor (0.23) lenny; urgency=low
-
-  * Fixed sed expression in postinst
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 13:33:33 +0200
-
-surfids-sensor (0.22) lenny; urgency=low
-
-  * Testing new postinst
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 24 Apr 2009 13:10:39 +0200
-
-surfids-sensor (0.21) lenny; urgency=low
-
-  * Fixed a bug with static VLANs.
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Wed,  8 Apr 2009 11:01:44 +0200
-
-surfids-sensor (0.20) lenny; urgency=low
-
-  * New release.
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Wed,  1 Apr 2009 11:58:15 +0200
-
-surfids-sensor (0.19) lenny; urgency=low
-
-  * New test release, several bugfixes.
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri,  6 Mar 2009 15:34:16 +0100
-
-surfids-sensor (0.18) lenny; urgency=low
-
-  * new test release, testing improved release script
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 23 Jan 2009 16:00:31 +0100
-
-surfids-sensor (0.17) lenny; urgency=low
-
-  * Latest test release
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 23 Jan 2009 13:09:58 +0100
-
-surfids-sensor (0.16) lenny; urgency=low
-
-  * Test release
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Tue,  2 Dec 2008 17:17:59 +0100
-
-surfids-sensor (0.15) lenny; urgency=low
-
-  * Removed SVN dependancy
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Tue,  2 Dec 2008 16:23:45 +0100
-
-surfids-sensor (0.14) lenny; urgency=low
-
-  * testing the signing mechanism
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Tue,  2 Dec 2008 15:58:24 +0100
-
-surfids-sensor (0.13) lenny; urgency=low
-
-  * testing the update mechanism 
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Tue,  2 Dec 2008 15:33:45 +0100
-
-surfids-sensor (0.12) lenny; urgency=low
-
-  * testing the update mechanism
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Tue,  2 Dec 2008 15:26:25 +0100
-
-surfids-sensor (0.11) lenny; urgency=low
-
-  * testing the update mechanism
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Tue,  2 Dec 2008 15:21:09 +0100
-
-surfids-sensor (0.10) lenny; urgency=low
-
-  * development version from svn
-
- -- SURFids team (http://ids.surfnet.nl) <ids@surfnet.nl>  Fri, 10 Oct 2008 16:09:22 +0200
-
-surfids-sensor (0.7) lenny; urgency=low
-
-  * merged infsup and tunnelsup to sensorup so multiple vlan should be working
-    now
-
- -- Gijs Molenaar <gijs.molenaar@surfnet.nl>  Thu, 07 Aug 2008 13:49:37 +0200
+ -- SURFids Development Team <ids@surfnet.nl>  Thu, 07 Aug 2008 13:49:37 +0200
