@@ -35,7 +35,7 @@ def scanPort(IP, port):
         logging.error("Connection to %s could not be made with port %s" % (str(IP), str(port)))
         return False
 
-    if scan.connect_ex((IP, port)) == 0:
+    if scanresult == 0:
        scan.close()
        return True
     else:
