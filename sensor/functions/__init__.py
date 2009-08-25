@@ -5,7 +5,6 @@ import urllib2
 import os
 import time
 import configobj
-import pdb
 
 from sensor import config
 from sensor import runtime
@@ -151,6 +150,19 @@ def sensorUp():
             gw = infConf['gateway']
             bc = infConf['broadcast']
 
+        i = 0
+        active = 0
+        while (i < 20):
+            i = i + 1
+            chk = scanPort(c.getServer(), 4443)
+            logging.debug("Waiting for interface to become active (%s)" % str(i))
+            if chk:
+                i = 20
+                active = 1
+
+        if active == 0:
+            logging.error("Could not reach the server on port 4443!")
+
         client.checkKey(localIp)
         client.register(localIp, c.getSensorID())
 
@@ -174,6 +186,19 @@ def sensorUp():
         except excepts.ConfigException, msg:
             logging.error(msg)
             localIp = "0.0.0.0"
+
+        i = 0
+        active = 0
+        while (i < 20):
+            i = i + 1
+            chk = scanPort(c.getServer(), 4443)
+            logging.debug("Waiting for interface to become active (%s)" % str(i))
+            if chk:
+                i = 20
+                active = 1
+
+        if active == 0:
+            logging.error("Could not reach the server on port 4443!")
 
         client.checkKey(localIp)
         client.register(localIp, c.getSensorID())
