@@ -1,0 +1,30 @@
+
+SURFids version 3
+-------------------------
+
+Configure: This menu enables you to configure various aspects of the sensor, including your network setup.
+    Network - The menu for configuring the network settings of your sensor.
+    DNS - Configure your DNS settings here.
+        dhcp - The DHCP client will take care of setting your DNS servers.
+        static - The static option will let you enter the DNS servers yourself.
+    Admin - Several administrative options can be configured here.
+        serverurl - The URL for communication with the tunnel server.
+        user - The user used for communication with the tunnel server.
+        passwd - The password for the above mentioned user.
+    AutoStart - This option determines if the tunnel should be started automatically after booting up the menu.
+    Loglevel - The amount of messages that will be logged.
+
+Manage: Managing the sensor.
+    Sensor (Up/Down/Restart) - Manages the status of the OpenVPN tunnel.
+    Update - Initiates keepalive signal to the server.
+    Ping - Does a ping diagnostic check.
+    SSH server - Disables or enables SSH on the sensor.
+    Reinit sensor - Removes the sensor certificates and sensor name from the sensor. Use with caution!
+    
+
+Status: Various status overviews.
+    Sensor - General sensor overview. Here several status checks are done to see if everything is working correctly.
+    Netconf - This overview is the network configuration of your sensor.
+    Interfaces - This overview is an actual overview of the current network interfaces of the sensor.
+
+Log: The log file of the sensor.

@@ -1,0 +1,5 @@
+/etc/surfids
+/var/lib/surfids
+/var/run/surfids
+/var/log/surfids
+/usr/bin

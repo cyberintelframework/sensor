@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# you need to have simple-cdd package installed
+
+#build-simple-cdd --profiles-udeb-dist sid --dist lenny -p surfids
+build-simple-cdd --dist lenny -p surfids --debian-mirror http://ftp.nl.debian.org
+
