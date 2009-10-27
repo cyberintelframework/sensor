@@ -1,2 +1,1 @@
-deb http://live.debian.net/debian/ ./
-
+deb http://live.debian.net/debian/ unstable/snapshots main
