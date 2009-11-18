@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if [ -e "/etc/init.d/iptables" ]; then
+    echo "I: Enabling iptables"
+    update-rc.d iptables start 99 2 3 4 5 .
+fi
