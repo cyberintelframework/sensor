@@ -2,7 +2,7 @@
 surfids-sensor
 
 # used for automatic updates
-cron-apt
+#cron-apt
 
 # remote administration
 openssh-server
