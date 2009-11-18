@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# If you change this, you will also need to change it in:
+#   03-set-sensor-password
+#   10-fix-authorized-key
+USER="sensor"
+
+echo "I: Adding sensor user"
+useradd -m $USER

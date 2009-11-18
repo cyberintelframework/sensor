@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+
+# Keep in mind that this is a perl script
+# when making adjustments to this script
+
+$user = "sensor";
+
+if (! -e "/home/$user/.ssh/") {
+    `mkdir /home/$user/.ssh/`;
+    `chown $user:$user /home/$user/.ssh/`;
+}
+
+if (-e "/etc/ssh/authorized_keys") {
+    `cp /etc/ssh/authorized_keys /home/$user/.ssh/authorized_keys`;
+    `chown $user:$user /home/$user/.ssh/authorized_keys`;
+}
