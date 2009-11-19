@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# This script will add a new user to your USB sensor.
+# The default new user is "sensor"
+
 # If you change this, you will also need to change it in:
 #   03-set-sensor-password
 #   10-fix-authorized-key

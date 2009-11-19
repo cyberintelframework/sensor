@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+# This script will setup an authorized_keys2 file if it is present:
+# /usb_sensor/config/chroot_local-includes/etc/ssh/authorized_keys2
+
 # Keep in mind that this is a perl script
 # when making adjustments to this script
 
