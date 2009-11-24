@@ -436,7 +436,8 @@ def ifUp(interface):
     logging.info("bring interface %s up " % interface)
     cmd = [locations.IFCONFIG, interface, "up"]
     if runWrapper(cmd):
-        r.net(interface, 2)
+        if not r.chkNet(interface) > 2:
+            r.net(interface, 2)
         return True
     else:
         return False
