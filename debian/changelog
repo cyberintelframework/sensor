@@ -1,3 +1,17 @@
+surfids-sensor (3.02) lenny; urgency=low
+
+  * Fixed bug #172.
+  * Fixed bug #173.
+
+ -- SURFids Development Team <ids@surfnet.nl>  Wed, 26 Aug 2009 12:57:24 +0200
+
+surfids-sensor (3.01) lenny; urgency=low
+
+  * Fixed bug #170.
+  * Fixed bug #171.
+
+ -- SURFids Development Team <ids@surfnet.nl>  Mon, 24 Aug 2009 16:53:43 +0200
+
 surfids-sensor (3.0) lenny; urgency=low
 
     * Complete rewrite of the sensor in Python.
@@ -13,3 +27,4 @@ surfids-sensor (beta) lenny; urgency=low
   * Beta packages
 
  -- SURFids Development Team <ids@surfnet.nl>  Thu, 07 Aug 2008 13:49:37 +0200
+
