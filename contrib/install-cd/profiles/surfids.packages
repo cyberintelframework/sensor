@@ -6,7 +6,7 @@ python-configobj
 openssh-server
 less
 console-setup
-cron-apt
+#cron-apt
 surfids-sensor
 #splashy
 

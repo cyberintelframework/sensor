@@ -1,12 +1,12 @@
 #!/bin/sh
 
-echo "deb http://surfids.pythonic.nl/repo lenny main\n" > /etc/apt/sources.list.d/surfids.list
-echo "ENABLED=true\n" > /etc/default/surfids
-echo "autoclean -y\nupgrade -y -o APT::Get::Show-Upgraded=true\n" > /etc/cron-apt/action.d/3-download
-
 update-rc.d -f openvpn remove
 update-rc.d -f networking remove
 update-rc.d -f ssh remove
 
-
-
+mkdir /mnt/cdrom/
+mount /dev/cdrom /mnt/cdrom/
+cp /mnt/cdrom/simple-cdd/ca.crt /etc/surfids/
+cp /mnt/cdrom/simple-cdd/sensor-openvpn.conf /etc/surfids/openvpn.conf
+cp /mnt/cdrom/simple-cdd/sensor-surfids.conf /etc/surfids/surfids.conf
+umount /mnt/cdrom/
