@@ -89,6 +89,18 @@ class Status:
         logging.debugv("menu/status.py->netconf(self)", [])
         infs = self.r.listInf()
         report = t.formatTitle("Main network configuration")
+
+        try:
+            self.c.chkValidNetConfig()
+        except excepts.ConfigException, e:
+            e = str(e)
+            e = e.strip('"')
+            report += t.formatLog("Valid network config", False, 1)
+            report += "    %s\n" % str(e)
+        else:
+            report += t.formatLog("Valid network config", True, 1)
+
+        report += "\n"
         sensorType = self.c.getSensorType()
         if sensorType == "":
             report += t.formatLog("Sensor type", "Not configured")
@@ -139,9 +151,18 @@ class Status:
             trunk = self.c.getTrunkIf()
             report += t.formatLog("Trunk network interface", trunk)
             for (vlan, vlanConf) in self.c.getVlans().items():
-                desc = vlanConf['description']
-                vlanID = vlanConf['vlanid']
-                vlanType = vlanConf['type']
+                try:
+                    desc = vlanConf['description']
+                except KeyError:
+                    desc = ""
+                try:
+                    vlanID = vlanConf['vlanid']
+                except KeyError:
+                    vlanID = "False"
+                try:
+                    vlanType = vlanConf['type']
+                except KeyError:
+                    vlanType = "False"
 
                 report += "  VLAN%s\n" % vlan
                 report += t.formatLog("    Description", desc)

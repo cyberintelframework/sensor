@@ -5,6 +5,7 @@ import md5
 import sys
 
 from sensor import locations
+from sensor import excepts
 
 # Setting version variables
 version = "2.10.00"
@@ -40,6 +41,193 @@ class Config:
             logging.debugv("config.py->__init__(self)", [])
         except AttributeError:
             foo = "Do nothing"
+
+    def validNetConf(self):
+        """ Check if the network configuration is valid and complete """
+        logging.debugv("config.py->validNetConf(self)", [])
+
+        # Get config values first
+        try:
+            sensortype = self.netconf['sensortype']
+            mainIf = self.netconf['mainIf']
+            trunkIf = self.netconf['trunkIf']
+            dns = self.netconf['dns']
+            dnstype = self.netconf['dnstype']
+            interfaces = self.netconf['interfaces']
+        except KeyError, e:
+            err = "Missing config item: %s" % str(e)
+            logging.error(err)
+            raise excepts.ConfigException, err
+
+        # Checking if mainIf actually exists
+        if mainIf == "":
+            err = "Main interface is not configured"
+            logging.error(err)
+            raise excepts.ConfigException, err
+
+        # Checking DNS stuff
+        if dnstype == "":
+            err = "DNS type is empty"
+            logging.error(err)
+            raise excepts.ConfigException, err
+        elif dnstype == "dhcp":
+            do = "nothing"
+        elif dnstype == "static":
+            if len(dns) != 2:
+                err = "Misconfigured DNS settings"
+                logging.error(err)
+                raise excepts.ConfigException, err
+
+            (prim, sec) = dns
+            if prim == "" and sec == "":
+                err = "Primary and secundary DNS are both empty"
+                logging.error(err)
+                raise excepts.ConfigException, err
+        else:
+            err = "Invalid DNS configuration type"
+            logging.error(err)
+            raise excepts.ConfigException, err
+
+
+
+        # Checking interfaces
+        for b in interfaces:
+            try:
+                type = self.netconf['interfaces'][b]['type']
+                address = self.netconf['interfaces'][b]['address']
+                netmask = self.netconf['interfaces'][b]['netmask']
+                gateway = self.netconf['interfaces'][b]['gateway']
+                broadcast = self.netconf['interfaces'][b]['broadcast']
+                tunnel = self.netconf['interfaces'][b]['tunnel']
+            except KeyError, e:
+                err = "Missing config item - main: %s" % (str(a), str(e))
+                logging.error(err)
+                raise excepts.ConfigException, err
+
+        if type == "":
+            err = "Main: Type is empty" % str(b)
+            logging.error(err)
+            raise excepts.ConfigException, err
+        elif type == "static":
+            if netmask == "":
+                err = "Main: Netmask is empty" % str(b)
+                logging.error(err)
+                raise excepts.ConfigException, err
+            if gateway == "":
+                err = "Main: Gateway is empty" % str(b)
+                logging.error(err)
+                raise excepts.ConfigException, err
+            if broadcast == "":
+                err = "Main: Broadcast is empty" % str(b)
+                logging.error(err)
+                raise excepts.ConfigException, err
+        elif type == "dhcp":
+            active = True
+        elif type == "trunk":
+            inactive = True
+        elif type == "disabled":
+            inactive = True
+
+        # Checking if there's an actively configured interface
+        try:
+            mainIfType = interfaces[mainIf]['type']
+        except KeyError:
+            err = "Main interface type not configured"
+            logging.error(err)
+            raise excepts.ConfigException, err
+        else:
+            if mainIfType == "disabled":
+                err = "Main interface not configured"
+                logging.error(err)
+                raise excepts.ConfigException, err
+
+        # Checking stuff depending on config type
+        if self.netconf['sensortype'] == 'normal':
+            # Validate normal sensor
+            logging.debug("Normal")
+
+            if tunnel == "":
+                err = "Main: Endpoint IP is empty" % str(a)
+                logging.error(err)
+                raise excepts.ConfigException, err
+
+        elif self.netconf['sensortype'] == 'vlan':
+            # Validate vlan sensor
+            if trunkIf == "":
+                err = "Trunk interface is not configured"
+                logging.error(err)
+                raise excepts.ConfigException, err
+
+            try:
+                vlans = self.netconf['vlans']
+            except KeyError, e:
+                err = "Missing config item: %s" % str(e)
+                logging.error(err)
+                raise excepts.ConfigException, err
+
+            if len(vlans) == 0:
+                err = "Network config missing VLAN configuration"
+                logging.error(err)
+                raise excepts.ConfigException, err
+
+            active = 0
+            inactive = 0
+            for a in vlans:
+                logging.debug("VLAN: %s" % str(a))
+                try:
+                    vlanid = self.netconf['vlans'][a]['vlanid']
+                    type = self.netconf['vlans'][a]['type']
+                    address = self.netconf['vlans'][a]['address']
+                    netmask = self.netconf['vlans'][a]['netmask']
+                    gateway = self.netconf['vlans'][a]['gateway']
+                    broadcast = self.netconf['vlans'][a]['broadcast']
+                    tunnel = self.netconf['vlans'][a]['tunnel']
+                except KeyError, e:
+                    err = "Missing config item - vlan %s: %s" % (str(a), str(e))
+                    logging.error(err)
+                    raise excepts.ConfigException, err
+
+                if vlanid == "":
+                    err = "Vlan ID is invalid"
+                    logging.error(err)
+                    raise excepts.ConfigException, err
+                if type == "static":
+                    active = active + 1
+                    # Further checking static configuration of the VLAN
+                    if netmask == "":
+                        err = "VLAN %s: Netmask is empty" % str(a)
+                        logging.error(err)
+                        raise excepts.ConfigException, err
+                    if gateway == "":
+                        err = "VLAN %s: Gateway is empty" % str(a)
+                        logging.error(err)
+                        raise excepts.ConfigException, err
+                    if broadcast == "":
+                        err = "VLAN %s: Broadcast is empty" % str(a)
+                        logging.error(err)
+                        raise excepts.ConfigException, err
+                    if tunnel == "":
+                        err = "VLAN %s: Endpoint is empty" % str(a)
+                        logging.error(err)
+                        raise excepts.ConfigException, err
+
+
+
+                elif type == "dhcp":
+                    active = active + 1
+                elif type == "disabled":
+                    inactive = inactive + 1
+                else:
+                    err = "Vlan interface type is invalid"
+                    logging.error(err)
+                    raise excepts.ConfigException, err
+
+                # check if at least 1 Vlan is configured
+                if len(vlans) == inactive:
+                    err = "No VLAN with active network config"
+                    logging.error(err)
+                    raise excepts.ConfigException, err
+
 
     def refresh(self):
         """ reloads config file from filesystem """
@@ -361,7 +549,7 @@ class Config:
         try:
             (prim, sec) = self.netconf['dns']
             return (self.netconf['dnstype'], prim, sec)
-        except KeyError:
+        except (KeyError, ValueError):
             self.netconf['dnstype'] = "dhcp"
             self.netconf['dns'] = ("","")
             self.netconf.write()

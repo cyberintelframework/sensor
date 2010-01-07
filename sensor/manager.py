@@ -51,16 +51,21 @@ class Manager:
                 self.d.setBackgroundTitle('SURFids v3.0 running on ' + f.system())
                 self.d.infobox("Auto Starting sensor...")
                 try:
-                    f.sensorUp()
-                except excepts.NetworkException, msg:
-                    msg = str(msg)
-                    self.d.msgbox("Autostart Failed\n\nNETWORK ERROR: " + msg)
-                except excepts.ConfigException, msg:
-                    msg = str(msg)
-                    self.d.msgbox("Autostart Failed\n\nCONFIG ERROR: " + msg)
-                except excepts.InterfaceException, msg:
-                    msg = str(msg)
-                    self.d.msgbox("Autostart Failed\n\nINTERFACE ERROR: " + msg)
+                    self.c.validNetConf()
+                except excepts.ConfigException, err:
+                    self.d.infobox("Autostart Failed\n\nCONFIG ERROR: %s" % str(err))
+                else:
+                    try:
+                        f.sensorUp()
+                    except excepts.NetworkException, msg:
+                        msg = str(msg)
+                        self.d.msgbox("Autostart Failed\n\nNETWORK ERROR: " + msg)
+                    except excepts.ConfigException, msg:
+                        msg = str(msg)
+                        self.d.msgbox("Autostart Failed\n\nCONFIG ERROR: " + msg)
+                    except excepts.InterfaceException, msg:
+                        msg = str(msg)
+                        self.d.msgbox("Autostart Failed\n\nINTERFACE ERROR: " + msg)
 
     	logging.info("Starting up menu")
         menu.Menu().run()

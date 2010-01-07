@@ -54,11 +54,18 @@ class Config:
 
         # cancel 
         if choice[0] == 1:
-            if self.changed:
-                self.c.addRev()
-                client.saveConf()
-                self.activateChoice()
-            return
+            try:
+                self.c.validNetConf()
+            except excepts.ConfigException, err:
+                self.invalidNetConf(err)
+                self.invalidNetConfAction()
+                return
+            else:
+                if self.changed:
+                    self.c.addRev()
+                    client.saveConf()
+                    self.activateChoice()
+                return
         elif choice[1] == "Network": self.setNetwork()
         elif choice[1] == "IPMI": self.setIpmi()
         elif choice[1] == "DNS": self.dns()
@@ -70,6 +77,26 @@ class Config:
             else:
                 self.enableAutoStart()
         self.run()
+
+    def invalidNetConf(self, reason):
+        """ Notifying user when the netconf is invalid """
+        logging.debugv("menu/config.py->invalidNetConf(self, reason)", [reason])
+        self.d.msgbox("The network configuration is invalid: %s" % str(reason), 8, 55)
+
+    def invalidNetConfAction(self):
+        """ Ask the user what to do about the invalid NetConf """
+        logging.debugv("menu/config.py->invalidNetConfAction(self)", [])
+        choices = [
+                ("Config", "Go back to the configuration menu"),
+                ("Ignore", "Ignore this warning"),
+            ]
+
+        choice = self.d.menu("Sensor won't start until config is fixed.\nWhat do you want to do?", choices=choices, cancel="back", menu_height=10)
+
+        if choice[0] == 1: self.invalidNetConfAction()
+        elif choice[1] == "Config": self.run()
+        elif choice[1] == "Ignore": return
+
 
     def enableAutoStart(self):
         """ Enabling default tunnel startup """

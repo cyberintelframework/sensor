@@ -81,6 +81,13 @@ class Manage:
     def sensorUp(self):
         """ Bring the sensor up """
         logging.debugv("menu/manage.py->sensorUp(self)", [])
+
+        try:
+            self.c.validNetConf()
+        except excepts.ConfigException, err:
+            self.d.msgbox("The network configuration is invalid: %s" % str(err))
+            return
+
         self.d.infobox("Bringing sensor up...")
         functions.sensorDown()
         try:
