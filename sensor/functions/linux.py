@@ -1,7 +1,7 @@
 """
 linux specific system functions
 """
-
+import pdb
 import re
 import logging
 import os
@@ -41,6 +41,12 @@ def scanPort(IP, port):
     else:
        scan.close()
        return False
+
+def getPackageVersion():
+    """ Returns the debian package version of the surfids-sensor """
+    cmd = locations.DPKG + " -l " + ' | grep surfids-sensor | awk \'{print $3}\''
+    pversion = os.popen(cmd)
+    return pversion.readline().strip()
 
 def system():
     """ Returns the system type """
@@ -860,6 +866,12 @@ def verifyKey():
             return False
     else:
         return False
+
+def shutdown():
+    """ Shuts down the machine """
+    logging.debugv("functions/linux.py->shutdown()", [])
+    cmd = [locations.INIT, "0"]
+    runWrapper(cmd)
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,

@@ -212,13 +212,14 @@ class Status:
         logging.debugv("menu/status.py->sensor(self)", [])
         sid = self.c.getSensorID()
         status = self.r.sensorStatus()
-#        if self.r.sensorStatus():
-#            status = self.r.config['status']['sensor']
         networkStatus = self.r.networkStatus()
-#        networkStatus = self.r.config['status']['network']
+        pversion = f.getPackageVersion()
 
         # Subtitle
         report = t.formatTitle("General sensor info")
+
+        # Package version
+        report += t.formatLog("Package version", str(pversion))
 
         # Sensor name
         report += t.formatLog("Sensor", sid)

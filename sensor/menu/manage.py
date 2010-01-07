@@ -141,3 +141,14 @@ class Manage:
         result = tools.ping(tools.hosts)
         if result: self.d.msgbox("Ping OK")
         else: self.d.msgbox("Ping failed, there is something wrong with your settings or you can't sent ICMP packages")
+
+    def shutdown(self):
+        """ Shutdown the machine gracefully """
+        logging.debugv("menu/manage.py->shutdown(self)", [])
+        try:
+            self.d.infobox("Bringing sensor down...")
+            functions.sensorDown()
+        except:
+            logging.info("Sensor down failed before shutdown")
+        self.d.infobox("Shutting down machine...")
+        functions.shutdown()

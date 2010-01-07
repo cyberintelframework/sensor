@@ -17,6 +17,8 @@ DIALOG = "/usr/bin/dialog"
 OPENSSL = "/usr/bin/openssl"
 DMESG = "/bin/dmesg"
 REBOOT = "/sbin/reboot"
+INIT = "/sbin/init"
+DPKG = "/usr/bin/dpkg"
 
 ALL_BIN = [OPENVPN, BRCTL, DHCLIENT, IFCONFIG, KILLALL, SSHINIT, DIALOG, OPENSSL, DMESG]
 
