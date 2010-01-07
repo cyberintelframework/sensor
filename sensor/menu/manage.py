@@ -85,7 +85,7 @@ class Manage:
         try:
             self.c.validNetConf()
         except excepts.ConfigException, err:
-            self.d.msgbox("The network configuration is invalid: %s" % str(err))
+            self.d.msgbox("The network configuration is invalid: \n%s" % str(err), width=50)
             return
 
         self.d.infobox("Bringing sensor up...")

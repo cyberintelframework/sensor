@@ -81,7 +81,7 @@ class Config:
     def invalidNetConf(self, reason):
         """ Notifying user when the netconf is invalid """
         logging.debugv("menu/config.py->invalidNetConf(self, reason)", [reason])
-        self.d.msgbox("The network configuration is invalid: %s" % str(reason), 8, 55)
+        self.d.msgbox("The network configuration is invalid: \n%s" % str(reason), width=50)
 
     def invalidNetConfAction(self):
         """ Ask the user what to do about the invalid NetConf """
