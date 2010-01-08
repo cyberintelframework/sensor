@@ -1,0 +1,15 @@
+surfids-sensor (3.0) lenny; urgency=low
+
+    * Complete rewrite of the sensor in Python.
+    * Sensor support for regular Debian-like systems.
+    * USB sensor based on Debian Live.
+    * No more Knoppix remastering.
+    * VLAN sensors now only require 1 IP address per VLAN (instead of 2) resulting in a total amount of IP addresses of VLANs + 1.
+
+ -- SURFids Development Team <ids@surfnet.nl>  Wed, 19 Aug 2009 16:28:50 +0200
+
+surfids-sensor (beta) lenny; urgency=low
+
+  * Beta packages
+
+ -- SURFids Development Team <ids@surfnet.nl>  Thu, 07 Aug 2008 13:49:37 +0200

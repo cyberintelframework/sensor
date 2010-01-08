@@ -1,0 +1,14 @@
+Index: functions/linux.py
+===================================================================
+--- functions/linux.py  (revision 1328)
++++ functions/linux.py  (working copy)
+@@ -436,7 +436,8 @@
+     logging.info("bring interface %s up " % interface)
+     cmd = [locations.IFCONFIG, interface, "up"]
+     if runWrapper(cmd):
+-        r.net(interface, 2)
++        if r.chkNet(interface) !> 2:
++            r.net(interface, 2)
+         return True
+     else:
+         return False
