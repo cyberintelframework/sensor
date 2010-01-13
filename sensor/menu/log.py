@@ -26,7 +26,7 @@ class Log:
         title = "\\ZbStart > Log\\n\\ZB"
         subtitle = "Which log overview do you want to see?"
         title += subtitle
-        choice = self.d.menu(title, choices=choices, cancel="Back", colors=1, menu_height=10)
+        choice = self.d.menu(title, choices=choices, cancel="Back", colors=1, menu_height=10, height=16)
 
         # cancel
         if choice[0] == 1: return
