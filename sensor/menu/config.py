@@ -51,7 +51,7 @@ class Config:
             ]
 
         title = "\\ZbStart > Configure\\n\\ZBSelect the item you want to configure"
-        choice = self.d.menu(title, choices=choices, cancel="Back", menu_height=10, colors=1)
+        choice = self.d.menu(title, choices=choices, cancel="Back", menu_height=10, colors=1, width=60)
 
         # cancel 
         if choice[0] == 1:

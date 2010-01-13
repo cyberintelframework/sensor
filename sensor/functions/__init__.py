@@ -447,6 +447,8 @@ def cleanUp():
         os.unlink(locations.MANAGERPID)
     if os.access(locations.OPENVPNPID, os.R_OK):
         os.unlink(locations.OPENVPNPID)
+    if os.access(locations.DUMP, os.R_OK):
+        os.unlink(locations.DUMP)
 
     dhcpExp = r"^dhcp.*$"
     compiled = re.compile(dhcpExp)
