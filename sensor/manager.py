@@ -3,6 +3,7 @@
 import logging
 import sys
 import os
+import signal
 
 from sensor import log
 from sensor import functions as f
@@ -68,7 +69,36 @@ class Manager:
                         self.d.msgbox("Autostart Failed\n\nINTERFACE ERROR: " + msg)
 
     	logging.info("Starting up menu")
-        menu.Menu().run()
+        try:
+            menu.Menu().run()
+        except SystemExit:
+            logging.info("Sensor manager exiting")
+        except:
+            f.do_verbose_exception()
+            ex = False
+            while ex == False:
+                title = "Unrecoverable error detected.\\nMost of the times this is due to an error in the network configuration.\\nWhat do you want to do?"
+                choices = [
+                        ("Restart GUI", "Restart the sensor manager GUI"),
+                        ("View error dump", "View the latest error dump"),
+                        ("Reset network config", "Completely reset the network configuration"),
+                    ]
+                choice = self.d.menu(title, choices=choices, no_cancel=1, colors=1, width=70)
+                if choice[0]: return
+                elif choice[1] == "Restart GUI": 
+                    log.inthandler(signal.SIGINT, "")
+                    ex = True
+                elif choice[1] == "Reset network config":
+                    self.c.resetConfig()
+                    log.inthandler(signal.SIGINT, "")
+                    ex = True
+                elif choice[1] == "View error dump":
+                    logText = ""
+                    logFile = open(locations.DUMP, 'r')
+                    for line in logFile.readlines():
+                        logText += line
+                    self.d.msgbox(logText, width=70, height=40, no_collapse=1, colors=1)
+
 
 
 if __name__ == '__main__':

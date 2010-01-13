@@ -25,8 +25,6 @@ class Status:
                 ("Sensor", "General information about the sensor"),
                 ("Netconf", "Network configuration info"),
                 ("Interfaces", "Interface information"),
-#                ("Version", "Version information"),
-#                ("Debug", "Debug information"),
             ]
         if f.ipmiStatus():        
             choices += [("IPMI", "IPMI information")]
@@ -42,10 +40,7 @@ class Status:
         elif choice[1] == "Sensor": self.sensor()
         elif choice[1] == "Netconf": self.netconf()
         elif choice[1] == "Interfaces": self.interfaces()
-#        elif choice[1] == "Version": self.version()
-#        elif choice[1] == "Debug": self.debug()
         elif choice[1] == "IPMI": self.ipmi()
-#        elif choice[1] == "NewConfig": self.networkConfig()
         self.run()
 
     def interfaces(self):
@@ -172,42 +167,13 @@ class Status:
                 report += t.formatLog("    VLAN ID", vlanID)
                 report += t.formatLog("    Configuration", vlanType)
                 if vlanType == "static":
-                    report += t.formatLog("      IP address", vlanConf['address'])
+                    report += t.formatLog("      IP address", vlanConf['tunnel'])
                     report += t.formatLog("      Netmask", vlanConf['netmask'])
                     report += t.formatLog("      Broadcast", vlanConf['broadcast'])
                     report += t.formatLog("      Gateway", vlanConf['gateway'])
 
         report += "\n"
         return self.d.msgbox(report, width=70, height=40, no_collapse=1, colors=1)
-
-#    def networkConfig(self):
-#        """ Prints the network configuration as saved in the config file """
-#        logging.debugv("menu/status.py->netconf(self)", [])
-#        infs = self.r.listInf()
-#        report = t.formatTitle("Main network configuration")
-#        choices = [(t.formatMenu("Sensor type"), self.c.netconf['sensortype'])]
-#        choices += [("", "")]
-
-#        # Only use the first interface that is configured
-#        try:
-#            manInf = self.c.getMainIf()
-
-#            manInfConf = self.c.getIf(manInf)
-#            manInfType = manInfConf['type']
-#        except excepts.InterfaceException:
-#            logging.warning("No active interface configuration found")
-#            manInf = "None configured"
-#            manInfConf = "None configured"
-#            manInfType = "None"
-
-#        choices += [(t.formatMenu("Main network interface"), manInf)]
-#        choices += [(t.formatMenu("  Configuration"), manInfType)]
-
-#        choice = self.d.menu("Network configuration", choices=choices, width=70, height=40, no_collapse=1, colors=1, cancel="back")
-
-#        if choice[0] == 1: return
-#        elif choice[1] == "Endpoint IP address": self.editTunnelIP(interface)
-#        self.networkConfig()
 
 
     def sensor(self):

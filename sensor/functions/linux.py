@@ -11,6 +11,7 @@ import struct
 import subprocess
 import pdb
 import time
+import cgitb
 
 from sensor import locations
 from sensor import excepts
@@ -22,6 +23,18 @@ changeset = "009"
 r = runtime.Runtime()
 
 inf_flags = ["UP", "BROADCAST", "DEBUG", "LOOPBACK", "POINTTOPOINT", "NOTRAILERS", "RUNNING", "NOARP", "PROMISC", "ALLMULTI", "MASTER", "SLAVE", "MULTICAST", "PORTSEL", "AUTOMEDIA", "DYNAMIC"]
+
+def catch_errors():
+    sys.excepthook = my_except_hook
+
+def my_except_hook(etype, evalue, etraceback):
+    do_verbose_exception( (etype,evalue,etraceback) )
+
+def do_verbose_exception(exc_info=None):
+    if exc_info is None:
+        exc_info = sys.exc_info()
+    txt = cgitb.text(exc_info)
+    open(locations.DUMP,'w').write(txt)
 
 def scanPort(IP, port):
     """ Scan A single port\nScanPort(IP, Port)\nReturn a boolean value """

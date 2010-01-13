@@ -117,6 +117,3 @@ signal.signal(signal.SIGINT, inthandler)
 logIO = LogErr()
 #sys.stdout = logIO
 sys.stderr = logIO
-
-
-
