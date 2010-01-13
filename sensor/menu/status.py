@@ -94,7 +94,7 @@ class Status:
         report = t.formatTitle("Main network configuration")
 
         try:
-            self.c.validNetConfig()
+            self.c.validNetConf()
         except excepts.ConfigException, e:
             e = str(e)
             e = e.strip('"')
