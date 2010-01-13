@@ -35,7 +35,7 @@ class Config:
         """ submenu of main to for network configuration """
         logging.debugv("menu/config.py->run(self)", [])
         choices=[
-                ("Network", "Configure network...")
+                ("Network", "Configure network..."),
             ]
 
         if f.ipmiStatus():
@@ -50,7 +50,8 @@ class Config:
                 ('Loglevel', self.c.getLogLevel() ),
             ]
 
-        choice = self.d.menu("What do you want to configure?", choices=choices, cancel="back", menu_height=10)
+        title = "\\ZbStart > Configure\\n\\ZBSelect the item you want to configure"
+        choice = self.d.menu(title, choices=choices, cancel="Back", menu_height=10, colors=1)
 
         # cancel 
         if choice[0] == 1:
@@ -66,7 +67,7 @@ class Config:
                     client.saveConf()
                     self.activateChoice()
                 return
-        elif choice[1] == "Network": self.setNetwork()
+        elif choice[1] == "Network": self.configNetwork()
         elif choice[1] == "IPMI": self.setIpmi()
         elif choice[1] == "DNS": self.dns()
         elif choice[1] == "Admin": self.chkAdmin()
@@ -78,10 +79,441 @@ class Config:
                 self.enableAutoStart()
         self.run()
 
+###############################################
+###############################################
+
+    def configNetwork(self):
+        """ GUI rebuild of network configuration screen """
+        logging.debugv("menu/config.py->configNetwork(self)", [])
+
+        # ITEM - Sensor Type
+        sensorType = self.c.getSensorType()
+        choices = t.formatMenuItem("Sensor type", sensorType)
+
+        # ITEM - Main Interface
+        mainIf = self.c.getMainIf()
+        choices += t.formatMenuItem("Main interface", mainIf)
+
+        # ITEM - Trunk Interface
+        if sensorType == "vlan":
+            trunkIf = self.c.getTrunkIf()
+            if trunkIf == mainIf and trunkIf != "":
+                choices += t.formatMenuItem("Trunk interface", trunkIf, False)
+            else:
+                choices += t.formatMenuItem("Trunk interface", trunkIf)
+            # ITEM - Number of vlans
+            totalVlans = self.c.getTotalVlans()
+            choices += t.formatMenuItem("Number of VLANs", str(totalVlans))
+
+        # ITEM - Main interface - IP config
+        if mainIf != "":
+            infType = self.c.getIf(mainIf)["type"]
+            choices += t.formatMenuItem("IP config - %s" % str(mainIf), infType, self.c.validInfConf("normal", mainIf, 0))
+
+        # ITEMs - VLANS
+        if sensorType == "vlan":
+            for (vlan, vlanConf) in self.c.getVlans().items():
+                vlanID = vlanConf["vlanid"]
+                if vlanID == "":
+                    vlanID = "Unknown-%s" % str(vlan)
+                    vlanType = ""
+                    vlanDesc = ""
+                else:
+                    vlanType = vlanConf["type"]
+                    vlanDesc = vlanConf["description"]
+                choices += t.formatMenuItem("Config vlan %s" % str(vlanID), vlanType, self.c.validInfConf("vlan", vlan, 0))
+
+        title = "\\ZbStart > Configure > Network\\n\\ZBSelect the item you want to (re-)configure"
+        choice = self.d.menu(title, choices=choices, cancel="Back", ok_label="Edit", colors=1, height=20, menu_height=12)
+        if choice[0] == 1: return
+        elif choice[1] == "Sensor type": self.setSensorType()
+        elif choice[1] == "Main interface": self.setMainIf()
+        elif choice[1] == "IP config - %s" % str(mainIf): self.setIfConfig(mainIf)
+        elif choice[1] == "Trunk interface": self.setTrunkIf()
+        elif choice[1] == "Number of VLANs": self.setTotalVlans()
+        else:
+            # handle vlans here
+            temp = choice[1].split()
+            if temp[2].startswith("Unknown"):
+                unknown = temp[2]
+                # Retrieving vlanIndex from menu item
+                # Basically:
+                #  find string -
+                #  move index + 1
+                #  give me substring from current index to end of string
+                vlanIndex = unknown[unknown.index("-")+1:len(unknown)]
+                self.setVlanConfig(vlanIndex)
+            else:
+                vlanID = temp[len(temp) - 1]
+                vlanIndex = self.c.getVlanIndexByID(vlanID)
+                self.setVlanConfig(vlanIndex)
+
+        self.configNetwork()
+
+
+    def setSensorType(self):
+        """ Submenu for choosing a sensor type """
+        logging.debugv("menu/config.py->setSensorType(self)", [])
+        type = self.c.getSensorType()
+        choices = [
+                    ("Normal", "Normal sensor", int(type=="normal")),
+                    ("Vlan", "VLAN sensor", int(type=="vlan")),
+                ]
+
+        title = "\\ZbStart > Configure > Network > Sensor type\\n\\ZBSelect the type of sensor"
+        choice = self.d.radiolist(title, choices=choices, cancel="Cancel", ok_label="Ok", height=20, colors=1)
+        if choice[0] == 1: return
+        elif choice[1] == "Normal":
+            self.c.netconf['sensortype'] = "normal"
+            self.c.resetTrunk()
+            self.c.netconf.write()
+            return                  # returns to configNetwork()
+        elif choice[1] == "Vlan":
+            self.c.netconf['sensortype'] = "vlan"
+            self.c.netconf.write()
+            return                  # returns to configNetwork()
+        return                      # returns to configNetwork()
+
+
+    def setMainIf(self):
+        """ Submenu for choosing the main interface """
+        logging.debugv("menu/config.py->setMainIf(self)", [])
+
+        title = "\\Zb... > Configure > Network > Setup main interface\\n\\ZB"
+        title += "Select the main interface"
+
+        infs = self.c.getInfs()
+        choices = [(x, self.c.chkInfType(x), int(self.c.getMainIf() == x)) for x in infs]
+        choice = self.d.radiolist(title, choices=choices, cancel="Back", ok_label="Ok", height=20, colors=1)
+        if choice[0] == 1: return           # returns to configNetwork()
+        else:
+            self.c.setMainIf(choice[1])
+        return                              # returns to configNetwork()
+
+
+    def setTrunkIf(self):
+        """ Submenu for choosing the trunk interface """
+        logging.debugv("menu/config.py->setTrunkIf(self)", [])
+
+        title = "\\Zb... > Configure > Network > Setup trunk interface\\n\\ZB"
+        title += "Select the trunk interface"
+
+        infs = self.c.getInfs()
+        choices = [(x, self.c.chkInfType(x), int(self.c.getTrunkIf() == x)) for x in infs]
+        choice = self.d.radiolist(title, choices=choices, cancel="Back", ok_label="Ok", height=20, colors=1)
+        if choice[0] == 1: return           # returns to configNetwork()
+        else:
+            if choice[1] == self.c.getMainIf():
+                self.d.msgbox("The trunk interface cannot be the same as the main interface!")
+            else:
+                logging.info("Setting trunk interface to %s" % interface)
+                self.c.changed = True
+                self.c.setTrunk(choice[1])
+        return                              # returns to configNetwork()
+
+
+    def setIfConfig(self, inf):
+        """ Submenu for configuring a specific interface """
+        logging.debugv("menu/config.py->setIfConfig(self, inf)", [inf])
+
+        infConf = self.c.getIf(inf)
+
+        choices = t.formatMenuItem("Type", infConf["type"])
+        if infConf["type"] == "static":
+            choices += t.formatMenuItem("Local IP address", infConf["address"])
+            if self.c.getSensorType() == "normal":
+                choices += t.formatMenuItem("Endpoint IP address", infConf["tunnel"])
+            choices += t.formatMenuItem("Netmask", infConf["netmask"])
+            choices += t.formatMenuItem("Gateway", infConf["gateway"])
+            choices += t.formatMenuItem("Broadcast", infConf["broadcast"])
+
+        title = "\\Zb... > Configure > Network > IP config %s\\n\\ZBSelect the item you want to (re-)configure" % str(inf)
+        choice = self.d.menu(title, choices=choices, cancel="Back", ok_label="Edit", height=20, colors=1)
+        if choice[0] == 1: return
+        elif choice[1] == "Type":
+            self.setIfType(inf)
+            self.setIfConfig(inf)           # Make sure setIfConfig() is loaded after setIfType()
+        elif choice[1] == "Local IP address":
+            self.popupIfConfig("address", inf)
+            self.setIfConfig(inf)           # Make sure setIfConfig() is loaded after popupIfConfig()
+        elif choice[1] == "Endpoint IP address":
+            self.popupIfConfig("tunnel", inf)
+            self.setIfConfig(inf)           # Make sure setIfConfig() is loaded after popupIfConfig()
+        elif choice[1] == "Netmask":
+            self.popupIfConfig("netmask", inf)
+            self.setIfConfig(inf)           # Make sure setIfConfig() is loaded after popupIfConfig()
+        elif choice[1] == "Gateway":
+            self.popupIfConfig("gateway", inf)
+            self.setIfConfig(inf)           # Make sure setIfConfig() is loaded after popupIfConfig()
+        elif choice[1] == "Broadcast":
+            self.popupIfConfig("broadcast", inf)
+            self.setIfConfig(inf)           # Make sure setIfConfig() is loaded after popupIfConfig()
+
+        return                  # returns to configNetwork()
+
+
+    def setVlanConfig(self, vlanIndex):
+        """ Submenu for configuring a specific vlan """
+        logging.debugv("menu/config.py->setVlanConfig(self, vlanIndex)", [vlanIndex])
+
+        vlanConf = self.c.getVlan(vlanIndex)
+
+        choices = t.formatMenuItem("VLAN ID", vlanConf["vlanid"])
+        if vlanConf["vlanid"] != "":
+            choices += t.formatMenuItem("Type", vlanConf["type"])
+            choices += t.formatMenuItem("Description", vlanConf["description"])
+            if vlanConf["type"] == "static":
+                choices += t.formatMenuItem("Endpoint IP address", vlanConf["tunnel"])
+                choices += t.formatMenuItem("Netmask", vlanConf["netmask"])
+                choices += t.formatMenuItem("Gateway", vlanConf["gateway"])
+                choices += t.formatMenuItem("Broadcast", vlanConf["broadcast"])
+
+        vlanID = vlanConf["vlanid"]
+        if vlanID == "":
+            vlanID = "Unknown-%s" % str(vlanIndex)
+
+        title = "\\Zb... > Network > VLAN config %s\\n\\ZBSelect the item you want to (re-)configure" % str(vlanID)
+        choice = self.d.menu(title, choices=choices, cancel="Back", ok_label="Edit", height=20, colors=1)
+        if choice[0] == 1: return
+        elif choice[1] == "VLAN ID":
+            self.setVlanID(vlanIndex)
+            self.setVlanConfig(vlanIndex)           # Make sure setVlanConfig() is loaded after setIfType()
+        elif choice[1] == "Type":
+            self.setVlanType(vlanIndex, vlanID)
+            self.setVlanConfig(vlanIndex)           # Make sure setVlanConfig() is loaded after setVlanType()
+        elif choice[1] == "Description":
+            self.setVlanDesc(vlanIndex, vlanID)
+            self.setVlanConfig(vlanIndex)           # Make sure setVlanConfig() is loaded after setVlanDesc()
+        elif choice[1] == "Local IP address":
+            self.popupVlanConfig("address", vlanIndex, vlanID)
+            self.setVlanConfig(vlanIndex)           # Make sure setVlanConfig() is loaded after popupVlanConfig()
+        elif choice[1] == "Endpoint IP address":
+            self.popupVlanConfig("tunnel", vlanIndex, vlanID)
+            self.setVlanConfig(vlanIndex)           # Make sure setVlanConfig() is loaded after popupVlanConfig()
+        elif choice[1] == "Netmask":
+            self.popupVlanConfig("netmask", vlanIndex, vlanID)
+            self.setVlanConfig(vlanIndex)           # Make sure setVlanConfig() is loaded after popupVlanConfig()
+        elif choice[1] == "Gateway":
+            self.popupVlanConfig("gateway", vlanIndex, vlanID)
+            self.setVlanConfig(vlanIndex)           # Make sure setVlanConfig() is loaded after popupVlanConfig()
+        elif choice[1] == "Broadcast":
+            self.popupVlanConfig("broadcast", vlanIndex, vlanID)
+            self.setVlanConfig(vlanIndex)           # Make sure setVlanConfig() is loaded after popupVlanConfig()
+
+        return                  # returns to configNetwork()
+
+
+    def setVlanType(self, vlanIndex, vlanID):
+        """ Submenu for setting the type of an VLAN interface """
+        logging.debugv("menu/config.py->setVlanType(self, vlanIndex, vlanID)", [vlanIndex, vlanID])
+        title = "\\Zb... > Network > VLAN %s > Type\\n\\ZB" % str(vlanID)
+        subtitle = "Set the type of configuration for this VLAN interface"
+        title += subtitle
+        vlanConf = self.c.getVlan(vlanIndex)
+        vlanType = vlanConf["type"]
+
+        choices = [
+                    ("DHCP", "Automatic configuration by DHCP", int(vlanType=="dhcp")),
+                    ("Static", "Static configuration", int(vlanType=="static")),
+                    ("Disabled", "Disable this interface", int(vlanType=="disabled")),
+                ]
+        choice = self.d.radiolist(title, choices=choices, ok_label="Ok", height=20, colors=1)
+        if choice[0] == 1: return
+        elif choice[1] == "DHCP":
+            self.c.setVlanProp(vlanIndex, "type", "dhcp")
+            self.c.netconf.write()
+            return                  # returns to setVlanConfig()
+        elif choice[1] == "Static":
+            self.c.setVlanProp(vlanIndex, "type", "static")
+            self.c.netconf.write()
+            return                  # returns to setVlanConfig()
+        elif choice[1] == "Disabled":
+            self.c.setVlanProp(vlanIndex, "type", "disabled")
+            self.c.netconf.write()
+            return                  # returns to setVlanConfig()
+        return                      # returns to setVlanConfig()
+
+
+    def setVlanID(self, vlanIndex):
+        """ Submenu for setting the ID of a VLAN interface """
+        logging.debugv("menu/config.py->setVlanID(self, vlanIndex)", [vlanIndex])
+
+        vlanConf = self.c.getVlan(vlanIndex)
+        vlanID = vlanConf["vlanid"]
+
+        if vlanID == "":
+            title = "\\Zb... > Network > VLAN Unknown-%s > VLAN ID\\n\\ZB" % str(vlanIndex)
+        else:
+            title = "\\Zb... > Network > VLAN %s > VLAN ID\\n\\ZB" % str(vlanID)
+        subtitle = "Set the VLAN ID for this VLAN interface"
+        title += subtitle
+
+        while True:
+            output = self.d.inputbox(title, 10, 50, vlanID, colors=1, ok_label="Ok")
+            if output[0]: return
+            else:
+                if output[1].isdigit() and str(output[1]) != '0':
+                    vlanID = output[1]
+                    self.c.changed = True
+                    self.c.setVlanProp(vlanIndex, "vlanid", output[1])
+                    return                  # returns to setVlanConfig()
+                else:
+                    self.d.msgbox("Please enter a valid integer between 0 and 4095!")
+        
+
+
+    def setIfType(self, inf):
+        """ Submenu for setting the type of an interface """
+        logging.debugv("menu/config.py->setIfType(self, inf)", [inf])
+        title = "\\Zb... > Network > IP config %s > Type\\n\\ZB" % str(inf)
+        subtitle = "Set the type of configuration for this interface"
+        infConf = self.c.getIf(inf)
+        infType = infConf["type"]
+
+        choices = [
+                    ("DHCP", "Automatic configuration by DHCP", int(infType=="dhcp")),
+                    ("Static", "Static configuration", int(infType=="static")),
+                    ("Disabled", "Disable this interface", int(infType=="disabled")),
+                ]
+        choice = self.d.radiolist(title, choices=choices, ok_label="Ok", height=20, colors=1)
+        if choice[0] == 1: return
+        elif choice[1] == "DHCP":
+            self.c.setIfProp(inf, "type", "dhcp")
+            self.c.netconf.write()
+            return                  # returns to setIfConfig()
+        elif choice[1] == "Static":
+            self.c.setIfProp(inf, "type", "static")
+            self.c.netconf.write()
+            return                  # returns to setIfConfig()
+        elif choice[1] == "Disabled":
+            self.c.setIfProp(inf, "type", "disabled")
+            self.c.netconf.write()
+            return                  # returns to setIfConfig()
+        return                      # returns to setIfConfig()
+
+
+    def popupIfConfig(self, type, inf):
+        """ Dialog window to input IP addresses for an interface configuration """
+        logging.debugv("menu/config.py->popupIfConfig(self, type, inf)", [type, inf])
+
+        infConf = self.c.getIf(inf)
+        savedInput = infConf[type]
+
+        if type == "address":
+            title = "\\Zb... > Network > IP config %s > Local IP\\n\\ZB" % str(inf)
+            subtitle = "Enter the IP address of the local interface"
+        elif type == "tunnel":
+            title = "\\Zb... > Network > IP config %s > Endpoint IP\\n\\ZB" % str(inf)
+            subtitle = "Enter the IP address of the endpoint interface"
+        elif type == "netmask":
+            title = "\\Zb... > Network > IP config %s > Subnet mask\\n\\ZB" % str(inf)
+            subtitle = "Enter the subnet mask address of the local interface"
+        elif type == "gateway":
+            title = "\\Zb... > Network > IP config %s > Gateway\\n\\ZB" % str(inf)
+            subtitle = "Enter the gateway address of the local interface"
+        elif type == "broadcast":
+            title = "\\Zb... > Network > IP config %s > Broadcast\\n\\ZB" % str(inf)
+            subtitle = "Enter the broadcast address of the local interface"
+        title += subtitle
+
+        while True:
+            output = self.d.inputbox(title, 10, 50, savedInput, colors=1, ok_label="Ok")
+            if output[0]: return
+            if t.ipv4check(output[1]):
+                address = output[1]
+                logging.info("Setting %s for %s to %s" % (type, inf, output[1]))
+                self.changed = True
+                self.c.setIfProp(interface, type, output[1])
+                return                  # returns to setIfConfig()
+            else:
+                self.d.msgbox("Please enter a valid address")
+
+
+    def popupVlanConfig(self, type, vlanIndex, vlanID):
+        """ Dialog window to input IP addresses for a VLAN configuration """
+        logging.debugv("menu/config.py->popupIfConfig(self, type, vlanIndex, vlanID)", [type, vlanIndex, vlanID])
+
+        vlanConf = self.c.getVlan(vlanIndex)
+        savedInput = vlanConf[type]
+
+        if type == "tunnel":
+            title = "\\Zb... > Network > VLAN %s > Local IP\\n\\ZB" % str(vlanID)
+            subtitle = "Enter the IP address of the VLAN interface"
+        elif type == "netmask":
+            title = "\\Zb... > Network > VLAN %s > Subnet mask\\n\\ZB" % str(vlanID)
+            subtitle = "Enter the subnet mask address of the local interface"
+        elif type == "gateway":
+            title = "\\Zb... > Network > VLAN %s > Gateway\\n\\ZB" % str(vlanID)
+            subtitle = "Enter the gateway address of the local interface"
+        elif type == "broadcast":
+            title = "\\Zb... > Network > VLAN %s > Broadcast\\n\\ZB" % str(vlanID)
+            subtitle = "Enter the broadcast address of the local interface"
+        title += subtitle
+
+        while True:
+            output = self.d.inputbox(title, 10, 50, savedInput, colors=1, ok_label="Ok")
+            if output[0]: return
+            if t.ipv4check(output[1]):
+                address = output[1]
+                logging.info("Setting %s for %s to %s" % (type, vlanID, output[1]))
+                self.changed = True
+                self.c.setVlanProp(vlanIndex, type, output[1])
+                return                  # returns to setVlanConfig()
+            else:
+                self.d.msgbox("Please enter a valid address")
+
+    def setVlanDesc(self, vlanIndex, vlanID):
+        """ Dialog window to input the description (label) of the VLAN """
+        logging.debugv("menu/config.py->setVlanDesc(self, vlanIndex, vlanID)", [vlanIndex, vlanID])
+
+        title = "\\Zb... > Network > VLAN %s > Description\\n\\ZB" % str(vlanID)
+        subtitle = "Enter the description of the VLAN interface"
+        title += subtitle
+
+        desc = self.c.getVlan(vlanIndex)["description"]
+
+        output = self.d.inputbox(title, 10, 50, desc, colors=1)
+        if output[0]: return            # returns to setVlanConfig()
+        else:
+            logging.debug("Setting description for VLAN %s to %s" % (str(vlanID), str(desc)))
+            self.c.setVlanProp(vlanIndex, "description", output[1])
+            return                      # returns to setVlanConfig()
+
+
+    def setTotalVlans(self):
+        """ Edit the amount of VLANs that need to be configured """
+        logging.debugv("menu/config.py->setTotalVlans(self)", [])
+
+        title = "\\ZbConfig > Network > VLANs\\n\\ZB"
+        subtitle = "Enter the number of vlans you want to use"
+        vlannum = self.c.getTotalVlans()
+        while True:
+            output = self.d.inputbox(title, 10, 50, str(vlannum), colors=1)
+            if output[0] == 1: return
+            else:
+                if output[1].isdigit() and str(output[1]) != '0':
+                    logging.debug("Setting number of vlans to %s" % str(output[1]))
+
+                    # Make sure vlans are created
+                    for i in range(0, int(output[1])):
+                        # first entry in dict is 0
+                        #x = i - 1
+                        self.c.getVlan(i)
+
+                    return              # returns to configNetwork()
+                else:
+                    self.d.msgbox("Invalid number of VLANs. Enter a valid integer between 1 and 4095", width=60)
+        return                          # returns to configNetwork()
+
+
+
+#################################################
+#################################################
+
     def invalidNetConf(self, reason):
         """ Notifying user when the netconf is invalid """
         logging.debugv("menu/config.py->invalidNetConf(self, reason)", [reason])
-        self.d.msgbox("The network configuration is invalid: \n%s" % str(reason), width=50)
+        self.d.msgbox("The network configuration is invalid: \n%s" % str(reason), width=60)
 
     def invalidNetConfAction(self):
         """ Ask the user what to do about the invalid NetConf """
@@ -391,84 +823,19 @@ class Config:
         else:
             self.addIpmiUser()
 
-    def setNetwork(self):
-        """ Submenu for choosing a sensor type """
-        logging.debugv("menu/config.py->setNetwork(self)", [])
-        type = self.c.getSensorType()
-        choices = [
-                    ("Normal", "Normal sensor", int(type=="normal")),
-                    ("Vlan", "VLAN sensor", int(type=="vlan")),
-                ]
-
-        choice = self.d.radiolist("Select the type of sensor", choices=choices, cancel="back")
-        if choice[0] == 1: return
-        elif choice[1] == "Normal":
-            self.c.netconf['sensortype'] = "normal"
-            self.c.resetTrunk()
-            self.c.netconf.write()
-            self.list()
-        elif choice[1] == "Vlan":
-            self.c.netconf['sensortype'] = "vlan"
-            self.c.netconf.write()
-            self.configVlan()
-        self.setNetwork()
-
-    def configVlan(self):
-        """ Submenu for configuring the VLAN setup """
-        logging.debugv("menu/config.py->configVlan(self)", [])
-        choices = [
-                ("Trunk", "Select the trunk device"),
-                ("Main", "Select the main device"),
-                ]
-        choice = self.d.menu("Configure VLAN sensor", choices=choices, cancel="back")
-        if choice[0] == 1: return
-        elif choice[1] == "Trunk": self.listTrunk()
-        elif choice[1] == "Main": self.list()
-        self.configVlan()
-
-
-    def listTrunk(self):
-        """ Submenu for configuring the trunk device """
-        logging.debugv("menu/config.py->listTrunk(self)", [])
-        self.c.refresh()
-        infs = f.ifList()
-#        choices = [(x,self.c.chkTrunk(x)) for x in infs]
-#        output = self.d.menu("Select the trunk interface", choices=choices)
-        choices = [(x,self.c.chkInfType(x), int(self.c.getTrunkIf() == x)) for x in infs]
-        output = self.d.radiolist("Select the trunk interface (use space to select)", choices=choices, cancel="back")
-        if not output[0]:
-            interface = output[1]
-            logging.info("Setting trunk interface to %s" % interface)
-            self.c.changed = True
-            self.c.setTrunk(interface)
-            self.editVlanNum()
-
-
-    def list(self):
-        """ submenu of network, listing interfaces """
-        logging.debugv("menu/config.py->list(self)", [])
-        # before listing, reset the trunks to disabled
-        infs = f.ifList()
-        choices = [(x,self.c.chkInfType(x), int(self.c.getMainIf() == x)) for x in infs]
-        choice = self.d.radiolist("Select the main interface (use space to select)", choices=choices, cancel="back")
-        if choice[0] == 1: return
-        else:
-            self.edit(choice[1])
-        self.list()
-
 
     def dns(self):
-        """ submenu of network, dns settings menu """
+        """ Submenu of network, DNS settings menu """
         logging.debugv("menu/config.py->dns(self)", [])
         (type, prim, sec) = self.c.getDNS()
-        choices = [ ("type", type) ]
+        choices = [ ("Type", type) ]
         if type == "static":
             choices += [
-                    ("primary", prim),
-                    ("secondary", sec),
+                    ("Primary DNS server", prim),
+                    ("Secondary DNS server", sec),
                 ]
-        logging.debug(choices)
-        choice = self.d.menu("DNS settings", choices=choices, cancel="back")
+        title = "\\ZbStart > Configure > DNS\\n\\ZBSelect the item you want to configure"
+        choice = self.d.menu("DNS settings", choices=choices, cancel="Back", colors=1)
         if choice[0] == 1:
             # We need to check if DNS settings are correct
             (type, prim, sec) = self.c.getDNS()
@@ -480,17 +847,17 @@ class Config:
                     return
             else:                    
                 return
-        elif choice[1] == "type": self.dnsType()
-        elif choice[1] == "primary": self.dnsPrim()
-        elif choice[1] == "secondary": self.dnsSec()
+        elif choice[1] == "Type": self.dnsType()
+        elif choice[1] == "Primary DNS server": self.dnsPrim()
+        elif choice[1] == "Secondary DNS server": self.dnsSec()
         self.dns()
 
     def dnsType(self):
-        """ set dns type (dhcp or static config """
+        """ Set dns type (dhcp or static config """
         logging.debugv("menu/config.py->dnsType(self)", [])
         (type, prim, sec) = self.c.getDNS()
         output = self.d.radiolist("What type of DNS config do you want?", choices=[
-            ("dhcp", "get DNS settings trough dhcp", int(type=="dhcp")),
+            ("dhcp", "Receive DNS settings through dhcp", int(type=="dhcp")),
             ("static", "Manual configuration", int(type=="static")),
         ])
         if output[0]: return
@@ -499,11 +866,11 @@ class Config:
         self.c.setDNS(type, prim, sec)
 
     def dnsPrim(self):
-        """ set primary DNS server """
+        """ Set primary DNS server """
         logging.debugv("menu/config.py->dnsPrim(self)", [])
         (type, prim, sec) = self.c.getDNS()
         while True:
-            input = self.d.inputbox("primary DNS:", 10, 50, prim)
+            input = self.d.inputbox("Primary DNS server:", 10, 50, prim)
             if input[0]: return
             if t.ipv4check(input[1]):
                 prim = input[1]
@@ -512,11 +879,11 @@ class Config:
         self.c.setDNS(type, prim, sec)
 
     def dnsSec(self):
-        """ set secondary DNS server """
+        """ Set secondary DNS server """
         logging.debugv("menu/config.py->dnsSec(self)", [])
         (type, prim, sec) = self.c.getDNS()
         while True:
-            input = self.d.inputbox("secondary DNS:", 10, 50, sec)
+            input = self.d.inputbox("Secondary DNS server:", 10, 50, sec)
             if input[0]: return
             if input[1] == "":
                 sec = ""
@@ -528,365 +895,6 @@ class Config:
         self.c.setDNS(type, prim, sec)
 
 
-    def edit(self, interface):
-        """ submenu of network, for editing a interface """
-        logging.debugv("menu/config.py->edit(self, interface)", [interface])
-        # Set this interface as the main IF
-        self.c.setMainIf(interface)
-        self.c.changed = True
-        inf = self.c.getIf(interface)
-
-        choices = [
-                    ("Type", inf["type"]),
-                ]
-
-        if inf["type"] == "static":
-            # Static sensors always need Local IP address
-            choices += [
-                        ("Local IP address", inf["address"]),
-                    ]
-
-            # Only add Endpoint option for simple sensors
-            if self.c.netconf['sensortype'] == "normal":
-                choices += [
-                                ("Endpoint IP address", inf["tunnel"]),
-                        ]
-
-            # Add the rest of the options
-            choices += [
-                        ("Netmask", inf["netmask"]),
-                        ("Gateway", inf["gateway"]),
-                        ("Broadcast", inf["broadcast"]),
-                    ]
-
-        choice = self.d.menu("Interface %s configuration" % interface, choices=choices, cancel="back")
-
-        if choice[0] == 1: return
-        elif choice[1] == "Type": self.editType(interface)
-        elif choice[1] == "Tunnel": self.editTunnel(interface)
-        elif choice[1] == "Local IP address": self.editAddress(interface)
-        elif choice[1] == "Netmask": self.editNetmask(interface)
-        elif choice[1] == "Broadcast": self.editBroadcast(interface)
-        elif choice[1] == "Gateway": self.editGateway(interface)
-        elif choice[1] == "Endpoint IP address": self.editTunnelIP(interface)
-        self.edit(interface)
-
-    def editType(self, interface):
-        """ Edit the network type for a given interface """
-        logging.debugv("menu/config.py->editType(self, interface)", [interface])
-        type = self.c.getIf(interface)['type']
-        output = self.d.radiolist("type for " + interface, choices=[
-            ("disabled", "Device is disabled", int(type=='disabled')),
-            ("dhcp", "Dynamic (DHCP)", int(type=='dhcp')),
-            ("static", "Static", int(type=='static')),
-        ])
-        if not output[0]: 
-            type = output[1]
-            logging.info("setting type for %s to %s" % (interface, type) )
-            self.changed = True
-            self.r.configUp()
-            self.c.setIfProp(interface, "type", type)
-            self.c.resetOtherInfs(interface, ["dhcp", "static"])
-            
-
-    def editTunnelIP(self, interface):
-        """ Edit the statically set IP address for the tunnel server side """
-        logging.debugv("menu/config.py->editTunnelIP(self, interface)", [interface])
-        address = self.c.getIf(interface)['tunnel']
-        while True:
-            output = self.d.inputbox("Endpoint address on the tunnel server", 10, 50, address)
-            if output[0]: return
-            if t.ipv4check(output[1]):
-                address = output[1]
-                logging.info("Setting address for tunnel endpoint to %s" % (address) )
-                self.changed = True
-                self.c.setIfProp(interface, "tunnel", address)
-                return
-            else:
-                self.d.msgbox("Please enter a valid IP address")
-
-#    def editTunnel(self, interface):
-#        """ Enable or disable the tunnel for a given interface """
-#        tunnel = self.c.getIf(interface)['tunnel']
-#        output = self.d.yesno("Do you want to enable the tunnel for this interface?")
-#        tunnel = ["enabled", "disabled"][int(output)]
-#        logging.info("setting tunnel for %s to: %s" % (interface, tunnel) )
-#        self.changed = True
-#        self.c.setIfProp(interface, "tunnel", tunnel )
-
-    def editAddress(self, interface):
-        """ Edit the statically set IP address """
-        logging.debugv("menu/config.py->editAddress(self, interface)", [interface])
-        address = self.c.getIf(interface)['address']
-        tunnel = self.c.getIf(interface)['tunnel']
-        while True:
-            output = self.d.inputbox("address for " + interface, 10, 50, address)
-            if output[0]: return
-            if t.ipv4check(output[1]):
-                if output[1] == tunnel:
-                    self.d.msgbox("Local IP address and Endpoint IP address cannot be the same.\n Choose a different address.")
-                else:
-                    address = output[1]
-                    logging.info("setting address for %s to %s" % (interface, address) )
-                    self.changed = True
-                    self.c.setIfProp(interface, "address", address)
-                    return
-            else:
-                self.d.msgbox("Please enter a valid IP address")
-
-    def editNetmask(self, interface):
-        """ Edit the statically set netmask """
-        logging.debugv("menu/config.py->editNetmask(self, interface)", [interface])
-        netmask = self.c.getIf(interface)['netmask']
-        while True:
-            output = self.d.inputbox("netmask for " + interface, 10, 50, netmask)
-            if output[0]: return
-            if t.ipv4check(output[1]):
-                netmask = output[1]
-                logging.info("setting netmask for %s to %s" % (interface, netmask) )
-                self.changed = True
-                self.c.setIfProp(interface, "netmask", netmask)
-                return
-            else:
-                self.d.msgbox("please enter a valid netmask address")
-
-
-    def editBroadcast(self, interface):
-        """ Edit the statically set broadcast """
-        logging.debugv("menu/config.py->editBroadcast(self, interface)", [interface])
-        broadcast = self.c.getIf(interface)['broadcast']
-        if broadcast == "":
-            address = self.c.getIf(interface)['address']
-            netmask = self.c.getIf(interface)['netmask']
-            broadcast = t.broadcast(address, netmask)
-        while True:
-            output = self.d.inputbox("Broadcast for " + interface, 10, 50, broadcast)
-            if output[0]: return
-            if t.ipv4check(output[1]):
-                broadcast = output[1]
-                logging.info("Setting broadcast for %s to %s" % (interface, broadcast) )
-                self.changed = True
-                self.c.setIfProp(interface, "broadcast", broadcast)
-                return
-            else:
-                self.d.msgbox("Please enter a valid broadcast address")
-
-
-    def editGateway(self, interface):
-        """ Edit the statically set gateway address """
-        logging.debugv("menu/config.py->editGateway(self, interface)", [interface])
-        gateway = self.c.getIf(interface)['gateway']
-        while True:
-            output = self.d.inputbox("gateway for " + interface, 10, 50, gateway)
-            if output[0]: return
-            if t.ipv4check(output[1]):
-                gateway = output[1]
-                logging.info("setting gateway for %s to %s" % (interface, gateway) )
-                self.changed = True
-                self.c.setIfProp(interface, "gateway", gateway)
-                return
-            else:
-                self.d.msgbox("please enter a valid gateway address")
-
-
-
-    def editVlanNum(self):
-        """ Edit the amount of VLANs that need to be configured """
-        logging.debugv("menu/config.py->editVlanNum(self)", [])
-        vlannum = self.c.getTotalVlans()
-        output = self.d.inputbox("Number of vlans", 10, 50, str(vlannum))
-        if output[0] == 1:
-            self.listTrunk()
-        else:
-            if output[1].isdigit() and str(output[1]) != '0':
-                vlannum = output[1]
-                logging.debug("Setting number of vlans to %s" % vlannum)
-                self.editVlans(vlannum)
-            else:
-                self.d.msgbox("Invalid number of VLANs. Enter a number between 1 and 9")
-                self.editVlanNum()
-
-    def editVlans(self, vlannum):
-        """ list of configured vlans """
-        logging.debugv("menu/config.py->editVlans(self, vlannum)", [vlannum])
-        curVlanNum = self.c.getTotalVlans()
-        logging.debug("curVlanNum %s vs vlannum %s" % (str(curVlanNum), str(vlannum)))
-        if int(curVlanNum) > int(vlannum):
-            # Current number of VLAN's is not the same as given number -> flush vlan config
-            self.c.flushVlans()
-
-        choices = []
-        for i in range(int(vlannum)):
-            vlan = self.c.getVlan(str(i))
-            if vlan['description'] != "":
-                tag = vlan['vlanid'] + " - " + vlan['description']
-            else:
-                tag = vlan['vlanid']
-            choices += [(str(i), tag)]
-
-        logging.debug("choices: %s" % str(choices))
-        choice = self.d.menu("Choose a VLAN to edit...", choices=choices, cancel="back")
-        if choice[0] == 1:
-            self.listTrunk()
-        else:
-            self.editVlan(choice[1])
-            self.editVlans(vlannum)
-
-
-    def editVlan(self, vlan):
-        """ edit vlan settings """
-        logging.debugv("menu/config.py->editVlan(self, vlan)", [vlan])
-        vlanConf = self.c.getVlan(vlan)
-
-        choices = [
-                    ("Description", vlanConf["description"]),
-                    ("VlanID", vlanConf["vlanid"]),
-                    ("Type", vlanConf["type"]),
-                ]
-
-        if vlanConf["type"] == "static":
-            choices += [
-                        ("Endpoint IP address", vlanConf["tunnel"]),
-                        ("Netmask", vlanConf["netmask"]),
-                        ("Gateway", vlanConf["gateway"]),
-                        ("Broadcast", vlanConf["broadcast"]),
-                    ]
-
-        choice = self.d.menu("vlan %s config" % vlan, choices=choices, cancel="back")
-
-        if choice[0] == 1: return
-        elif choice[1] == "Description": self.editVlanDescription(vlan)
-        elif choice[1] == "VlanID": self.editVlanID(vlan)
-        elif choice[1] == "Type": self.editVlanType(vlan)
-        elif choice[1] == "Endpoint IP address": self.editVlanAddress(vlan)
-        elif choice[1] == "Netmask": self.editVlanNetmask(vlan)
-        elif choice[1] == "Gateway": self.editVlanGateway(vlan)
-        elif choice[1] == "Broadcast": self.editVlanBroadcast(vlan)
-        self.editVlan(vlan)
-
-
-    def editVlanDescription(self, vlan):
-        """ Edit description of vlan interface """
-        logging.debugv("menu/config.py->editVlanDescription(self, vlan)", [vlan])
-        description = self.c.getVlan(vlan)['description']
-        output = self.d.inputbox("Description for " + vlan, 10, 50, description)
-        if not output[0]:
-            description = output[1]
-            logging.info("Setting description for VLAN %s to %s" % (vlan, description) )
-            self.changed = True
-            self.c.setVlanProp(vlan, "description", description)
-
-
-    def editVlanID(self, vlan):
-        """ Edit vlan ID of vlan interface """
-        logging.debugv("menu/config.py->editVlanID(self, vlan)", [vlan])
-        vlanid = self.c.getVlan(vlan)['vlanid']
-        output = self.d.inputbox("VLAN for vlan%s" % vlan, 10, 50, vlanid)
-        if not output[0]:
-            if output[1].isdigit():
-                vlanid = output[1]
-                if self.c.chkVlanID(vlanid):
-                    self.d.msgbox("VLAN ID already in use")
-                    self.editVlanID(vlan)
-                else:
-                    logging.info("Setting VLAN ID for %s to %s" % (vlan, vlanid) )
-                    self.changed = True
-                    self.c.setVlanProp(vlan, "vlanid", vlanid)
-            else:
-                self.d.msgbox("Enter a NUMBER")
-                self.editVlanVlanID(vlan)
-
-
-    def editVlanType(self, vlan):
-        """ Edit type (dhcp/static) of vlan interface """
-        logging.debugv("menu/config.py->editVlanType(self, vlan)", [vlan])
-        type = self.c.getVlan(vlan)['type']
-        output = self.d.radiolist("type for " + vlan, choices=[
-            ("disabled", "Disabled", int(type=="disabled")),
-            ("dhcp", "Dynamic (DHCP)", int(type=="dhcp")),
-            ("static", "Static", int(type=="static")),
-        ])
-        if not output[0]: 
-            type = output[1]
-            logging.info("Setting type for VLAN %s to %s" % (vlan, type) )
-            self.changed = True
-            self.c.setVlanProp(vlan, "type", type)
-
-
-    def editVlanAddress(self, vlan):
-        """ Edit address of vlan interface """
-        logging.debugv("menu/config.py->editVlanAddress(self, vlan)", [vlan])
-        address = self.c.getVlan(vlan)['tunnel']
-        while True:
-            output = self.d.inputbox("Address for new VLAN device", 10, 50, address)
-            logging.debug(output)
-            if output[0]: return
-            if t.ipv4check(output[1]):
-                address = output[1]
-                logging.info("Setting address for VLAN %s to %s" % (vlan, address) )
-                self.changed = True
-                self.c.setVlanProp(vlan, "tunnel", address)
-                return
-            else:
-                self.d.msgbox("You entered an invalid IP address")
-
-
-    def editVlanNetmask(self, vlan):
-        """ Edit netmask of vlan interface """
-        logging.debugv("menu/config.py->editVlanNetmask(self, vlan)", [vlan])
-        netmask = self.c.getVlan(vlan)['netmask']
-        while True:
-            output = self.d.inputbox("Netmask for new VLAN device", 10, 50, netmask)
-            if output[0]: return
-            if t.ipv4check(output[1]):
-                netmask = output[1]
-                logging.info("Setting netmask for VLAN %s to %s" % (vlan, netmask) )
-                self.changed = True
-                self.c.setVlanProp(vlan, "netmask", netmask)
-                return
-            else:
-                self.d.msgbox("You entered an invalid netmask address")
-
-
-    def editVlanBroadcast(self, vlan):
-        """ Edit broadcast of vlan interface """
-        logging.debugv("menu/config.py->editVlanBroadcast(self, vlan)", [vlan])
-        broadcast = self.c.getVlan(vlan)['broadcast']
-        if broadcast == "":
-            address = self.c.getVlan(vlan)['tunnel']
-            netmask = self.c.getVlan(vlan)['netmask']
-            broadcast = t.broadcast(address, netmask)
-        while True:
-            output = self.d.inputbox("Broadcast address for new VLAN device", 10, 50, broadcast)
-            if output[0]: return
-            if t.ipv4check(output[1]):
-                broadcast = output[1]
-                logging.info("Setting broadcast for VLAN %s to %s" % (vlan, broadcast) )
-                self.changed = True
-                self.c.setVlanProp(vlan, "broadcast", broadcast)
-                return
-            else:
-                self.d.msgbox("You entered an invalid broadcast address")
-
-
-
-    def editVlanGateway(self, vlan):
-        """ Edit gateway of vlan interface """
-        logging.debugv("menu/config.py->editVlanGateway(self, vlan)", [vlan])
-        gateway = self.c.getVlan(vlan)['gateway']
-        while True:
-            output = self.d.inputbox("Gateway for new VLAN device on %s" % vlan, 10, 50, gateway)
-            if output[0]: return
-            if t.ipv4check(output[1]):
-                gateway = output[1]
-                logging.info("setting gateway for VLAN %s to %s" % (vlan, gateway) )
-                self.changed = True
-                self.c.setVlanProp(vlan, "gateway", gateway)
-                return
-            else:
-                self.d.msgbox("You entered an invalid gateway address")
-
- 
     def setServerurl(self):
         """ Set or edit the server URL used for updates """
         logging.debugv("menu/config.py->setServerurl(self)", [])

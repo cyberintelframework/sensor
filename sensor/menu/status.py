@@ -31,7 +31,10 @@ class Status:
         if f.ipmiStatus():        
             choices += [("IPMI", "IPMI information")]
 
-        choice = self.d.menu("Which status overview do you want to see?", choices=choices, cancel="back")
+        title = "\\ZbStart > Status\\n\\ZB"
+        subtitle = "Which status overview do you want to see?"
+        title += subtitle
+        choice = self.d.menu(title, choices=choices, cancel="Back", colors=1)
 
         # cancel
         if choice[0] == 1:
@@ -91,7 +94,7 @@ class Status:
         report = t.formatTitle("Main network configuration")
 
         try:
-            self.c.chkValidNetConfig()
+            self.c.validNetConfig()
         except excepts.ConfigException, e:
             e = str(e)
             e = e.strip('"')

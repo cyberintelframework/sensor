@@ -53,7 +53,10 @@ class Manage:
         # TODO
         #choices.append( ("Startup on", "Enable SURFids at startup") ) 
 
-        choice = self.d.menu("What do you want to manage?", choices=choices, cancel="back")
+        title = "\\ZbStart > Manage\\n\\ZB"
+        subtitle = "Select an action"
+        title += subtitle
+        choice = self.d.menu(title, choices=choices, cancel="Back", colors=1)
 
         # cancel 
         if choice[0] == 1: return
@@ -73,7 +76,7 @@ class Manage:
                     "This will result in a new sensor ID"):
                 functions.sensorDown()
                 functions.delKey()
-                self.d.msgbox("Sensor cleaned (removed key & certificate). Ignore the old sensor in the web interface. Restart the sensor.", width=70)
+                self.d.msgbox("Sensor cleaned (removed key & certificate). Ignore the old sensor in the web interface. Restart the sensor.", width=60)
         elif choice[1] == "Ping": self.ping()
         else: self.d.msgbox("not yet implemented")
         self.run()
@@ -85,7 +88,7 @@ class Manage:
         try:
             self.c.validNetConf()
         except excepts.ConfigException, err:
-            self.d.msgbox("The network configuration is invalid: \n%s" % str(err), width=50)
+            self.d.msgbox("The network configuration is invalid: \n%s" % str(err), width=60)
             return
 
         self.d.infobox("Bringing sensor up...")
@@ -96,10 +99,10 @@ class Manage:
             else:
                 self.d.msgbox("Unable to start the sensor")
         except excepts.NetworkException, msg:
-            self.d.msgbox(str(msg) + "\nplease see logfile for details", width=70)
+            self.d.msgbox(str(msg) + "\nplease see logfile for details", width=60)
             self.sensorDown()
         except excepts.ConfigException, msg:
-            self.d.msgbox(str(msg) + "\nplease see logfile for details", width=70)
+            self.d.msgbox(str(msg) + "\nplease see logfile for details", width=60)
             self.sensorDown()
 
     def sensorDown(self):

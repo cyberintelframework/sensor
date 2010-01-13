@@ -25,7 +25,10 @@ class Menu:
     def run(self):
         """ The main menu """
         logging.debugv("menu/__init__.py->run(self)", [])
-        choice = self.d.menu("What do you want to do today?",
+        title = "\\ZbStart\\n\\ZB"
+        subtitle = "What do you want to do today?"
+        title += subtitle
+        choice = self.d.menu(title,
             choices=[
                 ("Configure", "Configure this sensor"),
                 ("Manage", "Start/stop sensor functions"),
@@ -35,7 +38,7 @@ class Menu:
                 #("Console", "Open a management console"),
                 ("About", "Learn more about the SURFids sensor"),
                 ("Shutdown", "Shutdown the machine"),
-            ], nocancel=1, width="63")
+            ], nocancel=1, width=60, colors=1)
         #cancel
         if choice[0] == 1: return
         elif choice[1] == "Configure": config.Config(self.d).run()

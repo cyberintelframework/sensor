@@ -6,6 +6,7 @@ import sys
 
 from sensor import locations
 from sensor import excepts
+from sensor import tools as t
 
 # Setting version variables
 version = "2.10.00"
@@ -41,6 +42,94 @@ class Config:
             logging.debugv("config.py->__init__(self)", [])
         except AttributeError:
             foo = "Do nothing"
+
+    def validInfConf(self, chkType, inf, rais=1):
+        """ Check if the interface configuration is valid and complete.
+            Accepts 2 arguments:
+                - chkType = Type of interface to check (vlan or normal)
+                - inf = Name of the interface (or vlanIndex in case of chkType == vlan)
+        """
+        logging.debugv("config.py->validInfConf(self, chkType, inf, rais)", [chkType, inf, rais])
+        if chkType == "vlan":
+            # vlan interface - (inf = vlanIndex)
+            infConf = self.getVlan(inf)
+
+            # Check vlanID
+            if not infConf["vlanid"].isdigit():
+                err = "Invalid or empty vlan ID"
+                logging.error(err)
+                if rais == 1:
+                    raise excepts.ConfigException, err
+                else:
+                    return False
+
+        elif chkType == "normal":
+            # normal interface
+            infConf = self.getIf(inf)
+
+        # Check inf type
+        if infConf["type"] == "disabled":
+            return True
+        elif infConf["type"] == "dhcp":
+            return True
+        elif infConf["type"] == "static":
+            # Check addresses
+            if self.getSensorType() == "normal":
+                if not t.ipv4check(infConf["tunnel"]):
+                    err = "Invalid or empty endpoint IP address"
+                    logging.error(err)
+                    if rais == 1:
+                        raise excepts.ConfigException, err
+                    else:
+                        return False
+                if not t.ipv4check(infConf["address"]):
+                    err = "Invalid or empty local IP address"
+                    logging.error(err)
+                    if rais == 1:
+                        raise excepts.ConfigException, err
+                    else:
+                        return False
+            elif self.getSensorType() == "vlan":
+                if chkType == "normal":
+                    if not t.ipv4check(infConf["address"]):
+                        err = "Invalid or empty local IP address"
+                        logging.error(err)
+                        if rais == 1:
+                            raise excepts.ConfigException, err
+                        else:
+                            return False
+                elif chkType == "vlan":
+                    if not t.ipv4check(infConf["tunnel"]):
+                        err = "Invalid or empty endpoint IP address"
+                        logging.error(err)
+                        if rais == 1:
+                            raise excepts.ConfigException, err
+                        else:
+                            return False
+
+            # Same for every interface regardless of type or sensortype
+            if not t.ipv4check(infConf["netmask"]):
+                err = "Invalid or empty subnet mask"
+                logging.error(err)
+                if rais == 1:
+                    raise excepts.ConfigException, err
+                else:
+                    return False
+            if not t.ipv4check(infConf["broadcast"]):
+                err = "Invalid or empty broadcast address"
+                logging.error(err)
+                if rais == 1:
+                    raise excepts.ConfigException, err
+                else:
+                    return False
+            if not t.ipv4check(infConf["gateway"]):
+                err = "Invalid or empty gateway address"
+                logging.error(err)
+                if rais == 1:
+                    raise excepts.ConfigException, err
+                else:
+                    return False
+        return True            
 
     def validNetConf(self):
         """ Check if the network configuration is valid and complete """
@@ -158,6 +247,12 @@ class Config:
                 logging.error(err)
                 raise excepts.ConfigException, err
 
+            # Check if trunk interface is not the same as the main interface
+            if trunkIf == mainIf:
+                err = "Trunk interface is the same as the main interface"
+                logging.error(err)
+                raise excepts.ConfigException, err
+
             try:
                 vlans = self.netconf['vlans']
             except KeyError, e:
@@ -187,10 +282,11 @@ class Config:
                     logging.error(err)
                     raise excepts.ConfigException, err
 
-                if vlanid == "":
-                    err = "Vlan ID is invalid"
-                    logging.error(err)
-                    raise excepts.ConfigException, err
+                if type != "disabled":
+                    if vlanid == "":
+                        err = "Vlan ID is invalid"
+                        logging.error(err)
+                        raise excepts.ConfigException, err
                 if type == "static":
                     active = active + 1
                     # Further checking static configuration of the VLAN
@@ -428,6 +524,14 @@ class Config:
             self.netconf.write()
             return self.netconf['vlans'][str(number)]
 
+    def getVlanIndexByID(self, ID):
+        """ Get the index of a VLAN from the config by ID """
+        logging.debugv("config.py->getVlanIndexByID(self, ID)", [ID])
+        for (vlanIndex, vlanConf) in self.getVlans().items():
+            if vlanConf["vlanid"] == ID:
+                return vlanIndex
+        return 0
+
     def getTotalVlans(self):
         """ Retrieve the amount of VLANs to be configured """
         logging.debugv("config.py->getTotalVlans(self)", [])
@@ -441,11 +545,11 @@ class Config:
         self.netconf['vlans'][number] = vlan
         self.netconf.write()
 
-    def chkVlanID(self, number):
-        """ Check the VLAN number and see if it is in use already or not """
-        logging.debugv("config.py->chkVlanID(self, number)", [number])
+    def chkVlanID(self, ID):
+        """ Check the VLAN ID and see if it is in use already or not """
+        logging.debugv("config.py->chkVlanID(self, ID)", [ID])
         for (vlanConf) in self.getVlans().values():
-            if vlanConf['vlanid'] == number:
+            if vlanConf['vlanid'] == ID:
                 return True
         return False
 
