@@ -3,6 +3,7 @@ import logging
 import pdb
 import md5
 import sys
+import os
 
 from sensor import locations
 from sensor import excepts
