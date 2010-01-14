@@ -182,7 +182,7 @@ class Config:
         title = "\\Zb... > Configure > Network > Setup main interface\\n\\ZB"
         title += "Select the main interface"
 
-        infs = self.c.getInfs()
+        infs = f.ifList()
         choices = [(x, self.c.chkInfType(x), int(self.c.getMainIf() == x)) for x in infs]
         choice = self.d.radiolist(title, choices=choices, cancel="Back", ok_label="Ok", height=20, colors=1)
         if choice[0] == 1: return           # returns to configNetwork()
