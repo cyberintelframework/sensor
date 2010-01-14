@@ -396,6 +396,12 @@ class Config:
             self.c.setIfProp(inf, "type", "dhcp")
             self.c.netconf.write()
             self.changed = True
+
+            # Do some auto configuration
+            # If this interface = mainIf, set DNS to dhcp as well
+            if self.c.getMainIf() == inf:
+                self.c.getDNS()
+
             return                  # returns to setIfConfig()
         elif choice[1] == "Static":
             self.c.setIfProp(inf, "type", "static")
