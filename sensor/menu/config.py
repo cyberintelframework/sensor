@@ -354,9 +354,10 @@ class Config:
             else:
                 if output[1].isdigit() and str(output[1]) != '0':
                     vlanID = output[1]
-                    self.c.changed = True
-                    self.c.setVlanProp(vlanIndex, "vlanid", output[1])
-                    return                  # returns to setVlanConfig()
+                    if not self.c.chkVlanID(vlanID):
+                        self.c.changed = True
+                        self.c.setVlanProp(vlanIndex, "vlanid", output[1])
+                        return                  # returns to setVlanConfig()
                 else:
                     self.d.msgbox("Please enter a valid integer between 0 and 4095!")
         
