@@ -101,6 +101,8 @@ class Manager:
                 ex = True
             elif choice[1] == "Reset network config":
                 self.c.resetNetConfig()
+                text = "Network config reset. Press OK to restart the sensor manager GUI"
+                self.d.msgbox(text, width=70, height=40, no_collapse=1, colors=1)
                 log.inthandler(signal.SIGINT, "")
                 ex = True
             elif choice[1] == "View error dump":
