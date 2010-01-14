@@ -365,13 +365,16 @@ class Config:
                     raise excepts.ConfigException, err
 
 
-    def resetConfig(self):
+    def resetNetConfig(self):
         """ Completely reset (unlink) the network configuration """
-        logging.debugv("config.py->resetConfig(self)", [])
+        logging.debugv("config.py->resetNetConfig(self)", [])
         oldrev = self.getRev()
-        self.netconf.reset()
-        self.netconf.write()
+        if os.access(locations.NETCONF, os.R_OK):
+            os.unlink(locations.NETCONF)
+        self.netconf = False
+        self.netconf = ConfigObj(locations.NETCONF)
         self.setRev(oldrev)
+        self.netconf.write()
 
     def refresh(self):
         """ reloads config file from filesystem """
@@ -666,8 +669,7 @@ class Config:
     def setRev(self, rev):
         """ Set the network configuration revision """
         logging.debugv("config.py->setRev(self, rev)", [rev])
-        if rev.isdigit():
-            self.netconf['revision'] = rev
+        self.netconf['revision'] = rev
 
     def validAdmin(self, passwd):
         """ Checks the given pass against admin pass """
