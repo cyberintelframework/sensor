@@ -174,10 +174,12 @@ class Config:
             self.c.netconf['sensortype'] = "normal"
             self.c.resetTrunk()
             self.c.netconf.write()
+            self.changed = True
             return                  # returns to configNetwork()
         elif choice[1] == "Vlan":
             self.c.netconf['sensortype'] = "vlan"
             self.c.netconf.write()
+            self.changed = True
             return                  # returns to configNetwork()
         return                      # returns to configNetwork()
 
@@ -195,6 +197,7 @@ class Config:
         if choice[0] == 1: return           # returns to configNetwork()
         else:
             self.c.setMainIf(choice[1])
+            self.changed = True
         return                              # returns to configNetwork()
 
 
@@ -214,8 +217,8 @@ class Config:
                 self.d.msgbox("The trunk interface cannot be the same as the main interface!")
             else:
                 logging.info("Setting trunk interface to %s" % interface)
-                self.c.changed = True
                 self.c.setTrunk(choice[1])
+                self.changed = True
         return                              # returns to configNetwork()
 
 
@@ -329,14 +332,17 @@ class Config:
         elif choice[1] == "DHCP":
             self.c.setVlanProp(vlanIndex, "type", "dhcp")
             self.c.netconf.write()
+            self.changed = True
             return                  # returns to setVlanConfig()
         elif choice[1] == "Static":
             self.c.setVlanProp(vlanIndex, "type", "static")
             self.c.netconf.write()
+            self.changed = True
             return                  # returns to setVlanConfig()
         elif choice[1] == "Disabled":
             self.c.setVlanProp(vlanIndex, "type", "disabled")
             self.c.netconf.write()
+            self.changed = True
             return                  # returns to setVlanConfig()
         return                      # returns to setVlanConfig()
 
@@ -364,6 +370,7 @@ class Config:
                     if not self.c.chkVlanID(vlanID):
                         self.c.changed = True
                         self.c.setVlanProp(vlanIndex, "vlanid", output[1])
+                        self.changed = True
                         return                  # returns to setVlanConfig()
                 else:
                     self.d.msgbox("Please enter a valid integer between 0 and 4095!")
@@ -388,14 +395,17 @@ class Config:
         elif choice[1] == "DHCP":
             self.c.setIfProp(inf, "type", "dhcp")
             self.c.netconf.write()
+            self.changed = True
             return                  # returns to setIfConfig()
         elif choice[1] == "Static":
             self.c.setIfProp(inf, "type", "static")
             self.c.netconf.write()
+            self.changed = True
             return                  # returns to setIfConfig()
         elif choice[1] == "Disabled":
             self.c.setIfProp(inf, "type", "disabled")
             self.c.netconf.write()
+            self.changed = True
             return                  # returns to setIfConfig()
         return                      # returns to setIfConfig()
 
@@ -432,6 +442,7 @@ class Config:
                 logging.info("Setting %s for %s to %s" % (type, inf, output[1]))
                 self.changed = True
                 self.c.setIfProp(interface, type, output[1])
+                self.changed = True
                 return                  # returns to setIfConfig()
             else:
                 self.d.msgbox("Please enter a valid address")
@@ -466,6 +477,7 @@ class Config:
                 logging.info("Setting %s for %s to %s" % (type, vlanID, output[1]))
                 self.changed = True
                 self.c.setVlanProp(vlanIndex, type, output[1])
+                self.changed = True
                 return                  # returns to setVlanConfig()
             else:
                 self.d.msgbox("Please enter a valid address")
@@ -485,6 +497,7 @@ class Config:
         else:
             logging.debug("Setting description for VLAN %s to %s" % (str(vlanID), str(desc)))
             self.c.setVlanProp(vlanIndex, "description", output[1])
+            self.changed = True
             return                      # returns to setVlanConfig()
 
 
@@ -500,13 +513,13 @@ class Config:
             if output[0] == 1: return
             else:
                 if output[1].isdigit() and str(output[1]) != '0':
-                    logging.debug("Setting number of vlans to %s" % str(output[1]))
-
-                    # Make sure vlans are created
-                    for i in range(0, int(output[1])):
-                        # first entry in dict is 0
-                        #x = i - 1
-                        self.c.getVlan(i)
+                    if vlannum != output[1]:
+                        logging.debug("Setting number of vlans to %s" % str(output[1]))
+                        # Make sure vlans are created
+                        for i in range(0, int(output[1])):
+                            # first entry in dict is 0
+                            self.c.getVlan(i)
+                            self.changed = True
 
                     return              # returns to configNetwork()
                 else:
