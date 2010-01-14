@@ -139,7 +139,6 @@ class Config:
         try:
             sensortype = self.netconf['sensortype']
             mainIf = self.netconf['mainIf']
-            trunkIf = self.netconf['trunkIf']
             dns = self.netconf['dns']
             dnstype = self.netconf['dnstype']
             interfaces = self.netconf['interfaces']
@@ -242,6 +241,13 @@ class Config:
 
         elif self.netconf['sensortype'] == 'vlan':
             # Validate vlan sensor
+            try:
+                trunkIf = self.netconf['trunkIf']
+            except KeyError, e:
+                err = "Trunk interface is not configured"
+                logging.error(err)
+                raise excepts.ConfigException, err
+
             if trunkIf == "":
                 err = "Trunk interface is not configured"
                 logging.error(err)
