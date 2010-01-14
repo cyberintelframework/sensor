@@ -45,6 +45,8 @@ class Manager:
             logging.warn(msg)
         except excepts.InterfaceException, msg:
             logging.warn(msg)
+        except:
+            self.handleException()
         logging.debug("Initializing runtime info")
         f.initRuntime()
         if not self.r.sensorStatus():
@@ -68,6 +70,8 @@ class Manager:
                     except excepts.InterfaceException, msg:
                         msg = str(msg)
                         self.d.msgbox("Autostart Failed\n\nINTERFACE ERROR: " + msg)
+                    except:
+                        self.handleException()
 
     	logging.info("Starting up menu")
         try:
@@ -75,32 +79,36 @@ class Manager:
         except SystemExit:
             logging.info("Sensor manager exiting")
         except:
-            f.do_verbose_exception()
-            ex = False
-            while ex == False:
-                title = "Unrecoverable error detected.\\nMost of the times this is due to an error in the network configuration.\\nWhat do you want to do?"
-                choices = [
-                        ("Restart GUI", "Restart the sensor manager GUI"),
-                        ("View error dump", "View the latest error dump"),
-                        ("Reset network config", "Completely reset the network configuration"),
-                    ]
-                choice = self.d.menu(title, choices=choices, no_cancel=1, colors=1, width=70)
-                if choice[0]: return
-                elif choice[1] == "Restart GUI": 
-                    log.inthandler(signal.SIGINT, "")
-                    ex = True
-                elif choice[1] == "Reset network config":
-                    self.c.resetConfig()
-                    log.inthandler(signal.SIGINT, "")
-                    ex = True
-                elif choice[1] == "View error dump":
-                    logText = ""
-                    logFile = open(locations.DUMP, 'r')
-                    for line in logFile.readlines():
-                        logText += line
-                    self.d.msgbox(logText, width=70, height=40, no_collapse=1, colors=1)
+            self.handleException()
 
+    def handleException(self):
+        """ Handle any uncaught exception in the manager """
+        logging.debugv("manager.py->handleException(self)", [])
 
+        f.do_verbose_exception()
+        ex = False
+        while ex == False:
+            title = "Unrecoverable error detected.\\nMost of the times this is due to an error in the network configuration.\\nWhat do you want to do?"
+            choices = [
+                    ("Restart GUI", "Restart the sensor manager GUI"),
+                    ("View error dump", "View the latest error dump"),
+                    ("Reset network config", "Completely reset the network configuration"),
+                ]
+            choice = self.d.menu(title, choices=choices, no_cancel=1, colors=1, width=70)
+            if choice[0]: return
+            elif choice[1] == "Restart GUI": 
+                log.inthandler(signal.SIGINT, "")
+                ex = True
+            elif choice[1] == "Reset network config":
+                self.c.resetConfig()
+                log.inthandler(signal.SIGINT, "")
+                ex = True
+            elif choice[1] == "View error dump":
+                logText = ""
+                logFile = open(locations.DUMP, 'r')
+                for line in logFile.readlines():
+                    logText += line
+                self.d.msgbox(logText, width=70, height=40, no_collapse=1, colors=1)
 
 if __name__ == '__main__':
     manager = Manager()

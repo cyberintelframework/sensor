@@ -90,6 +90,13 @@ class Config:
         sensorType = self.c.getSensorType()
         choices = t.formatMenuItem("Sensor type", sensorType)
 
+        # Some autoconfig stuff here
+        # Set the main interface if there's only 1 interface
+        totalInfs = f.ifList()
+        if len(totalInfs) == 1:
+            logging.debug("Auto configuration: Setting mainIf to %s" % str(totalInfs[0]))
+            self.c.setMainIf(totalInfs[0])
+
         # ITEM - Main Interface
         mainIf = self.c.getMainIf()
         choices += t.formatMenuItem("Main interface", mainIf)
