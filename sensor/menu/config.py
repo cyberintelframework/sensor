@@ -400,7 +400,7 @@ class Config:
             # Do some auto configuration
             # If this interface = mainIf, set DNS to dhcp as well
             if self.c.getMainIf() == inf:
-                self.c.getDNS()
+                self.c.setDNS()
 
             return                  # returns to setIfConfig()
         elif choice[1] == "Static":
