@@ -12,6 +12,7 @@ from sensor import runtime
 from sensor import config
 from sensor import dialog
 from sensor import excepts
+from sensor import locations
 
 class Manager:
     def __init__(self):
