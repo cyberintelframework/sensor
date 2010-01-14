@@ -100,7 +100,7 @@ class Manager:
                 log.inthandler(signal.SIGINT, "")
                 ex = True
             elif choice[1] == "Reset network config":
-                self.c.resetConfig()
+                self.c.resetNetConfig()
                 log.inthandler(signal.SIGINT, "")
                 ex = True
             elif choice[1] == "View error dump":
