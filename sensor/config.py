@@ -297,6 +297,7 @@ class Config:
 
             active = 0
             inactive = 0
+            vlanIDdict = {}
             for a in vlans:
                 logging.debug("VLAN: %s" % str(a))
                 try:
@@ -311,6 +312,17 @@ class Config:
                     err = "Missing config item - vlan %s: %s" % (str(a), str(e))
                     logging.error(err)
                     raise excepts.ConfigException, err
+
+                # Keep track of which vlanID's are being used
+                if vlanid != "":
+                    try:
+                        chk = vlanIDdict[vlanid]
+                    except KeyError, e:
+                        vlanIDdict += {vlanid: True}
+                    else:
+                        err = "VlanID %s is already in use by another VLAN" % str(vlanid)
+                        logging.error(err)
+                        raise excepts.ConfigException, err                    
 
                 if type != "disabled":
                     if vlanid == "":
