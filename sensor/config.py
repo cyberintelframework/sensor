@@ -234,8 +234,8 @@ class Config:
             # Validate normal sensor
             logging.debug("Normal")
 
-            if tunnel == "":
-                err = "Main: Endpoint IP is empty" % str(a)
+            if tunnel == "" and mainIfType == "static":
+                err = "Main: Endpoint IP is empty"
                 logging.error(err)
                 raise excepts.ConfigException, err
 
