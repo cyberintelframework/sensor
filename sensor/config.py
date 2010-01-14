@@ -135,6 +135,10 @@ class Config:
         """ Check if the network configuration is valid and complete """
         logging.debugv("config.py->validNetConf(self)", [])
 
+        #######################################################
+        # MAINCONF check
+        #######################################################
+
         # Get config values first
         try:
             sensortype = self.netconf['sensortype']
@@ -176,9 +180,11 @@ class Config:
             logging.error(err)
             raise excepts.ConfigException, err
 
+        #######################################################
+        # ALLINF check
+        #######################################################
 
-
-        # Checking interfaces
+        # Checking all configured interfaces
         for b in interfaces:
             try:
                 type = self.netconf['interfaces'][b]['type']
@@ -188,35 +194,27 @@ class Config:
                 broadcast = self.netconf['interfaces'][b]['broadcast']
                 tunnel = self.netconf['interfaces'][b]['tunnel']
             except KeyError, e:
-                err = "Missing config item - main: %s" % (str(a), str(e))
+                err = "Missing config item - %s: %s" % (str(b), str(e))
                 logging.error(err)
                 raise excepts.ConfigException, err
 
-        if type == "":
-            err = "Main: Type is empty" % str(b)
+        #######################################################
+        # MAINIF check
+        #######################################################
+
+        # Get the mainIf config
+        try:
+            type = self.netconf['interfaces'][mainIf]['type']
+            address = self.netconf['interfaces'][mainIf]['address']
+            netmask = self.netconf['interfaces'][mainIf]['netmask']
+            gateway = self.netconf['interfaces'][mainIf]['gateway']
+            broadcast = self.netconf['interfaces'][mainIf]['broadcast']
+            tunnel = self.netconf['interfaces'][mainIf]['tunnel']
+        except KeyError, e:
+            err = "Missing config item - %s: %s" % (str(mainIf), str(e))
             logging.error(err)
             raise excepts.ConfigException, err
-        elif type == "static":
-            if netmask == "":
-                err = "Main: Netmask is empty" % str(b)
-                logging.error(err)
-                raise excepts.ConfigException, err
-            if gateway == "":
-                err = "Main: Gateway is empty" % str(b)
-                logging.error(err)
-                raise excepts.ConfigException, err
-            if broadcast == "":
-                err = "Main: Broadcast is empty" % str(b)
-                logging.error(err)
-                raise excepts.ConfigException, err
-        elif type == "dhcp":
-            active = True
-        elif type == "trunk":
-            inactive = True
-        elif type == "disabled":
-            inactive = True
-
-        # Checking if there's an actively configured interface
+            
         try:
             mainIfType = interfaces[mainIf]['type']
         except KeyError:
@@ -229,15 +227,41 @@ class Config:
                 logging.error(err)
                 raise excepts.ConfigException, err
 
+        if type == "":
+            err = "Main interface: Type is empty" % str(b)
+            logging.error(err)
+            raise excepts.ConfigException, err
+        elif type == "static":
+            if netmask == "":
+                err = "Main interface: Netmask is empty"
+                logging.error(err)
+                raise excepts.ConfigException, err
+            if gateway == "":
+                err = "Main interface: Gateway is empty" % str(b)
+                logging.error(err)
+                raise excepts.ConfigException, err
+            if broadcast == "":
+                err = "Main interface: Broadcast is empty" % str(b)
+                logging.error(err)
+                raise excepts.ConfigException, err
+
+        #######################################################
+        # ENDPOINT IP check
+        #######################################################
+
         # Checking stuff depending on config type
         if self.netconf['sensortype'] == 'normal':
             # Validate normal sensor
             logging.debug("Normal")
 
             if tunnel == "" and mainIfType == "static":
-                err = "Main: Endpoint IP is empty"
+                err = "Main interface: Endpoint IP is empty"
                 logging.error(err)
                 raise excepts.ConfigException, err
+
+        #######################################################
+        # VLAN check
+        #######################################################
 
         elif self.netconf['sensortype'] == 'vlan':
             # Validate vlan sensor
@@ -312,8 +336,6 @@ class Config:
                         err = "VLAN %s: Endpoint is empty" % str(a)
                         logging.error(err)
                         raise excepts.ConfigException, err
-
-
 
                 elif type == "dhcp":
                     active = active + 1
