@@ -12,6 +12,7 @@ import subprocess
 import pdb
 import time
 import cgitb
+import sys
 
 from sensor import locations
 from sensor import excepts
