@@ -48,11 +48,12 @@ class Log:
         expr = r".*%s.*" % filter
 
         logText = ""
-        logFile = open(locations.LOGFILE, 'r')
+#        logFile = open(locations.LOGFILE, 'r')
+        logFile = os.popen(locations.TAIL + " -n400 " + locations.LOGFILE)
         for line in logFile.readlines():
             compiled = re.compile(expr)
             if compiled.match(line) != None:
-                logText += line
+                logText += str(line)
         return self.d.msgbox(logText, width=70, height=40, no_collapse=1, colors=1)
 
     def manual(self):
