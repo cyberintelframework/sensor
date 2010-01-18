@@ -1,6 +1,7 @@
 """
 linux specific system functions
 """
+import sys
 import pdb
 import re
 import logging
