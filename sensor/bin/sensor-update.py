@@ -2,7 +2,7 @@
 
 import logging
 
-from sensor import log
+from sensor import altlog
 from sensor import functions
 from sensor import runtime
 
