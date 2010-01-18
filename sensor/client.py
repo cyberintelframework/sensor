@@ -105,7 +105,7 @@ def saveConf():
         c.changed = True
 
 
-def register(localip, keyname, pversion):
+def register(localip, keyname):
     """ Register sensor @ SURFids server
 
         localip: ip of interface
@@ -115,7 +115,7 @@ def register(localip, keyname, pversion):
         gateway: netmask of interface, only needed when method = static/vlans
         broadcast: broadcast of interface, only needed when method = static/vlans
     """
-    logging.debugv("client.py->register(localip, keyname, pversion)", [localip, keyname, pversion])
+    logging.debugv("client.py->register(localip, keyname)", [localip, keyname])
 
     if not r.networkStatus():
         logging.error("No network connection available, not registering")
@@ -124,8 +124,7 @@ def register(localip, keyname, pversion):
     req = "startclient.php"
     args = urllib.urlencode((
         ('ip_localip', localip),
-        ('strip_html_escape_keyname', keyname),
-        ('strip_html_escape_pversion', pversion))
+        ('strip_html_escape_keyname', keyname))
     )
     result = makeRequest(req, args)
     for line in result.readlines(): logging.debug(line[:-1])
@@ -211,9 +210,9 @@ def getConfig():
         logging.warning("No network connection available. Can't get new configuration.")
         return False
 
-def update(localip, ssh, mac):
+def update(localip, ssh, mac, pversion):
     """ updates interface @ ids server """
-    logging.debugv("client.py->update(localip, ssh, mac)", [localip, ssh, mac])
+    logging.debugv("client.py->update(localip, ssh, mac, pversion)", [localip, ssh, mac, pversion])
 
     if not r.networkStatus():
         logging.debug("Sensor not active, not syncing")
@@ -227,7 +226,8 @@ def update(localip, ssh, mac):
         ('strip_html_escape_keyname', sensorid),
         ('ip_localip', localip),
         ('int_ssh', ssh),
-        ('mac_mac', mac))
+        ('mac_mac', mac),
+        ('strip_html_escape_pversion', pversion))
     )
 
     x = makeRequest(req, args)
