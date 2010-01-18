@@ -251,35 +251,3 @@ class Status:
             report += t.formatLog("VLAN ID", self.c.ipmi["vlanid"])
 
         return self.d.msgbox(report, width=70, height=25, no_collapse=1, colors=1)
-
-
-    def version(self):
-        logging.debugv("menu/status.py->version(self)", [])
-        report = t.formatTitle("General version info")
-
-        # Revision info
-        report += t.formatLog("Revision", version.getRev())
-        report += t.formatLog("Last change", version.getDate())
-
-        report += "\n"
-
-        # subtitle
-        report += t.formatTitle("Scripts version info")
-
-        # Scripts versions
-        report += t.formatLog("client.py", f.getVer("client"))
-        report += t.formatLog("config.py", f.getVer("config"))
-        report += t.formatLog("dialog.py", f.getVer("dialog"))
-        report += t.formatLog("excepts.py", f.getVer("excepts"))
-        report += t.formatLog("log.py", f.getVer("log"))
-        report += t.formatLog("runtime.py", f.getVer("runtime"))
-        report += t.formatLog("tools.py", f.getVer("tools"))
-        report += t.formatLog("version.py", f.getVer("version"))
-
-        return self.d.msgbox(report, width=70, height=25, no_collapse=1, colors=1)
-
-    def debug(self):
-        """ Prints the runtime dictionary for debugging purposes """
-        logging.debugv("menu/status.py->debug(self)", [])
-        report = t.debugDict(self.r.config)            
-        return self.d.msgbox(report, width=70, height=25, no_collapse=1, colors=1)
