@@ -20,13 +20,14 @@ class Log:
                 ("Debug", "Filter on debug messages"),
                 ("Debugv", "Filter on debugv messages"),
                 ("Manual", "Manually enter a search keyword"),
+                ("Update", "Show the update log"),
                 ("Dump", "Show the latest exception dump"),
             ]
 
         title = "\\ZbStart > Log\\n\\ZB"
         subtitle = "Which log overview do you want to see?"
         title += subtitle
-        choice = self.d.menu(title, choices=choices, cancel="Back", colors=1, menu_height=10, height=16)
+        choice = self.d.menu(title, choices=choices, cancel="Back", colors=1, menu_height=11, height=17)
 
         # cancel
         if choice[0] == 1: return
@@ -37,8 +38,26 @@ class Log:
         elif choice[1] == "Debug": self.showFilter(" DEBUG ")
         elif choice[1] == "Debugv": self.showFilter(" DEBUGVV{0,1} ")
         elif choice[1] == "Manual": self.manual()
+        elif choice[1] == "Update": self.showUpdateLog()
         elif choice[1] == "Dump": self.errorDump()
         self.run()
+
+    def showAll(self):
+        """ Show the entire log file """
+        logging.debugv("menu/log.py->showAll(self)", [])
+        if os.access(locations.LOGFILE, os.R_OK):
+            return self.d.textbox(locations.LOGFILE, width=70, height=40, no_collapse=1, colors=1)
+        else:
+            return self.d.msgbox("No logfile present")
+
+
+    def showUpdateLog(self):
+        """ Show the update log """
+        logging.debugv("menu/log.py->showUpdateLog(self)", [])
+        if os.access(locations.UPDATELOG, os.R_OK):
+            return self.d.textbox(locations.UPDATELOG, width=70, height=40, no_collapse=1, colors=1)
+        else:
+            return self.d.msgbox("No update logfile present")
 
 
     def showFilter(self, filter):
@@ -47,14 +66,19 @@ class Log:
 
         expr = r".*%s.*" % filter
 
-        logText = ""
-#        logFile = open(locations.LOGFILE, 'r')
-        logFile = os.popen(locations.TAIL + " -n400 " + locations.LOGFILE)
-        for line in logFile.readlines():
-            compiled = re.compile(expr)
-            if compiled.match(line) != None:
-                logText += str(line)
-        return self.d.msgbox(logText, width=70, height=40, no_collapse=1, colors=1)
+        if os.access(locations.LOGFILE, os.R_OK):
+            logFile = open(locations.LOGFILE, 'r')
+            tempLogFile = open(locations.TEMPLOG, 'w')
+            for line in logFile.readlines():
+                compiled = re.compile(expr)
+                if compiled.match(line) != None:
+                    tempLogFile.write(line)
+            tempLogFile.close()
+            logFile.close()
+            self.d.textbox(locations.TEMPLOG, width=70, height=40, no_collapse=1, colors=1)
+            os.unlink(locations.TEMPLOG)
+        else:
+            return self.d.msgbox("No logfile present")
 
     def manual(self):
         """ Dialog window for entering the manual search keyword """
@@ -74,22 +98,7 @@ class Log:
         """ Show the latest exception dump """
         logging.debug("menu/log.py->errorDump(self)", [])
 
-        logText = ""
         if os.access(locations.DUMP, os.R_OK):
-            logFile = open(locations.DUMP, 'r')
-            for line in logFile.readlines():
-                logText += line
-            return self.d.msgbox(logText, width=70, height=40, no_collapse=1, colors=1)
+            return self.d.textbox(locations.DUMP, width=70, height=40, no_collapse=1, colors=1)
         else:
             return self.d.msgbox("No exception dump present")
-
-
-#    def run(self):
-#        logging.debugv("menu/log.py->run(self)", [])
-#        try:
-#            return self.d.tailbox(locations.LOGFILE, 0, 0)
-#        except sensor.dialog.DialogError:
-#            self.d.msgbox("can't open logfile: "+locations.LOGFILE)
-#            return
-
-
