@@ -862,7 +862,7 @@ class Config:
                     ("Secondary DNS server", sec),
                 ]
         title = "\\ZbStart > Configure > DNS\\n\\ZBSelect the item you want to configure"
-        choice = self.d.menu("DNS settings", choices=choices, cancel="Back", colors=1)
+        choice = self.d.menu(title, choices=choices, cancel="Back", colors=1)
         if choice[0] == 1:
             # We need to check if DNS settings are correct
             (type, prim, sec) = self.c.getDNS()
@@ -883,7 +883,8 @@ class Config:
         """ Set dns type (dhcp or static config """
         logging.debugv("menu/config.py->dnsType(self)", [])
         (type, prim, sec) = self.c.getDNS()
-        output = self.d.radiolist("What type of DNS config do you want?", choices=[
+        title = "\\ZbStart > Configure > DNS > DNS type\\n\\ZBWhat type of DNS config do you want?"
+        output = self.d.radiolist(title, choices=[
             ("dhcp", "Receive DNS settings through dhcp", int(type=="dhcp")),
             ("static", "Manual configuration", int(type=="static")),
         ])

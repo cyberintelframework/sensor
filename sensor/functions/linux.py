@@ -61,7 +61,11 @@ def getPackageVersion():
     """ Returns the debian package version of the surfids-sensor """
     cmd = locations.DPKG + " -l " + ' | grep surfids-sensor | awk \'{print $3}\''
     pversion = os.popen(cmd)
-    return pversion.readline().strip()
+    ver = pversion.readline().strip()
+    if ver == "":
+        return "Unknown"
+    else:
+        return ver
 
 def system():
     """ Returns the system type """

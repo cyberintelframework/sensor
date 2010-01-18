@@ -105,7 +105,7 @@ def saveConf():
         c.changed = True
 
 
-def register(localip, keyname):
+def register(localip, keyname, pversion):
     """ Register sensor @ SURFids server
 
         localip: ip of interface
@@ -115,7 +115,7 @@ def register(localip, keyname):
         gateway: netmask of interface, only needed when method = static/vlans
         broadcast: broadcast of interface, only needed when method = static/vlans
     """
-    logging.debugv("client.py->register(localip, keyname)", [localip, keyname])
+    logging.debugv("client.py->register(localip, keyname, pversion)", [localip, keyname, pversion])
 
     if not r.networkStatus():
         logging.error("No network connection available, not registering")
@@ -124,7 +124,8 @@ def register(localip, keyname):
     req = "startclient.php"
     args = urllib.urlencode((
         ('ip_localip', localip),
-        ('strip_html_escape_keyname', keyname))
+        ('strip_html_escape_keyname', keyname),
+        ('strip_html_escape_pversion', pversion))
     )
     result = makeRequest(req, args)
     for line in result.readlines(): logging.debug(line[:-1])

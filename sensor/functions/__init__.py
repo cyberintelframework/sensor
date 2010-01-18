@@ -164,7 +164,7 @@ def sensorUp():
             logging.error("Could not reach the server on port 4443!")
 
         client.checkKey(localIp)
-        client.register(localIp, c.getSensorID())
+        client.register(localIp, c.getSensorID(), getPackageVersion())
 
     elif sensortype == "vlan":
         try:
@@ -201,7 +201,7 @@ def sensorUp():
             logging.error("Could not reach the server on port 4443!")
 
         client.checkKey(localIp)
-        client.register(localIp, c.getSensorID())
+        client.register(localIp, c.getSensorID(), getPackageVersion())
 
     # Check if the sensor certificate is valid, if not, don't start
     if verifyCrt():
