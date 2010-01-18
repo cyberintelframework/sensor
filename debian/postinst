@@ -41,6 +41,15 @@ if [ ! -e "/etc/surfids/openvpn.conf" ]; then
     mv -f /etc/surfids/openvpn.conf.dist /etc/surfids/openvpn.conf
     echo "*) Configure /etc/surfids/openvpn.conf"
 fi
+
+# Checking if there is a current sensor manager running
+# if so, we need to send a SIGINT to make sure the new
+# scripts get loaded.
+PID=`ps -ef | grep python | grep sensor-manager | awk '{print $2}'`
+if [ $PID ]; then
+    kill -INT $PID
+fi
+
 echo ""
 echo "NOTE: If this is the first time you have installed surfids-sensor,"
 echo "reboot your machine to startup the sensor environment!"
