@@ -50,6 +50,10 @@ if [ $PID ]; then
     kill -INT $PID
 fi
 
+# Making sure /etc/default/surfids-sensor is set to false
+# Reason: The sensor manager is handling the startup of the sensor
+echo "ENABLED=\"false\"" > /etc/default/surfids-sensor
+
 echo ""
 echo "NOTE: If this is the first time you have installed surfids-sensor,"
 echo "reboot your machine to startup the sensor environment!"
