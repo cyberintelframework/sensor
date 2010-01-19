@@ -229,7 +229,7 @@ class Config:
                 raise excepts.ConfigException, err
 
         if type == "":
-            err = "Main interface: Type is empty" % str(b)
+            err = "Main interface: Type is empty"
             logging.error(err)
             raise excepts.ConfigException, err
         elif type == "static":
@@ -238,11 +238,11 @@ class Config:
                 logging.error(err)
                 raise excepts.ConfigException, err
             if gateway == "":
-                err = "Main interface: Gateway is empty" % str(b)
+                err = "Main interface: Gateway is empty"
                 logging.error(err)
                 raise excepts.ConfigException, err
             if broadcast == "":
-                err = "Main interface: Broadcast is empty" % str(b)
+                err = "Main interface: Broadcast is empty"
                 logging.error(err)
                 raise excepts.ConfigException, err
 
