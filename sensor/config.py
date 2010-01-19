@@ -597,11 +597,11 @@ class Config:
         self.netconf['vlans'][number] = vlan
         self.netconf.write()
 
-    def chkVlanID(self, ID):
+    def chkVlanID(self, ID, vlanIndex):
         """ Check the VLAN ID and see if it is in use already or not """
-        logging.debugv("config.py->chkVlanID(self, ID)", [ID])
-        for (vlanConf) in self.getVlans().values():
-            if vlanConf['vlanid'] == ID:
+        logging.debugv("config.py->chkVlanID(self, ID, vlanIndex)", [ID, vlanIndex])
+        for (i, vlanConf) in self.getVlans().items():
+            if vlanConf['vlanid'] == ID and not i == vlanIndex:
                 return True
         return False
 
