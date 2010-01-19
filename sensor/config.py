@@ -132,29 +132,15 @@ class Config:
                     return False
         return True            
 
-    def validNetConf(self):
-        """ Check if the network configuration is valid and complete """
-        logging.debugv("config.py->validNetConf(self)", [])
+    def validDNSConf(self):
+        """ Check if the DNS configuration is valid and complete """
+        logging.debugv("config.py->validDNSConf(self)", [])
 
-        #######################################################
-        # MAINCONF check
-        #######################################################
-
-        # Get config values first
         try:
-            sensortype = self.netconf['sensortype']
-            mainIf = self.netconf['mainIf']
             dns = self.netconf['dns']
             dnstype = self.netconf['dnstype']
-            interfaces = self.netconf['interfaces']
         except KeyError, e:
-            err = "Missing config item: %s" % str(e)
-            logging.error(err)
-            raise excepts.ConfigException, err
-
-        # Checking if mainIf actually exists
-        if mainIf == "":
-            err = "Main interface is not configured"
+            err = "Missing config item: %s" str(e)
             logging.error(err)
             raise excepts.ConfigException, err
 
@@ -178,6 +164,31 @@ class Config:
                 raise excepts.ConfigException, err
         else:
             err = "Invalid DNS configuration type"
+            logging.error(err)
+            raise excepts.ConfigException, err
+
+
+    def validNetConf(self):
+        """ Check if the network configuration is valid and complete """
+        logging.debugv("config.py->validNetConf(self)", [])
+
+        #######################################################
+        # MAINCONF check
+        #######################################################
+
+        # Get config values first
+        try:
+            sensortype = self.netconf['sensortype']
+            mainIf = self.netconf['mainIf']
+            interfaces = self.netconf['interfaces']
+        except KeyError, e:
+            err = "Missing config item: %s" % str(e)
+            logging.error(err)
+            raise excepts.ConfigException, err
+
+        # Checking if mainIf actually exists
+        if mainIf == "":
+            err = "Main interface is not configured"
             logging.error(err)
             raise excepts.ConfigException, err
 
