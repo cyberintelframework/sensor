@@ -124,8 +124,7 @@ class Config:
             try:
                 self.c.validNetConf()
             except excepts.ConfigException, err:
-                self.invalidNetConf(err)
-                self.invalidNetConfAction()
+                self.invalidNetConfAction(err)
                 return
             else:
                 if self.changed:
@@ -546,20 +545,18 @@ class Config:
 #################################################
 #################################################
 
-    def invalidNetConf(self, reason):
-        """ Notifying user when the netconf is invalid """
-        logging.debugv("menu/config.py->invalidNetConf(self, reason)", [reason])
-        self.d.msgbox("The network configuration is invalid: \n%s" % str(reason), width=60)
-
-    def invalidNetConfAction(self):
+    def invalidNetConfAction(self, err):
         """ Ask the user what to do about the invalid NetConf """
-        logging.debugv("menu/config.py->invalidNetConfAction(self)", [])
+        logging.debugv("menu/config.py->invalidNetConfAction(self, err)", [err])
         choices = [
                 ("Config", "Go back to the configuration menu"),
                 ("Ignore", "Ignore this warning"),
             ]
 
-        choice = self.d.menu("Sensor won't start until network config is fixed.\nWhat do you want to do?", choices=choices, menu_height=10, nocancel=1)
+        title = "Network configuration is invalid: %s\n" % str(err)
+        title += Sensor won't start until network config is fixed.\n"
+        title += "What do you want to do?"
+        choice = self.d.menu(title, choices=choices, menu_height=10, nocancel=1, width=60)
 
         if choice[0] == 1: self.invalidNetConfAction()
         elif choice[1] == "Config": self.configNetwork()
@@ -568,13 +565,13 @@ class Config:
 
     def invalidDNSConfAction(self):
         """ Ask the user what to do about the invalid NetConf """
-        logging.debugv("menu/config.py->invalidNetConfAction(self)", [])
+        logging.debugv("menu/config.py->invalidDNSConfAction(self)", [])
         choices = [
                 ("Config", "Go back to the DNS menu"),
                 ("Ignore", "Ignore this warning"),
             ]
 
-        choice = self.d.menu("Sensor won't start until DNS config is fixed.\nWhat do you want to do?", choices=choices, menu_height=10, nocancel=1)
+        choice = self.d.menu("Invalid DNS config!\nSensor won't start until DNS config is fixed.\nWhat do you want to do?", choices=choices, menu_height=10, nocancel=1)
 
         if choice[0] == 1: self.invalidDNSConfAction()
         elif choice[1] == "Config": self.dns()
@@ -891,7 +888,7 @@ class Config:
             try:
                 self.c.validNetConf()
             except excepts.ConfigException, err:
-                self.d.msgbox("Specify a nameserver or set DNS type to DHCP!", width=60)
+                self.invalidDNSConfAction()
                 return
             else:
                 if self.changed:
