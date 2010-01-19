@@ -28,7 +28,7 @@ class Manage:
         try:
             chk = self.c.validNetConf()
         except excepts.ConfigException, e:
-            self.d.msgbox("The network configuration is invalid: \n%s" % str(e))
+            self.d.msgbox("The network configuration is invalid: \n%s" % str(e), width=60)
             return
 
         choices = []
