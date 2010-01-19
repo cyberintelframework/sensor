@@ -379,6 +379,8 @@ class Config:
                         self.c.setVlanProp(vlanIndex, "vlanid", output[1])
                         self.changed = True
                         return                  # returns to setVlanConfig()
+                    else:
+                        self.d.msgbox("VLAN ID already in use!")
                 else:
                     self.d.msgbox("Please enter a valid integer between 0 and 4095!")
         
