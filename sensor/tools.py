@@ -68,17 +68,13 @@ def dec2bin(n):
         n = n >> 1
     return bStr
 
-def formatMenuItem(msg, val, error=True):
+def formatMenuItem(msg, val, valid=True):
     """ Validates a menu item and returns dict for usage in dialog menu """
-    logging.debugv("tools.py->formatMenuItem(msg, val, error)", [msg, val, error])
-    if val == "":
+    logging.debugv("tools.py->formatMenuItem(msg, val, valid)", [msg, val, valid])
+    if val == "" or not valid:
         return [(msg, ">>To be configured<<"),]
     else:
-        if error:
-            return [(msg, val),]
-        else:
-            val = "\\Z1%s\\Z0" % str(val)
-            return [(msg, val),]
+        return [(msg, val),]
 
 def formatBool(msg):
     """ Formats a msg based on a boolean value """
