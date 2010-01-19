@@ -566,6 +566,21 @@ class Config:
         elif choice[1] == "Ignore": return
 
 
+    def invalidDNSConfAction(self):
+        """ Ask the user what to do about the invalid NetConf """
+        logging.debugv("menu/config.py->invalidNetConfAction(self)", [])
+        choices = [
+                ("Config", "Go back to the DNS menu"),
+                ("Ignore", "Ignore this warning"),
+            ]
+
+        choice = self.d.menu("Sensor won't start until DNS config is fixed.\nWhat do you want to do?", choices=choices, menu_height=10, nocancel=1)
+
+        if choice[0] == 1: self.invalidDNSConfAction()
+        elif choice[1] == "Config": self.dns()
+        elif choice[1] == "Ignore": return
+
+
     def enableAutoStart(self):
         """ Enabling default tunnel startup """
         logging.debugv("menu/config.py->enableAutoStart(self)", [])
@@ -876,7 +891,7 @@ class Config:
             try:
                 self.c.validNetConf()
             except excepts.ConfigException, err:
-                self.d.msgbox("Specify a nameserver or set type to DHCP", width=60)
+                self.d.msgbox("Specify a nameserver or set DNS type to DHCP!", width=60)
                 return
             else:
                 if self.changed:
