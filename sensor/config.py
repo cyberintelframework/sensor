@@ -140,7 +140,7 @@ class Config:
             dns = self.netconf['dns']
             dnstype = self.netconf['dnstype']
         except KeyError, e:
-            err = "Missing config item: %s" str(e)
+            err = "Missing config item: %s" % str(e)
             logging.error(err)
             raise excepts.ConfigException, err
 
