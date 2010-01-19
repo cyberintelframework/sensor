@@ -135,7 +135,14 @@ class Config:
         if choice[0] == 1: return
         elif choice[1] == "Sensor type": self.setSensorType()
         elif choice[1] == "Main interface": self.setMainIf()
-        elif choice[1] == "IP config - %s" % str(mainIf): self.setIfConfig(mainIf)
+        elif choice[1] == "IP config - %s" % str(mainIf):
+            try:
+                infType = self.c.getIf(mainIf)["type"]
+            except KeyError:
+                self.setIfType(mainIf)
+            if not infType == "static":
+                self.setIfType(mainIf)
+            self.setIfConfig(mainIf)
         elif choice[1] == "Trunk interface": self.setTrunkIf()
         elif choice[1] == "Number of VLANs": self.setTotalVlans()
         else:
@@ -367,7 +374,7 @@ class Config:
             else:
                 if output[1].isdigit() and str(output[1]) != '0':
                     vlanID = output[1]
-                    if not self.c.chkVlanID(vlanID):
+                    if not self.c.chkVlanID(vlanID, vlanIndex):
                         self.c.changed = True
                         self.c.setVlanProp(vlanIndex, "vlanid", output[1])
                         self.changed = True
