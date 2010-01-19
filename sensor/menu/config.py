@@ -871,7 +871,7 @@ class Config:
                     ("Secondary DNS server", sec),
                 ]
         title = "\\ZbStart > Configure > DNS\\n\\ZBSelect the item you want to configure"
-        choice = self.d.menu(title, choices=choices, cancel="Back", colors=1)
+        choice = self.d.menu(title, choices=choices, cancel="Back", ok_label="Edit", colors=1)
         if choice[0] == 1:
             # We need to check if DNS settings are correct
             (type, prim, sec) = self.c.getDNS()
