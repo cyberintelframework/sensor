@@ -88,11 +88,11 @@ class Manager:
         f.do_verbose_exception()
         ex = False
         while ex == False:
-            title = "Unrecoverable error detected.\\nMost of the times this is due to an error in the network configuration.\\nWhat do you want to do?"
+            title = "\\Z1Unrecoverable error detected!!\\Z0\\nMost of the times this is due to an error in the network configuration.\\nWhat do you want to do?"
             choices = [
                     ("Restart GUI", "Restart the sensor manager GUI"),
-                    ("View error dump", "View the latest error dump"),
                     ("Reset network config", "Completely reset the network configuration"),
+                    ("View error dump", "View the latest error dump"),
                 ]
             choice = self.d.menu(title, choices=choices, no_cancel=1, colors=1, width=70)
             if choice[0]: return
