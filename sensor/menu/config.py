@@ -559,10 +559,10 @@ class Config:
                 ("Ignore", "Ignore this warning"),
             ]
 
-        choice = self.d.menu("Sensor won't start until config is fixed.\nWhat do you want to do?", choices=choices, cancel="back", menu_height=10)
+        choice = self.d.menu("Sensor won't start until network config is fixed.\nWhat do you want to do?", choices=choices, menu_height=10, nocancel=1)
 
         if choice[0] == 1: self.invalidNetConfAction()
-        elif choice[1] == "Config": self.run()
+        elif choice[1] == "Config": self.configNetwork()
         elif choice[1] == "Ignore": return
 
 
