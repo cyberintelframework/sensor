@@ -54,19 +54,7 @@ class Config:
         choice = self.d.menu(title, choices=choices, cancel="Back", menu_height=10, colors=1, width=60)
 
         # cancel 
-        if choice[0] == 1:
-            try:
-                self.c.validNetConf()
-            except excepts.ConfigException, err:
-                self.invalidNetConf(err)
-                self.invalidNetConfAction()
-                return
-            else:
-                if self.changed:
-                    self.c.addRev()
-                    client.saveConf()
-                    self.activateChoice()
-                return
+        if choice[0] == 1: return
         elif choice[1] == "Network": self.configNetwork()
         elif choice[1] == "IPMI": self.setIpmi()
         elif choice[1] == "DNS": self.dns()
@@ -132,7 +120,19 @@ class Config:
 
         title = "\\ZbStart > Configure > Network\\n\\ZBSelect the item you want to (re-)configure"
         choice = self.d.menu(title, choices=choices, cancel="Back", ok_label="Edit", colors=1, height=20, menu_height=12)
-        if choice[0] == 1: return
+        if choice[0] == 1: 
+            try:
+                self.c.validNetConf()
+            except excepts.ConfigException, err:
+                self.invalidNetConf(err)
+                self.invalidNetConfAction()
+                return
+            else:
+                if self.changed:
+                    self.c.addRev()
+                    client.saveConf()
+                    self.activateChoice()
+                return
         elif choice[1] == "Sensor type": self.setSensorType()
         elif choice[1] == "Main interface": self.setMainIf()
         elif choice[1] == "IP config - %s" % str(mainIf):
@@ -873,15 +873,16 @@ class Config:
         title = "\\ZbStart > Configure > DNS\\n\\ZBSelect the item you want to configure"
         choice = self.d.menu(title, choices=choices, cancel="Back", ok_label="Edit", colors=1)
         if choice[0] == 1:
-            # We need to check if DNS settings are correct
-            (type, prim, sec) = self.c.getDNS()
-            if type == "static":
-                if prim == "" or (prim == "" and sec == ""):
-                    # No Nameserver set
-                    self.d.msgbox("Specify a nameserver or set type to DHCP")
-                else:
-                    return
-            else:                    
+            try:
+                self.c.validNetConf()
+            except excepts.ConfigException, err:
+                self.d.msgbox("Specify a nameserver or set type to DHCP", width=60)
+                return
+            else:
+                if self.changed:
+                    self.c.addRev()
+                    client.saveConf()
+                    self.activateChoice()
                 return
         elif choice[1] == "Type": self.dnsType()
         elif choice[1] == "Primary DNS server": self.dnsPrim()
@@ -893,7 +894,7 @@ class Config:
         logging.debugv("menu/config.py->dnsType(self)", [])
         (type, prim, sec) = self.c.getDNS()
         title = "\\ZbStart > Configure > DNS > DNS type\\n\\ZBWhat type of DNS config do you want?"
-        output = self.d.radiolist(title, choices=[
+        output = self.d.radiolist(title, colors=1, choices=[
             ("dhcp", "Receive DNS settings through dhcp", int(type=="dhcp")),
             ("static", "Manual configuration", int(type=="static")),
         ])
