@@ -25,8 +25,10 @@ class Manage:
         logging.debugv("menu/manage.py->run(self)", [])
 
         # Checking for network configuration
-        if not self.r.configStatus():
-            self.d.msgbox("Network configuration was not found. Configure network first!")
+        try:
+            chk = self.c.validNetConf()
+        except excepts.ConfigException, e:
+            self.d.msgbox("The network configuration is invalid: \n%s" % str(e))
             return
 
         choices = []
