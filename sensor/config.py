@@ -500,7 +500,7 @@ class Config:
         except KeyError:
             self.getInfs()
             self.netconf['interfaces'][interface] = {
-                    'type': 'disabled',
+                    'type': '',
                     'address': '',
                     'netmask': '',
                     'broadcast': '',
@@ -576,7 +576,7 @@ class Config:
         except KeyError:
             self.netconf['vlans'][str(number)] = {
                    'vlanid': '',
-                   'type': 'disabled',
+                   'type': '',
                    'description': '',
                    'address': '',
                    'netmask': '',
