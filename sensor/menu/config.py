@@ -553,7 +553,7 @@ class Config:
                 ("Ignore", "Ignore this warning"),
             ]
 
-        title = "Network configuration is invalid: %s\n" % str(err)
+        title = "Network configuration is invalid:\n\t%s\n\n" % str(err)
         title += "Sensor won't start until network config is fixed.\n"
         title += "What do you want to do?"
         choice = self.d.menu(title, choices=choices, menu_height=10, nocancel=1, width=60)
