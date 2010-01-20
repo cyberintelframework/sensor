@@ -91,8 +91,7 @@ class Manager:
             title = "\\Z1Unexpected error detected!!\\Z0\\nIf this problem persists, contact an administrator.\\nWhat do you want to do?"
             choices = [
                     ("Restart GUI", "Restart the sensor manager GUI"),
-                    ("Reset network config", "Completely reset the network configuration"),
-                    ("", ""),
+                    ("Reset network config", "Reset the network configuration"),
                     ("View error dump", "View the latest error dump"),
                 ]
             choice = self.d.menu(title, choices=choices, no_cancel=1, colors=1, width=70)
@@ -103,7 +102,7 @@ class Manager:
             elif choice[1] == "Reset network config":
                 self.c.resetNetConfig()
                 text = "Network config reset. Press OK to restart the sensor manager GUI"
-                self.d.msgbox(text, width=70, height=40, no_collapse=1, colors=1)
+                self.d.msgbox(text, width=70, no_collapse=1, colors=1)
                 log.inthandler(signal.SIGINT, "")
                 ex = True
             elif choice[1] == "View error dump":
