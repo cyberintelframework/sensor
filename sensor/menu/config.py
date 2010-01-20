@@ -455,7 +455,7 @@ class Config:
                 address = output[1]
                 logging.info("Setting %s for %s to %s" % (type, inf, output[1]))
                 self.changed = True
-                self.c.setIfProp(interface, type, output[1])
+                self.c.setIfProp(inf, type, output[1])
                 self.changed = True
                 return                  # returns to setIfConfig()
             else:
