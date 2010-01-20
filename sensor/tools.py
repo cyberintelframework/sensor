@@ -18,7 +18,14 @@ def chkReg(expr, match):
 def ipv4check(ip):
     """ Check if IP is a valid IP address """
     logging.debugv("tools.py->ipv4check(ip)", [ip])
-    ipexpression = r"^(?:\d{1,3}\.){3}\d{1,3}$"
+    # First
+    ipexpression = r"^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[1-9])\."
+    # Second
+    ipexpression += "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\."
+    # Third
+    ipexpression += "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\."
+    # Last
+    ipexpression += "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$"
     compiled = re.compile(ipexpression)
     return (compiled.match(ip) != None)
 
