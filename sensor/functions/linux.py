@@ -272,7 +272,7 @@ def ifList():
     infs = [x for x in infs if x not in others]
 
     # remove interfaces not starting with eth
-    infs = [x for x in infs if x.startswith('eth')]
+    #infs = [x for x in infs if x.startswith('eth')]
 
     return infs
 
