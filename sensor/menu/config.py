@@ -886,7 +886,7 @@ class Config:
         choice = self.d.menu(title, choices=choices, cancel="Back", ok_label="Edit", colors=1)
         if choice[0] == 1:
             try:
-                self.c.validNetConf()
+                self.c.validDNSConf()
             except excepts.ConfigException, err:
                 self.invalidDNSConfAction()
                 return
