@@ -85,9 +85,13 @@ def sensorUp():
     """ Brings all interfaces up _and_ brings up tunnels """
     logging.debugv("functions/__init__.py->sensorUp()", [])
 
-    if not r.configStatus():
-        logging.error("Could not find a configured interface")
-        raise excepts.ConfigException, "Could not find a configured interface"
+    try:
+        self.c.validNetConf()
+    except excepts.ConfigException, e:
+        raise excepts.ConfigException, "Invalid network configuration:\n %s" % str(e)
+#    if not r.configStatus():
+#        logging.error("Could not find a configured interface")
+#        raise excepts.ConfigException, "Could not find a configured interface"
 
     # Always bring the main network interface up
     networkUp()
