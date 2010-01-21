@@ -86,7 +86,7 @@ def sensorUp():
     logging.debugv("functions/__init__.py->sensorUp()", [])
 
     try:
-        self.c.validNetConf()
+        c.validNetConf()
     except excepts.ConfigException, e:
         raise excepts.ConfigException, "Invalid network configuration:\n %s" % str(e)
 #    if not r.configStatus():
