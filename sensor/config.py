@@ -311,7 +311,6 @@ class Config:
             inactive = 0
             vlanIDdict = {}
             for a in vlans:
-                logging.debug("VLAN: %s" % str(a))
                 try:
                     vlanid = self.netconf['vlans'][a]['vlanid']
                     type = self.netconf['vlans'][a]['type']
@@ -330,7 +329,7 @@ class Config:
                     try:
                         chk = vlanIDdict[vlanid]
                     except KeyError, e:
-                        vlanIDdict += {vlanid: True}
+                        vlanIDdict[vlanid] = True
                     else:
                         err = "VlanID %s is already in use by another VLAN" % str(vlanid)
                         logging.error(err)

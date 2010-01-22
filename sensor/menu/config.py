@@ -911,9 +911,10 @@ class Config:
             ("static", "Manual configuration", int(type=="static")),
         ])
         if output[0]: return
-        type = output[1]
-        self.changed = True
-        self.c.setDNS(type, prim, sec)
+        newtype = output[1]
+        if newtype != type:
+            self.changed = True
+            self.c.setDNS(type, prim, sec)
 
     def dnsPrim(self):
         """ Set primary DNS server """
