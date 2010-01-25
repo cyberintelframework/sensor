@@ -627,7 +627,7 @@ class Config:
             manage.Manage(self.d).sensorDown()
             client.saveConf()
         elif choice[1] == "Restart":
-            self.d.msgbox("Stopping sensor...")
+            self.d.infobox("Bringing sensor down...")
             f.sensorDown()
             client.saveConf()
             manage.Manage(self.d).sensorUp()
