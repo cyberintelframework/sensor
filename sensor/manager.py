@@ -96,6 +96,11 @@ class Manager:
             choices = [
                     ("Restart GUI", "Restart the sensor manager GUI"),
                     ("Reset network config", "Reset the network configuration"),
+            if self.c.getAutoStart() == "Enabled":
+                choices += [
+                    ("Disable AutoStart", "Set AutoStart to disabled"),
+                ]
+            choices += [
                     ("View error dump", "View the latest error dump"),
                 ]
             choice = self.d.menu(title, choices=choices, no_cancel=1, colors=1, width=70)
@@ -106,6 +111,13 @@ class Manager:
             elif choice[1] == "Reset network config":
                 self.c.resetNetConfig()
                 text = "Network config reset. Press OK to restart the sensor manager GUI"
+                self.d.msgbox(text, width=70, no_collapse=1, colors=1)
+                log.inthandler(signal.SIGINT, "")
+                ex = True
+            elif choice[1] == "Disable AutoStart":
+                self.c.setAutoStart("Disabled")
+                logging.info("Disabled AutoStart")
+                text = "AutoStart disabled. Press OK to restart the sensor manager GUI"
                 self.d.msgbox(text, width=70, no_collapse=1, colors=1)
                 log.inthandler(signal.SIGINT, "")
                 ex = True
