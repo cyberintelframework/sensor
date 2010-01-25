@@ -67,11 +67,11 @@ def getPackageVersion():
     else:
         return ver
 
-def backupNetConfig(rev):
+def backupNetConf(rev):
     """ Saves a copy of the current network config as network.conf.%s 
         where %s is revision number.
     """
-    logging.debugv("functions/linux.py->backupNetConfig(rev)", [rev])
+    logging.debugv("functions/linux.py->backupNetConf(rev)", [rev])
     if os.access(locations.NETCONF, os.R_OK):
         newloc = locations.BNETCONF + ".%s" % str(rev)
         os.link(locations.NETCONF, newloc)
