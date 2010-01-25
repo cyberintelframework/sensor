@@ -45,6 +45,8 @@ class Manager:
             logging.warn(msg)
         except excepts.InterfaceException, msg:
             logging.warn(msg)
+        except SystemExit:
+            logging.info("Sensor manager exiting")
         except:
             self.handleException()
         logging.debug("Initializing runtime info")
@@ -70,6 +72,8 @@ class Manager:
                     except excepts.InterfaceException, msg:
                         msg = str(msg)
                         self.d.msgbox("Autostart Failed\n\nINTERFACE ERROR: " + msg)
+                    except SystemExit:
+                        logging.info("Sensor manager exiting")
                     except:
                         self.handleException()
 
