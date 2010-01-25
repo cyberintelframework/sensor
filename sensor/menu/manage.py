@@ -87,10 +87,18 @@ class Manage:
         """ Bring the sensor up """
         logging.debugv("menu/manage.py->sensorUp(self)", [])
 
+        # Validate network config
         try:
             self.c.validNetConf()
         except excepts.ConfigException, err:
             self.d.msgbox("The network configuration is invalid: \n%s" % str(err), width=60)
+            return
+
+        # Validate DNS config
+        try:
+            self.c.validDNSConf()
+        except excepts.ConfigException, err:
+            self.d.msgbox("The DNS configuration is invalid: \n%s" % str(err), width=60)
             return
 
         self.d.infobox("Bringing sensor up...")
