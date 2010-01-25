@@ -96,6 +96,7 @@ class Manager:
             choices = [
                     ("Restart GUI", "Restart the sensor manager GUI"),
                     ("Reset network config", "Reset the network configuration"),
+                ]
             if self.c.getAutoStart() == "Enabled":
                 choices += [
                     ("Disable AutoStart", "Set AutoStart to disabled"),
