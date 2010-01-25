@@ -130,6 +130,7 @@ class Config:
                 if self.changed:
                     self.c.addRev()
                     client.saveConf()
+                    f.backupNetConf(self.c.getRev())
                     self.activateChoice()
                 return
         elif choice[1] == "Sensor type": self.setSensorType()
@@ -894,6 +895,7 @@ class Config:
                 if self.changed:
                     self.c.addRev()
                     client.saveConf()
+                    f.backupNetConf(self.c.getRev())
                     self.activateChoice()
                 return
         elif choice[1] == "Type": self.dnsType()
