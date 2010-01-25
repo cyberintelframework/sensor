@@ -914,7 +914,7 @@ class Config:
         newtype = output[1]
         if newtype != type:
             self.changed = True
-            self.c.setDNS(type, prim, sec)
+            self.c.setDNS(newtype, prim, sec)
 
     def dnsPrim(self):
         """ Set primary DNS server """
