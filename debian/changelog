@@ -1,3 +1,9 @@
+surfids-sensor (3.03) lenny; urgency=low
+
+  * Fixed bug #202.
+
+ -- SURFids Development Team <ids@surfnet.nl>  Mon,  7 Dec 2009 13:29:08 +0100
+
 surfids-sensor (3.02) lenny; urgency=low
 
   * Fixed bug #172.
