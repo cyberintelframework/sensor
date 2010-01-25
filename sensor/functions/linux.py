@@ -72,6 +72,11 @@ def backupNetConf(rev):
         where %s is revision number.
     """
     logging.debugv("functions/linux.py->backupNetConf(rev)", [rev])
+    # Make sure backup directory exists
+    if not os.access(locations.BACKUP, os.R_OK):
+        os.mkdir(locations.BACKUP)
+
+    # Check for netconf
     if os.access(locations.NETCONF, os.R_OK):
         newloc = locations.BNETCONF + ".%s" % str(rev)
         os.link(locations.NETCONF, newloc)

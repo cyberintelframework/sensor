@@ -25,6 +25,7 @@ ALL_BIN = [OPENVPN, BRCTL, DHCLIENT, IFCONFIG, KILLALL, SSHINIT, DIALOG, OPENSSL
 
 # FOLDERS
 SYSCONF = "/etc/surfids/"
+BACKUP = "/etc/surfids/backup/"
 LOG = "/var/log/surfids/"
 DATA = "/var/lib/surfids/"
 RUNTIME = "/var/lib/surfids/"
