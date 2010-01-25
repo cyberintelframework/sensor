@@ -129,7 +129,11 @@ class Config:
             else:
                 if self.changed:
                     self.c.addRev()
+                    # Make sure network is up (or try to)
+                    f.networkUp()
+                    # Saving configuration to server
                     client.saveConf()
+                    # Backup network configuration
                     f.backupNetConf(self.c.getRev())
                     self.activateChoice()
                 return
@@ -894,7 +898,11 @@ class Config:
             else:
                 if self.changed:
                     self.c.addRev()
+                    # Make sure network is up (or try to)
+                    f.networkUp()
+                    # Saving configuration to server
                     client.saveConf()
+                    # Backup network configuration
                     f.backupNetConf(self.c.getRev())
                     self.activateChoice()
                 return
