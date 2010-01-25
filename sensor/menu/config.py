@@ -129,11 +129,6 @@ class Config:
             else:
                 if self.changed:
                     self.c.addRev()
-                    # Make sure network is up (or try to)
-                    f.networkUp()
-                    # Saving configuration to server
-                    client.saveConf()
-                    # Backup network configuration
                     f.backupNetConf(self.c.getRev())
                     self.activateChoice()
                 return
@@ -630,7 +625,10 @@ class Config:
         choice = self.d.menu("The configuration of the sensor has changed. What would you like to do?", choices=choices, cancel="back")
         if choice[1] == "Stop":
             manage.Manage(self.d).sensorDown()
+            client.saveConf()
         elif choice[1] == "Restart":
+            manage.Manage(self.d).sensorDown()
+            client.saveConf()
             manage.Manage(self.d).sensorUp()
         else:
             self.activateChoice()
@@ -898,11 +896,6 @@ class Config:
             else:
                 if self.changed:
                     self.c.addRev()
-                    # Make sure network is up (or try to)
-                    f.networkUp()
-                    # Saving configuration to server
-                    client.saveConf()
-                    # Backup network configuration
                     f.backupNetConf(self.c.getRev())
                     self.activateChoice()
                 return
