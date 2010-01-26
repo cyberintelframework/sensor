@@ -979,12 +979,10 @@ class Config:
     def setPasswd(self):
         """ Set the password for the https user """
         logging.debugv("menu/config.py->setPasswd(self)", [])
-#        passwd = self.c.get("passwd")
         passwd = self.c.getPasswd()
         input = self.d.passwordbox("Passwd IDS server:", init=passwd, insecure=1)
         if input[0] == 1: return
         passwd = input[1]
-        logging.info("Setting passwd to: " + passwd)
         self.changed = True
         self.c.setPasswd(passwd)
 
