@@ -9,7 +9,6 @@ from sensor import config
 from sensor import runtime
 from sensor import locations
 from sensor import excepts
-from sensor import tools as t
 
 # Setting version variables
 version = "2.10.00"
@@ -48,7 +47,7 @@ def saveConf():
     logging.debugv("client.py->saveConf()", [])
 
     if not t.urlCheck(c.getServerurl()):
-        logging.warning("Server URL is not configured properly. Could not save config to the server!")
+        logging.warning("Server URL invalid. Could not save configuration!")
         c.changed = True
         return
 
@@ -132,8 +131,12 @@ def register(localip, keyname):
         ('ip_localip', localip),
         ('strip_html_escape_keyname', keyname))
     )
-    result = makeRequest(req, args)
-    for line in result.readlines(): logging.debug(line[:-1])
+    try:
+        result = makeRequest(req, args)
+    except excepts.NetworkException:
+        logging.warning("Could not register with server!")
+    else:
+        for line in result.readlines(): logging.debug(line[:-1])
 
 
 def getKey(localip):
@@ -145,9 +148,14 @@ def getKey(localip):
         ('ip_localip', localip),)
     )
 
-    result = makeRequest(req, args)
-    (cert, key, id) = "".join(result.readlines()).split('EOF')
-    return (cert, key, id.strip())
+    try:
+        result = makeRequest(req, args)
+    except excepts.NetworkException:
+        logging.error("Could not retrieve new certificate!")
+        return (False, False, False)
+    else:
+        (cert, key, id) = "".join(result.readlines()).split('EOF')
+        return (cert, key, id.strip())
 
 
 def deRegister(localip):
@@ -166,8 +174,12 @@ def deRegister(localip):
             ('strip_html_escape_keyname', sensorid))
         ) 
 
-        x = makeRequest(req, args)
-        for line in x.readlines(): logging.debug(line[:-1])
+        try:
+            x = makeRequest(req, args)
+        except excepts.NetworkException:
+            logging.warning("Could not deRegister from the server!")
+        else:
+            for line in x.readlines(): logging.debug(line[:-1])
     else:
         logging.warning("Sensor not active, not deregistering")
         return
@@ -184,11 +196,14 @@ def checkKey(localip):
             c.getSensorID() == "":
 
         (key, cert, sensorid) = getKey(localip)
-        open(keyFile,'w').write(key)
-        os.chmod(keyFile, 0600)
-        open(certFile,'w').write(cert)
-        os.chmod(certFile, 0600)
-        c.setSensorID(sensorid)
+        if key:
+            open(keyFile,'w').write(key)
+            os.chmod(keyFile, 0600)
+        if cert:
+            open(certFile,'w').write(cert)
+            os.chmod(certFile, 0600)
+        if sensorid:
+            c.setSensorID(sensorid)
         # After we got a sensor ID we need to save the configuration
         # We could not do this before due to missing a sensor ID
         saveConf()
@@ -206,12 +221,17 @@ def getConfig():
         args = urllib.urlencode((
             ('strip_html_escape_keyname', str(sensorid)),
         ))
-        x = makeRequest(req, args)
-        config = ""
-        for line in [x for x in x.readlines()]:
-            logging.debug(line)
-            config += line
-        return config
+        try:
+            x = makeRequest(req, args)
+        except excepts.NetworkException:
+            logging.warning("Could not retrieve configuration from the server!")
+            return False
+        else:
+            config = ""
+            for line in [x for x in x.readlines()]:
+                logging.debug(line)
+                config += line
+            return config
     else:
         logging.warning("No network connection available. Can't get new configuration.")
         return False
@@ -236,13 +256,18 @@ def update(localip, ssh, mac, pversion):
         ('strip_html_escape_pversion', pversion))
     )
 
-    x = makeRequest(req, args)
-    action = None
-    for line in [x.strip() for x in x.readlines()]:
-        logging.debug(line)
-        if line.startswith("ACTION:"):
-            action = line.split()[1]
-            logging.debug("Received action: " + action)
+    try:
+        x = makeRequest(req, args)
+    except excepts.NetworkException:
+        logging.warning("Could not sync with server!")
+        action = None
+    else:
+        action = None
+        for line in [x.strip() for x in x.readlines()]:
+            logging.debug(line)
+            if line.startswith("ACTION:"):
+                action = line.split()[1]
+                logging.debug("Received action: " + action)
     if action:
         return action.lower()
     else:
