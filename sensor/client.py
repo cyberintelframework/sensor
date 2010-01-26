@@ -9,6 +9,7 @@ from sensor import config
 from sensor import runtime
 from sensor import locations
 from sensor import excepts
+from sensor import tools as t
 
 # Setting version variables
 version = "2.10.00"
@@ -45,6 +46,11 @@ def saveConf():
 				strip_html_escape_version=<string identifying sensor>
     """
     logging.debugv("client.py->saveConf()", [])
+
+    if not t.urlCheck(c.getServerurl()):
+        logging.warning("Server URL is not configured properly. Could not save config to the server!")
+        c.changed = True
+        return
 
     method = c.netconf['sensortype']
 
