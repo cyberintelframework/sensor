@@ -9,6 +9,7 @@ from sensor import config
 from sensor import runtime
 from sensor import locations
 from sensor import excepts
+from sensor import tools as t
 
 # Setting version variables
 version = "2.10.00"
