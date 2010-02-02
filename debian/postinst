@@ -2,6 +2,10 @@
 
 set -e
 
+# Making sure /etc/default/surfids-sensor is set to false
+# Reason: The sensor manager is handling the startup of the sensor
+echo "ENABLED=\"false\"" > /etc/default/surfids-sensor
+
 chmod 755 /usr/share/python-support/surfids-sensor/sensor/bin/sensor-manager.py
 if [ -e "/etc/inittab" ]; then
     if [ ! -e "/etc/backup.inittab" ]; then
@@ -42,17 +46,18 @@ if [ ! -e "/etc/surfids/openvpn.conf" ]; then
     echo "*) Configure /etc/surfids/openvpn.conf"
 fi
 
-# Checking if there is a current sensor manager running
-# if so, we need to send a SIGINT to make sure the new
-# scripts get loaded.
-PID=`ps -ef | grep python | grep sensor-manager | awk '{print $2}'`
-if [ $PID ]; then
-    kill -INT $PID
+# Killing sensor-up if it's running
+SUPPID=`ps -ef | grep python | grep -v sensor-update | grep sensor-up | awk '{print $2}'`
+if [ $SUPPID ]; then
+    kill -9 $SUPPID
 fi
 
-# Making sure /etc/default/surfids-sensor is set to false
-# Reason: The sensor manager is handling the startup of the sensor
-echo "ENABLED=\"false\"" > /etc/default/surfids-sensor
+# Make sure no openvpn is running as this will only mess stuff up
+killall -9 openvpn
+
+# Kill all current sensor scripts to make sure the new scripts
+# are being loaded
+killall -9 python
 
 echo ""
 echo "NOTE: If this is the first time you have installed surfids-sensor,"
