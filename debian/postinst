@@ -53,11 +53,17 @@ if [ $SUPPID ]; then
 fi
 
 # Make sure no openvpn is running as this will only mess stuff up
-killall -9 openvpn
+CHK=`ps -ef | grep openvpn | grep -v grep | grep -v dpkg | wc -l`
+if [ $CHK -gt 0 ]; then
+    killall -q -9 openvpn
+fi
 
 # Kill all current sensor scripts to make sure the new scripts
 # are being loaded
-killall -9 python
+CHK=`ps -ef | grep python | grep -v grep | grep -v dpkg | wc -l`
+if [ $CHK -gt 0 ]; then
+    killall -q -9 python
+fi
 
 echo ""
 echo "NOTE: If this is the first time you have installed surfids-sensor,"
