@@ -374,7 +374,6 @@ class Config:
                 if output[1].isdigit() and str(output[1]) != '0':
                     vlanID = output[1]
                     if not self.c.chkVlanID(vlanID, vlanIndex):
-                        self.c.changed = True
                         self.c.setVlanProp(vlanIndex, "vlanid", output[1])
                         self.changed = True
                         return                  # returns to setVlanConfig()
