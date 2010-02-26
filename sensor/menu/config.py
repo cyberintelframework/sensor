@@ -222,7 +222,7 @@ class Config:
             if choice[1] == self.c.getMainIf():
                 self.d.msgbox("The trunk interface cannot be the same as the main interface!")
             else:
-                logging.info("Setting trunk interface to %s" % interface)
+                logging.info("Setting trunk interface to %s" % choice[1])
                 self.c.setTrunk(choice[1])
                 self.changed = True
         return                              # returns to configNetwork()
