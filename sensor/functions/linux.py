@@ -409,7 +409,7 @@ def getMac(interface):
             else: hwaddr.append('00')
         return ":".join(hwaddr)
     except IOError:
-        raise exceptions.InterfaceException, "interface not found: " + interface
+        raise excepts.InterfaceException, "interface not found: " + interface
 
 def ipmiWrapper(cmd):
     """ A wrapper for ipmitool commands. ipmitool always returns error code 0
