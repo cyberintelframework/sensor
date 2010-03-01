@@ -286,8 +286,11 @@ def ifList():
     others = vlanList() + ['lo']
     infs = [x for x in infs if x not in others]
 
-    # remove interfaces not starting with eth
-    #infs = [x for x in infs if x.startswith('eth')]
+    # remove bridge interfaces
+    infs = [x for x in infs if not x.startswith('br')]
+
+    # remove tap interfaces
+    infs = [x for x in infs if not x.startswith('tap')]
 
     return infs
 
