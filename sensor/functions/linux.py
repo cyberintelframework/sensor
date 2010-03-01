@@ -14,6 +14,7 @@ import pdb
 import time
 import cgitb
 import sys
+import shutil
 
 from sensor import locations
 from sensor import excepts
@@ -79,7 +80,7 @@ def backupNetConf(rev):
     # Check for netconf
     if os.access(locations.NETCONF, os.R_OK):
         newloc = locations.BNETCONF + ".%s" % str(rev)
-        os.link(locations.NETCONF, newloc)
+        shutil.copy(locations.NETCONF, newloc)
 
 def system():
     """ Returns the system type """
