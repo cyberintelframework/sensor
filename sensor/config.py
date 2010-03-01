@@ -536,6 +536,18 @@ class Config:
         except KeyError:
             return "Unknown"
 
+    def chkMainInf(self, interface):
+        """ Check if the given interface is the main interface, if so, return Main """
+        logging.debugv("config.py->chkMainInf(self, interface)", [interface])
+        try:
+            chk = self.netconf['mainIf']
+            if chk == interface:
+                return "Main"
+            else:
+                return ""
+        except KeyError:
+            return ""
+
     ############################
     # Vlans functions
     ############################
