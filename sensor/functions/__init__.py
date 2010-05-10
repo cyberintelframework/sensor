@@ -362,13 +362,20 @@ def getLocalIp():
         inf = c.getMainIf()
 
     # Check if the interface has been configured with an IP
-    if r.chkNet(inf) == 3:
+    try:
         localIP = getIp(inf)
-        return localIP
+    except:
+        try:
+            mainIf = c.getMainIf()
+            inf = r.getBridgeDev(mainIf)
+            localIP = getIp(inf)
+        except excepts.InterfaceException:
+            raise excepts.InterfaceException, "No local IP address could be found"
+        else:
+            return localIP
     else:
-        raise excepts.InterfaceException, "No local IP address could be found"
-        return
-
+        return localIP
+    return
 
 def update():
     """ Update status info to the server """
