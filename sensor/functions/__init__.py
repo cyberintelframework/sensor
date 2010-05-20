@@ -101,8 +101,9 @@ def sensorUp():
         logging.error("Could not find a configured interface")
         raise excepts.ConfigException, "Could not find a configured interface"
 
+    server = c.getServer()
     try:
-        waitInterfaceLink(inf)
+        waitInterfaceLink(inf, server)
     except excepts.NetworkException, msg:
         logging.error(msg)
         return False

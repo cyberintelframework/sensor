@@ -834,20 +834,20 @@ def punlock(fd, file):
     if os.access(file, os.R_OK):
         os.unlink(file)
 
-def waitInterfaceLink(interface):
+def waitInterfaceLink(interface, server):
     """ Waits for an interface to get ready. Some interfaces need some 
         time before they are able to send/receive packets after coming
         up.
     """
-    logging.debugv("functions/linux.py->waitInterfaceLink(interface)", [interface])
+    logging.debugv("functions/linux.py->waitInterfaceLink(interface, server)", [interface, server])
     from time import sleep as time_sleep
     
-    gw = getGw(interface)
-    if not gw:
-        msg = "No default gateway was present"
-        raise excepts.NetworkException, msg
+#    gw = getGw(interface)
+#    if not gw:
+#        msg = "No default gateway was present"
+#        raise excepts.NetworkException, msg
 
-    cmd = ['ping',  '-I', interface, '-c 1', gw]
+    cmd = ['ping',  '-I', interface, '-c 1', server]
     timeout = 60
     done = 0
 
@@ -861,9 +861,10 @@ def waitInterfaceLink(interface):
   
     if (timeout == 0):
         msg = "Interface %s did not get a link in 60 seconds" % (interface)
-        raise excepts.NetworkException, msg
-
-    logging.debug("network device up after %d seconds" % (60-timeout))
+        logging.warning(msg)
+        #raise excepts.NetworkException, msg
+    else:
+        logging.debug("network device up after %d seconds" % (60-timeout))
 
 def killAllDhcp():
     """ Kills all dhclient instances """
