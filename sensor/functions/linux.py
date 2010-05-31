@@ -855,7 +855,7 @@ def waitInterfaceLink(interface, server):
         try:
             runWrapper(cmd)
             done = 1
-        except excepts.RunException, msg:
+        except:
             time_sleep(1)
             timeout -= 1
   
