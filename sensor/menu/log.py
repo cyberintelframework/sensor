@@ -46,7 +46,7 @@ class Log:
         """ Show the entire log file """
         logging.debugv("menu/log.py->showAll(self)", [])
         if os.access(locations.LOGFILE, os.R_OK):
-            return self.d.textbox(locations.LOGFILE, width=70, height=40, no_collapse=1, colors=1)
+            return self.d.textbox(locations.LOGFILE, width=70, height=20, no_collapse=1, colors=1)
         else:
             return self.d.msgbox("No logfile present")
 
@@ -55,7 +55,7 @@ class Log:
         """ Show the update log """
         logging.debugv("menu/log.py->showUpdateLog(self)", [])
         if os.access(locations.UPDATELOG, os.R_OK):
-            return self.d.textbox(locations.UPDATELOG, width=70, height=40, no_collapse=1, colors=1)
+            return self.d.textbox(locations.UPDATELOG, width=70, height=20, no_collapse=1, colors=1)
         else:
             return self.d.msgbox("No update logfile present")
 
@@ -75,7 +75,7 @@ class Log:
                     tempLogFile.write(line)
             tempLogFile.close()
             logFile.close()
-            self.d.textbox(locations.TEMPLOG, width=70, height=40, no_collapse=1, colors=1)
+            self.d.textbox(locations.TEMPLOG, width=70, height=20, no_collapse=1, colors=1)
             os.unlink(locations.TEMPLOG)
         else:
             return self.d.msgbox("No logfile present")
@@ -99,6 +99,6 @@ class Log:
         logging.debug("menu/log.py->errorDump(self)", [])
 
         if os.access(locations.DUMP, os.R_OK):
-            return self.d.textbox(locations.DUMP, width=70, height=40, no_collapse=1, colors=1)
+            return self.d.textbox(locations.DUMP, width=70, height=20, no_collapse=1, colors=1)
         else:
             return self.d.msgbox("No exception dump present")
