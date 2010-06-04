@@ -1,3 +1,23 @@
+surfids-sensor (3.06) lenny; urgency=low
+
+  * Fixed bug with addr retrieval for waitInterfaceLink.
+
+ -- SURFids Development Team <ids@surfnet.nl>  Thu,  3 Jun 2010 17:03:01 +0200
+
+surfids-sensor (3.05) lenny; urgency=low
+
+  * Fixed a bug with waitInterfaceLink
+
+ -- SURFids Development Team <ids@surfnet.nl>  Thu,  3 Jun 2010 15:40:28 +0200
+
+surfids-sensor (3.04) lenny; urgency=low
+
+  * Improved sensor GUI.
+  * Better error handling.
+  * Fixed a few bugs.
+
+ -- SURFids Development Team <ids@surfnet.nl>  Thu, 20 May 2010 19:05:38 +0200
+
 surfids-sensor (3.03) lenny; urgency=low
 
   * Fixed bug #202.
