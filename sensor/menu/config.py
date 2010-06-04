@@ -214,7 +214,7 @@ class Config:
         title = "\\Zb... > Configure > Network > Setup trunk interface\\n\\ZB"
         title += "Select the trunk interface"
 
-        infs = self.c.getInfs()
+        infs = f.ifList()
         choices = [(x, self.c.chkMainInf(x), int(self.c.getTrunkIf() == x)) for x in infs]
         choice = self.d.radiolist(title, choices=choices, cancel="Back", ok_label="Ok", height=20, colors=1)
         if choice[0] == 1: return           # returns to configNetwork()
