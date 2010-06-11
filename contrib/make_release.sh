@@ -1,11 +1,11 @@
 #!/bin/sh
 
-KEYID=enter_key_ID_here
-MAKEROOT=/home/build/makerelease
+KEYID=91987C36
+MAKEROOT=/home/build/sensor
 DIST=lenny
 REPOSITORY=/opt/surfnetids/repositories/surfids
-CHROOTBUILD=/home/build/makerelease/chrootimg/$DIST.tgz
-CHROOTTEST=/home/build/makerelease/chrootimg/$DIST_test.tgz
+CHROOTBUILD=/home/build/chrootimg/$DIST.tgz
+CHROOTTEST=/home/build/chrootimg/$DIST_test.tgz
 MIRROR=http://ftp.nl.debian.org/debian
 
 
@@ -26,12 +26,14 @@ fi
 # If this fails, please checkout the sensor trunk:
 # cd $MAKEROOT
 #  svn co http://svn.ids.surfnet.nl/surfids/sensor/trunk
+rm -rf $MAKEROOT/sensor-trunk
+svn export http://svn.ids.surfnet.nl/surfids/sensor/trunk sensor-trunk
 cd $MAKEROOT/sensor-trunk
-svn update
+#svn update
 
 # Increment changelog entry
 dch -i -m
-svn commit
+#svn commit
 
 ## create the package
 pdebuild -- --basetgz $CHROOTBUILD

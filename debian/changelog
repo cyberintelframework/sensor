@@ -1,3 +1,10 @@
+surfids-sensor (3.07) lenny; urgency=low
+
+  * Fixed out of space issue with logfile menu.
+  * Fixed missing interfaces from trunk configuration menu.
+
+ -- SURFids Development Team <ids@surfnet.nl>  Fri,  4 Jun 2010 13:33:25 +0200
+
 surfids-sensor (3.06) lenny; urgency=low
 
   * Fixed bug with addr retrieval for waitInterfaceLink.
