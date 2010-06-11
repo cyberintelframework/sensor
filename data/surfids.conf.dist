@@ -1,0 +1,2 @@
+server = server_hostname_or_ip
+adminpass = admin_password_in_md5_format

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+update-rc.d -f openvpn remove
+update-rc.d -f networking remove
+update-rc.d -f ssh remove
+
+mkdir /mnt/cdrom/
+mount /dev/cdrom /mnt/cdrom/
+cp /mnt/cdrom/simple-cdd/ca.crt /etc/surfids/
+cp /mnt/cdrom/simple-cdd/sensor-openvpn.conf /etc/surfids/openvpn.conf
+cp /mnt/cdrom/simple-cdd/sensor-surfids.conf /etc/surfids/surfids.conf
+umount /mnt/cdrom/

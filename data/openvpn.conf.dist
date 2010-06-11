@@ -1,0 +1,20 @@
+client
+remote enter_server_here
+tls-remote enter_server_here
+proto tcp-client
+port 1194
+tls-client
+#dev tun0
+dev-type tap
+ping 10
+ping-restart 120
+comp-lzo
+persist-key
+persist-tun
+persist-local-ip
+persist-remote-ip
+ns-cert-type server
+up-restart
+ca /etc/surfids/ca.crt
+key /etc/surfids/surfids.key
+cert /etc/surfids/surfids.crt

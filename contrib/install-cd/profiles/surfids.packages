@@ -1,0 +1,12 @@
+vlan
+bridge-utils
+openvpn
+python-support
+python-configobj
+openssh-server
+less
+console-setup
+#cron-apt
+surfids-sensor
+#splashy
+
