@@ -34,6 +34,9 @@ if ($max_size == 0) {
 $image_size = $image_size + 15;
 
 if (-e "binary.img") {
+    # Unmount USB first
+    `umount $dev`;
+
     # Creating the first partition
     `dd if=binary.img of=$dev bs=1M`;
 
