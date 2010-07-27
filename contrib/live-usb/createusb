@@ -1,8 +1,5 @@
 #!/usr/bin/perl
 
-# Set the size of the USB image (binary.img) file in Mb
-$image_size = 0;
-
 # Set the maximum size of your USB drive in Mb
 #$max_size = 1024;
 $max_size = 0;
@@ -10,6 +7,13 @@ $max_size = 0;
 #########################
 # DO NOT EDIT BELOW
 #########################
+
+$image_size = `ls -lh | grep binary.img | awk '{print \$5}' | awk -F"M" '{print \$1}'`;
+chomp($image_size);
+if ("$image_size" eq "") {
+    print "Could not determine the image size of binary.img\n";
+    exit;
+}
 
 $dev = $ARGV[0];
 if ("$dev" eq "") {
