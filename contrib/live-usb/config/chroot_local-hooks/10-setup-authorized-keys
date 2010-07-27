@@ -14,8 +14,8 @@ if (! -e "/home/$user/.ssh/") {
     `chmod 700 /home/$user/.ssh/`;
 }
 
-if (-e "/etc/ssh/authorized_keys2") {
-    `cp /etc/ssh/authorized_keys2 /home/$user/.ssh/authorized_keys2`;
-    `chown $user:$user /home/$user/.ssh/authorized_keys2`;
-    `chmod 600 /home/$user/.ssh/authorized_keys2`;
+if (-e "/etc/ssh/authorized_keys") {
+    `cp /etc/ssh/authorized_keys /home/$user/.ssh/authorized_keys`;
+    `chown $user:$user /home/$user/.ssh/authorized_keys`;
+    `chmod 600 /home/$user/.ssh/authorized_keys`;
 }
