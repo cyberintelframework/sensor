@@ -1,8 +1,7 @@
 #!/usr/bin/perl
 
 # Set the maximum size of your USB drive in Mb
-#$max_size = 1024;
-$max_size = 0;
+$max_size = 1000;
 
 #########################
 # DO NOT EDIT BELOW
