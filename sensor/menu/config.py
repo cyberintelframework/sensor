@@ -47,6 +47,7 @@ class Config:
                 ("DNS", "Nameservers settings..."),
                 ("Admin", "Administrator menu..."),
                 ('AutoStart', self.c.getAutoStart()),
+                ('AutoUpdate', self.c.getAutoUpdate()),
                 ('Loglevel', self.c.getLogLevel() ),
             ]
 
@@ -65,6 +66,11 @@ class Config:
                 self.disableAutoStart()
             else:
                 self.enableAutoStart()
+        elif choice[1] == "AutoUpdate":
+            if self.c.getAutoUpdate() == "Enabled":
+                self.disableAutoUpdate()
+            else:
+                self.enableAutoUpdate()
         self.run()
 
 ###############################################
@@ -586,6 +592,16 @@ class Config:
         """ Disabling default tunnel startup """
         logging.debugv("menu/config.py->disableAutoStart(self)", [])
         self.c.setAutoStart("Disabled")
+
+    def enableAutoUpdate(self):
+        """ Enabling default update behavior """
+        logging.debugv("menu/config.py->enableAutoUpdate(self)", [])
+        self.c.setAutoUpdate("Enabled")
+
+    def disableAutoUpdate(self):
+        """ Disabling default update behavior """
+        logging.debugv("menu/config.py->disableAutoUpdate(self)", [])
+        self.c.setAutoUpdate("Disabled")
 
     def chkAdmin(self):
         """ Ask for password to enter the admin menu """

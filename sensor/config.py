@@ -857,6 +857,23 @@ class Config:
         self.config['autostart'] = toggle
         self.config.write()
 
+    def getAutoUpdate(self):
+        """ Get the autoupdate value """
+        logging.debugv("config.py->getAutoUpdate(self)", [])
+        try:
+            autoUpdate = self.config['autoupdate']
+            return autoUpdate
+        except KeyError:
+            self.config['autoupdate'] = "Disabled"
+            self.config.write()
+            return self.config['autoupdate']
+
+    def setAutoUpdate(self, toggle):
+        """ Set the autoupdate value """
+        logging.debugv("config.py->setAutoUpdate(self, toggle)", [toggle])
+        self.config['autoupdate'] = toggle
+        self.config.write()
+
 #    def get(self, key):
 #        logging.debugv("config.py->get(self, key)", [key])
 #        try:

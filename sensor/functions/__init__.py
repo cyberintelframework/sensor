@@ -410,13 +410,14 @@ def update():
     except excepts.InterfaceException:
         mac = "00:00:00:00:00:00"
 
-    # Do all the APT stuff
-    aptUpdate()
-    aptInstall()
+    if self.c.getAutoUpdate() == "Enabled":
+        # Do all the APT stuff
+        aptUpdate()
+        aptInstall()
 
     ac = client.update(localIp, ssh, mac, getPackageVersion())
     if ac:
-        action(ac)    
+        action(ac)  
 
 def action(action):
     """ Functions that exececutes action received by server """
@@ -441,6 +442,10 @@ def action(action):
     elif action == "saveconf":
         logging.info("Server request: Save config")
         client.saveConf()
+    elif action == "aptupdate":
+        logging.info("Server request: APT update")
+        aptUpdate()
+        aptInstall()
 
 
 def reboot():
