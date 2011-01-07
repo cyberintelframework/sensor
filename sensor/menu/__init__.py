@@ -2,7 +2,7 @@
 import logging
 
 from sensor import functions
-from sensor import config
+from sensor import config as c
 from sensor import dialog
 
 # menu modules
@@ -25,15 +25,15 @@ class Menu:
         self.d.setBackgroundTitle('SURFids sensor v3.0 running on ' + functions.system())
 
         # c = config object
-        self.c = config.Config()
+        self.c = c.Config()
 
 
     def run(self):
         """ The main menu """
         logging.debugv("menu/__init__.py->run(self)", [])
 
-        if not self.c.getSensorID == "Unknown":
-            if self.c.getLock == "Enabled":
+        if not self.c.getSensorID() == "Unknown":
+            if self.c.getLock() == "Enabled":
                 lock.Lock(self.d).run()
 
         title = "\\ZbStart\\n\\ZB"
