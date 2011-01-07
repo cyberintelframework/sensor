@@ -308,6 +308,10 @@ def vlanList():
 def chkIfIp(interface):
     """ Checks for the existance of an IP address on a given interface """
     logging.debugv("functions/linux.py->chkIfIp(interface)", [interface])
+
+    if not interface:
+        return False
+
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         res = socket.inet_ntoa(fcntl.ioctl(
@@ -324,20 +328,27 @@ def chkIfIp(interface):
 def getIp(interface):
     """ Returns the IP address configured on interface """
     logging.debugv("functions/linux.py->getIp(interface)", [interface])
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        res = socket.inet_ntoa(fcntl.ioctl(
-            s.fileno(),
-            0x8915,  # SIOCGIFADDR
-            struct.pack('256s', interface[:15])
-        )[20:24])
-        return res
-    except IOError:
-        raise excepts.InterfaceException, "Interface %s did not have an IP address" % interface
+    if interface:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            res = socket.inet_ntoa(fcntl.ioctl(
+                s.fileno(),
+                0x8915,  # SIOCGIFADDR
+                struct.pack('256s', interface[:15])
+            )[20:24])
+            return res
+        except IOError:
+            raise excepts.InterfaceException, "Interface %s did not have an IP address" % interface
+    else:
+        raise excepts.InterfaceException, "No interface argument given"
 
 def getIfFlags(interface):
     """ Get the interface flags of a given interface """
     logging.debugv("functions/linux.py->getIfFlags(interface)", [interface])
+
+    if not interface:
+        raise excepts.InterfaceException, "No interface argument was given"
+
     # set some symbolic constants
     SIOCGIFFLAGS = 0x8913
     null256 = '\0'*256
@@ -368,6 +379,10 @@ def getIfFlags(interface):
 def chkIf(interface):
     """ Checks for the existance of a given interface """
     logging.debugv("functions/linux.py->chkIf(interface)", [interface])
+
+    if not interface:
+        return False
+
     # set some symbolic constants
     SIOCGIFFLAGS = 0x8913
     null256 = '\0'*256
@@ -388,6 +403,10 @@ def chkIf(interface):
 def getNm(interface):
     """ Returns the netmask configured on interface """
     logging.debugv("functions/linux.py->getNm(interface)", [interface])
+
+    if not interface:
+        raise excepts.InterfaceException, "No interface argument was given"
+
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         return socket.inet_ntoa(fcntl.ioctl(
@@ -401,6 +420,10 @@ def getNm(interface):
 def getMac(interface):
     """ Return hardware address of interface"""
     logging.debugv("functions/linux.py->getMac(interface)", [interface])
+
+    if not interface:
+        raise excepts.InterfaceException, "No interface argument was given"
+
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
     #if True:
