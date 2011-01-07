@@ -410,7 +410,7 @@ def update():
     except excepts.InterfaceException:
         mac = "00:00:00:00:00:00"
 
-    if self.c.getAutoUpdate() == "Enabled":
+    if c.getAutoUpdate() == "Enabled":
         # Do all the APT stuff
         aptUpdate()
         aptInstall()
