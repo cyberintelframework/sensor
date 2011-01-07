@@ -762,7 +762,7 @@ class Config:
         try:
             return self.config['sensorid']
         except KeyError:
-            return 'Unkown'
+            return 'Unknown'
 
     def setSensorID(self, sensorid):
         """ Set the sensor ID """
@@ -872,6 +872,23 @@ class Config:
         """ Set the autoupdate value """
         logging.debugv("config.py->setAutoUpdate(self, toggle)", [toggle])
         self.config['autoupdate'] = toggle
+        self.config.write()
+
+    def getLock(self):
+        """ Get the sensor menu lock value """
+        logging.debugv("config.py->getLock(self)", [])
+        try:
+            lock = self.config['lock']
+            return lock
+        except KeyError:
+            self.config['lock'] = "Disabled"
+            self.config.write()
+            return self.config['lock']
+
+    def setLock(self, toggle):
+        """ Set the sensor menu lock value """
+        logging.debugv("config.py->setLock(self, toggle)", [toggle])
+        self.config['lock'] = toggle
         self.config.write()
 
 #    def get(self, key):
