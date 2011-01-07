@@ -66,11 +66,6 @@ class Config:
                 self.disableAutoStart()
             else:
                 self.enableAutoStart()
-        elif choice[1] == "AutoUpdate":
-            if self.c.getAutoUpdate() == "Enabled":
-                self.disableAutoUpdate()
-            else:
-                self.enableAutoUpdate()
         self.run()
 
 ###############################################
@@ -395,6 +390,7 @@ class Config:
         logging.debugv("menu/config.py->setIfType(self, inf)", [inf])
         title = "\\Zb... > Network > IP config %s > Type\\n\\ZB" % str(inf)
         subtitle = "Set the type of configuration for this interface"
+        title += subtitle
         infConf = self.c.getIf(inf)
         infType = infConf["type"]
 
@@ -526,6 +522,7 @@ class Config:
 
         title = "\\ZbConfig > Network > VLANs\\n\\ZB"
         subtitle = "Enter the number of vlans you want to use"
+        title += subtitle
         vlannum = self.c.getTotalVlans()
         while True:
             output = self.d.inputbox(title, 10, 50, str(vlannum), colors=1)
@@ -616,19 +613,37 @@ class Config:
         """ Administrator menu """
         logging.debugv("menu/config.py->adminMenu(self)", [])
 
+        title = "\\ZbStart > Network > Admin\\n\\ZB"
+        subtitle = "Admin configuration"
+        title += subtitle
         choices=[
-                ('serverurl', self.c.getServerurl()),
-                ('user', self.c.getUser()),
-                ('passwd', len(self.c.getPasswd())*'*'),
+                ('Serverurl', self.c.getServerurl()),
+                ('User', self.c.getUser()),
+                ('Passwd', len(self.c.getPasswd())*'*'),
+                ('Update', "Update the sensor via APT"),
+                ('AutoUpdate', self.c.getAutoUpate()),
             ]
-        choice = self.d.menu("What do you want to configure?", choices=choices, cancel="back")
+        choice = self.d.menu(title, choices=choices, cancel="back", colors=1)
 
         if choice[0] == 1: return
-        elif choice[1] == "serverurl": self.setServerurl()
-        elif choice[1] == "user": self.setUser()
-        elif choice[1] == "passwd": self.setPasswd()
+        elif choice[1] == "Serverurl": self.setServerurl()
+        elif choice[1] == "User": self.setUser()
+        elif choice[1] == "Passwd": self.setPasswd()
+        elif choice[1] == "Update": self.upgrade()
+        elif choice[1] == "AutoUpdate":
+            if self.c.getAutoUpdate() == "Enabled":
+                self.disableAutoUpdate()
+            else:
+                self.enableAutoUpdate()
         self.adminMenu()
 
+    def upgrade(self):
+        """ Update the sensor software via APT """
+        logging.debugv("menu/config.py->upgrade(self)", [])
+        
+        self.d.infobox("Updating sensor...")
+        f.aptUpdate()
+        f.aptInstall()
 
     def activateChoice(self):
         """ Choose to stop or restart sensor after changing the config """

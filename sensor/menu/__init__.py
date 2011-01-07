@@ -38,6 +38,7 @@ class Menu:
                 #("Console", "Open a management console"),
                 ("About", "Learn more about the SURFids sensor"),
                 ("Shutdown", "Shutdown the machine"),
+                ("Lock", "Lock the sensor menu"),
             ], nocancel=1, width=60, colors=1)
         #cancel
         if choice[0] == 1: return
@@ -48,5 +49,5 @@ class Menu:
         elif choice[1] == "Console": console.Console(self.d).run()
         elif choice[1] == "About": about.About(self.d).run()
         elif choice[1] == "Shutdown": manage.Manage(self.d).shutdown()
-        #elif choice[1] == "Update": update.Update(self.d)
+        elif choice[1] == "Lock": lock.Lock(self.d).run()
         self.run()
