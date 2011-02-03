@@ -901,7 +901,7 @@ def verifyCrt():
     logging.debugv("functions/linux.py->verifyCrt()", [])
 
     if os.access(locations.CRT, os.R_OK):
-        cmd = locations.OPENSSL + ' verify -CAfile ' + locations.CA + ' ' + locations.CRT + ' 2>&1 | grep OK 1>/dev/null 2>/dev/null'
+        cmd = locations.OPENSSL + ' verify -CAfile ' + locations.CA + ' ' + locations.CRT + ' 2>&1 | grep ": OK$" 1>/dev/null 2>/dev/null'
         status = os.system(cmd)
         logging.debug("Sensor certificate verification status: %s" % str(status))
         if status == 0:
