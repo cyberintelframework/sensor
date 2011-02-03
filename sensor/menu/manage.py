@@ -78,6 +78,7 @@ class Manage:
                     "This will result in a new sensor ID"):
                 functions.sensorDown()
                 functions.delKey()
+                self.c.setSensorID("")
                 self.d.msgbox("Sensor cleaned (removed key & certificate). Ignore the old sensor in the web interface. Restart the sensor.", width=60)
         elif choice[1] == "Ping": self.ping()
         else: self.d.msgbox("not yet implemented")

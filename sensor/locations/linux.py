@@ -33,7 +33,7 @@ PID = "/var/lib/surfids/"
 DOC = "/usr/share/doc/surfids-sensor/"
 PROC = "/proc/"
 
-ALL_FOL = [SYSCONF, LOG, DATA, RUNTIME, DOC, PID]
+ALL_FOL = [SYSCONF, LOG, DATA, RUNTIME, PID]
 
 
 # FILES
