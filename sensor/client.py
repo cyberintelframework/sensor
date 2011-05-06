@@ -98,7 +98,7 @@ def saveConf():
         ('strip_html_escape_trunkdev', str(trunkIf)),
     	('strip_html_escape_version', str(osv)),
     	('ip_dns1', str(dns1)),
-	    ('ip_dns2', str(dns2)),
+        ('ip_dns2', str(dns2)),
     	('int_rev', str(rev)))
     )
 
@@ -144,9 +144,11 @@ def getKey(localip):
     """ download certificate, key and sensor ID """
     logging.debugv("client.py->getKey(localip)", [localip])
 
+    oid = c.getOID()
     req = "cert.php"
     args = urllib.urlencode((
-        ('ip_localip', localip),)
+        ('ip_localip', localip),
+        ('md5_oid', str(oid)))
     )
 
     try:

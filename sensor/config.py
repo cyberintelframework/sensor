@@ -874,6 +874,17 @@ class Config:
         self.config['autoupdate'] = toggle
         self.config.write()
 
+    def getOID(self):
+        """ Get the OID if present """
+        logging.debugv("config.py->getOID(self)", [])
+        try:
+            oid = self.config['oid']
+            return oid
+        except KeyError:
+            self.config['oid'] = ""
+            self.config.write()
+            return false
+
     def getLock(self):
         """ Get the sensor menu lock value """
         logging.debugv("config.py->getLock(self)", [])
