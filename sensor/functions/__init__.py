@@ -442,10 +442,25 @@ def action(action):
     elif action == "saveconf":
         logging.info("Server request: Save config")
         client.saveConf()
-    elif action == "aptupdate":
-        logging.info("Server request: APT update")
+    elif action == "sensorupgrade":
+	# apt-get install surfids-sensor
+        logging.info("Server request: Sensor upgrade")
         aptUpdate()
         aptInstall()
+    elif action == "aptupgrade":
+	# apt-get upgrade
+        logging.info("Server request: APT upgrade")
+        aptUpdate()
+        aptUpgrade()
+    elif action == "depupgrade":
+	# apt-get install <sensor dependencies>
+        logging.info("Server request: Dependency upgrade")
+        aptUpdate()
+        depUpgrade()
+    elif action == "aptcount":
+        logging.info("Server request: APT count")
+        aptUpdate()
+        aptCount()
 
 
 def reboot():

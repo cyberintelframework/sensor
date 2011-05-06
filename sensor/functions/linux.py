@@ -20,6 +20,7 @@ from sensor import locations
 from sensor import excepts
 from sensor import tools
 from sensor import runtime
+from sensor import client
 
 changeset = "009"
 
@@ -100,6 +101,10 @@ def suppressDmesg():
     cmd = [locations.DMESG, "-n", "1"]
     runWrapper(cmd)
 
+########################
+# APT functions
+########################
+
 def aptUpdate():
     """ Updated the apt cache """
     logging.debugv("functions/linux.py->aptUpdate()", [])
@@ -116,10 +121,79 @@ def aptInstall():
     try:
         apt = os.popen(cmd)
         for line in apt.readlines():
-            line.rstrip()
+            line = line.rstrip()
             logging.debug("APT: %s" % str(line))
     except excepts.RunException, msg:
         logging.error("APT install error: %s" % str(msg))
+    else:
+        return apt.readlines()
+    return False
+
+def aptUpgrade():
+    """ Do a apt-get upgrade to upgrade the sensors packages """
+    logging.debugv("functions/linux.py->aptUpgrade()", [])
+    cmd = "DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes upgrade"
+    req = "save_apt.php"
+    args = []
+    try:
+        apt = os.popen(cmd)
+        for line in apt.readlines():
+            line = line.rstrip()
+            logging.debug("APT: %s" % str(line))
+            args.append(('apt[]', line))
+    except excepts.RunException, msg:
+        logging.error("APT upgrade error: %s" % str(msg))
+
+    client.makeRequest(req, args)
+
+
+def depUpgrade():
+    """ Upgrade dependencies via APT """
+    logging.debugv("functions/linux.py->depUpgrade()", [])
+    cmd = "DEBIAN_FRONTEND=noninteractive apt-cache depends surfids-sensor | grep Depends | awk '{print $2}'"
+    all = ""
+    try:
+        apt = os.popen(cmd)
+        for line in apt.readlines():
+            line = line.rstrip()
+            all = "%s %s" % (str(all), str(line))
+            logging.debug("APT: %s" % str(line))
+    except excepts.RunException, msg:
+        logging.error("APT depupgrade error: %s" % str(msg))
+        
+    # Upgrade dependencies
+    if all == "":
+        logging.error("Dependency list empty, not upgrading")
+    else:
+        cmd = "DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install %s" % str(all)
+        args = []
+        req = "save_apt.php"
+        try:
+            apt = os.popen(cmd)
+            for line in apt.readlines():
+                line.rstrip()
+                logging.debug("APT: %s" % str(line))
+                args.append(('apt[]', line))
+        except excepts.RunException, msg:
+            logging.error("APT depupgrade error: %s" % str(msg))
+
+    client.makeRequest(req, args)
+
+
+def aptCount():
+    """ Count available updates via APT """
+    logging.debugv("functions/linux.py->aptCount()", [])
+    cmd = "DEBIAN_FRONTEND=noninteractive apt-get -s -y --force-yes upgrade | wc -l"
+    try:
+        apt = os.popen(cmd)
+        for line in apt.readlines():
+            count = line.rstrip()
+            logging.debug("APT count: %s" % str(count))
+    except excepts.RunException, msg:
+        logging.error("APT count error: %s" % str(msg))
+
+    if count:
+        client.saveUpdatesCount(count)
 
 ########################
 # IPMI USER COMMANDS

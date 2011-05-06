@@ -275,6 +275,22 @@ def update(localip, ssh, mac, pversion):
         return False
 
 
+def saveUpdatesCount(count):
+    """ Updates amount of updates to the server """
+    logging.debugv("client.py->saveUpdatesCount(count)", [count])
+
+    sensorid = c.getSensorID()
+    req = "save_apt.php"
+    args = urllib.urlencode((
+        ('int_count', count),
+        ('strip_html_escape_keyname', sensorid))
+    )
+    try:
+        x = makeRequest(req, args)
+    except excepts.NetworkException:
+        logging.warning("Could not save update info to server!")
+
+
 def makeRequest(request, args):
     """ Send a request to the tunnel server.  """
 
