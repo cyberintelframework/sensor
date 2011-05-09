@@ -2,7 +2,6 @@
 linux specific system functions
 """
 import sys
-import pdb
 import re
 import logging
 import os
@@ -15,6 +14,7 @@ import time
 import cgitb
 import sys
 import shutil
+import urllib
 
 from sensor import locations
 from sensor import excepts
@@ -108,7 +108,7 @@ def suppressDmesg():
 def aptUpdate():
     """ Updated the apt cache """
     logging.debugv("functions/linux.py->aptUpdate()", [])
-    cmd = "apt-get -qqy update"
+    cmd = "apt-get -qqy update 2>/dev/null"
     try:
         apt = os.popen(cmd)
     except excepts.RunException, msg:
@@ -118,16 +118,18 @@ def aptInstall():
     """ Install a new sensor package via APT """
     logging.debugv("functions/linux.py->aptInstall()", [])
     cmd = "DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install surfids-sensor"
+    args = []
     try:
         apt = os.popen(cmd)
         for line in apt.readlines():
             line = line.rstrip()
             logging.debug("APT: %s" % str(line))
+            args.append(('apt[]', line))
     except excepts.RunException, msg:
         logging.error("APT install error: %s" % str(msg))
-    else:
-        return apt.readlines()
-    return False
+
+    if args:
+        client.saveAptOutput(args)
 
 def aptUpgrade():
     """ Do a apt-get upgrade to upgrade the sensors packages """
@@ -144,7 +146,8 @@ def aptUpgrade():
     except excepts.RunException, msg:
         logging.error("APT upgrade error: %s" % str(msg))
 
-    client.makeRequest(req, args)
+    if args:
+        client.saveAptOutput(args)
 
 
 def depUpgrade():
@@ -171,19 +174,21 @@ def depUpgrade():
         try:
             apt = os.popen(cmd)
             for line in apt.readlines():
-                line.rstrip()
+                line = line.rstrip()
                 logging.debug("APT: %s" % str(line))
                 args.append(('apt[]', line))
         except excepts.RunException, msg:
             logging.error("APT depupgrade error: %s" % str(msg))
 
-    client.makeRequest(req, args)
+    if args:
+        client.saveAptOutput(args)
 
 
 def aptCount():
     """ Count available updates via APT """
     logging.debugv("functions/linux.py->aptCount()", [])
-    cmd = "DEBIAN_FRONTEND=noninteractive apt-get -s -y --force-yes upgrade | grep ^Inst | wc -l"
+    cmd = "DEBIAN_FRONTEND=noninteractive apt-get -s -y --force-yes upgrade | grep ^Inst | wc -l 2>/dev/null 1>/dev/null"
+    count = False
     try:
         apt = os.popen(cmd)
         for line in apt.readlines():

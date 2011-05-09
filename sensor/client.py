@@ -276,6 +276,36 @@ def update(localip, ssh, mac, pversion):
     else:
         return False
 
+def saveAptOutput(args):
+    """ Save apt-get output to the server """
+    logging.debugv("client.py->saveAptOutput(args)", [args])
+
+    sensorid = c.getSensorID()
+    req = "save_apt.php"
+    i = 0
+    partargs = []
+    # Due to max size limit of URL's, save output 10 lines at a time
+    for part in args[:]:
+        i = i + 1
+        partargs.append(part)
+        if i == 10:
+            partargs.append(('strip_html_escape_keyname', sensorid))
+            partargs = urllib.urlencode(partargs)
+            try:
+                x = makeRequest(req, partargs)
+            except excepts.NetworkException:
+                logging.warning("Could not save update info to server!")
+            partargs = []
+            i = 0
+
+    # Save leftover lines if any
+    if len(partargs) > 0:
+        partargs.append(('strip_html_escape_keyname', sensorid))
+        partargs = urllib.urlencode(partargs)
+        try:
+            x = makeRequest(req, args)
+        except excepts.NetworkException:
+            logging.warning("Could not save update info to server!")
 
 def saveUpdatesCount(count):
     """ Updates amount of updates to the server """
