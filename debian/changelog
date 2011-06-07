@@ -1,3 +1,14 @@
+surfids-sensor (3.10) lenny; urgency=low
+
+  * SURFids 3.10 stable release.
+  * Added locking option for the sensor menu.
+  * Added support for APT manipulation via the server.
+  * Added config option to enable/disable automatic sensor updates.
+  * Added OID support.
+  * Fixed a few minor bugs.
+
+ -- SURFids Development Team <ids@surfnet.nl>  Fri,  7 Jun 2011 15:25:25 +0200
+
 surfids-sensor (3.07) lenny; urgency=low
 
   * Fixed out of space issue with logfile menu.
