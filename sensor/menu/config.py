@@ -47,7 +47,6 @@ class Config:
                 ("DNS", "Nameservers settings..."),
                 ("Admin", "Administrator menu..."),
                 ('AutoStart', self.c.getAutoStart()),
-                ('AutoUpdate', self.c.getAutoUpdate()),
                 ('Loglevel', self.c.getLogLevel() ),
             ]
 
