@@ -188,7 +188,7 @@ def aptCount():
     """ Count available updates via APT """
     logging.debugv("functions/linux.py->aptCount()", [])
     cmd = "DEBIAN_FRONTEND=noninteractive apt-get -s -y --force-yes upgrade | grep ^Inst | wc -l 2>/dev/null 1>/dev/null"
-    count = False
+    count = 0
     try:
         apt = os.popen(cmd)
         for line in apt.readlines():
@@ -197,8 +197,7 @@ def aptCount():
     except excepts.RunException, msg:
         logging.error("APT count error: %s" % str(msg))
 
-    if count:
-        client.saveUpdatesCount(count)
+    client.saveUpdatesCount(count)
 
 ########################
 # IPMI USER COMMANDS
