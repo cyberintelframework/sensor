@@ -290,6 +290,7 @@ def saveAptOutput(args):
         partargs.append(part)
         if i == 10:
             partargs.append(('strip_html_escape_keyname', sensorid))
+            logging.debug("WATCHME PARTARGS: %s" % str(partargs))
             partargs = urllib.urlencode(partargs)
             try:
                 x = makeRequest(req, partargs)
@@ -298,6 +299,7 @@ def saveAptOutput(args):
             partargs = []
             i = 0
 
+    logging.debug("WATCHME PARTARGS-2: %s" % str(partargs))
     # Save leftover lines if any
     if len(partargs) > 0:
         partargs.append(('strip_html_escape_keyname', sensorid))
@@ -325,6 +327,7 @@ def saveUpdatesCount(count):
 
 def makeRequest(request, args):
     """ Send a request to the tunnel server.  """
+    logging.debugv("client.py->makeRequest(request, args)", [request, args])
 
     serverurl = c.getServerurl()
     user = c.getUser()
