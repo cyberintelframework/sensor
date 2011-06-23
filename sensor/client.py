@@ -329,7 +329,15 @@ def makeRequest(request, args):
     serverurl = c.getServerurl()
     user = c.getUser()
     passwd = c.getPasswd()
-    url = serverurl + request + "?" + args
+
+    if type(args) == type(list()):
+        newargs = ""
+        for urlarg in args:
+            newargs = newargs + "&" + urlarg[0] + "=" + urlarg[1]
+        newargs = newargs.lstrip("&")
+        url = serverurl + request + "?" + newargs
+    else:
+        url = serverurl + request + "?" + args
 
     logging.info("MRQ: Requesting " + url)
 
