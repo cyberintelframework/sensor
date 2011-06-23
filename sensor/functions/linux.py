@@ -187,7 +187,7 @@ def depUpgrade():
 def aptCount():
     """ Count available updates via APT """
     logging.debugv("functions/linux.py->aptCount()", [])
-    cmd = "DEBIAN_FRONTEND=noninteractive apt-get -s -y --force-yes upgrade | grep ^Inst | wc -l 2>/dev/null 1>/dev/null"
+    cmd = "DEBIAN_FRONTEND=noninteractive apt-get -s -y --force-yes upgrade | grep ^Inst | wc -l 2>/dev/null"
     count = 0
     try:
         apt = os.popen(cmd)
