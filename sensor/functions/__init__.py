@@ -413,6 +413,14 @@ def update():
     if c.getAutoUpdate() == "Enabled":
         # Do all the APT stuff
         aptUpdate()
+        try:
+            functions.sensorDown()
+        except excepts.NetworkException:
+            logging.info("No network connection, so can't deregister")
+            functions.allInfsDown()
+
+            # Get network working again
+            functions.networkUp()
         aptInstall()
 
     ac = client.update(localIp, ssh, mac, getPackageVersion())
@@ -446,6 +454,14 @@ def action(action):
 	# apt-get install surfids-sensor
         logging.info("Server request: Sensor upgrade")
         aptUpdate()
+        try:
+            functions.sensorDown()
+        except excepts.NetworkException:
+            logging.info("No network connection, so can't deregister")
+            functions.allInfsDown()
+
+            # Get network working again
+            functions.networkUp()
         aptInstall()
     elif action == "aptupgrade":
 	# apt-get upgrade

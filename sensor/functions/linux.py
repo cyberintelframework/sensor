@@ -21,6 +21,7 @@ from sensor import excepts
 from sensor import tools
 from sensor import runtime
 from sensor import client
+from sensor import log
 
 changeset = "009"
 
@@ -130,6 +131,8 @@ def aptInstall():
 
     if args:
         client.saveAptOutput(args)
+
+    log.inthandler(signal.SIGINT, "")
 
 def aptUpgrade():
     """ Do a apt-get upgrade to upgrade the sensors packages """
