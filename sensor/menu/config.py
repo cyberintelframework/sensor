@@ -620,7 +620,7 @@ class Config:
                 ('User', self.c.getUser()),
                 ('Passwd', len(self.c.getPasswd())*'*'),
                 ('Update', "Update the sensor via APT"),
-                ('AutoUpdate', self.c.getAutoUpate()),
+                ('AutoUpdate', self.c.getAutoUpdate()),
             ]
         choice = self.d.menu(title, choices=choices, cancel="back", colors=1)
 
