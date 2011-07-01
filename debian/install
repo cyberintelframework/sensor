@@ -2,3 +2,4 @@ data/surfids.conf.dist /etc/surfids/
 data/openvpn.conf.dist /etc/surfids/
 data/tty1.conf /var/lib/surfids/
 data/logrotate.conf /var/lib/surfids/
+data/cron.conf /etc/surfids/

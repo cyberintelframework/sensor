@@ -65,6 +65,15 @@ if [ $CHK -gt 0 ]; then
     killall -q -9 python
 fi
 
+# Handle cron stuff
+if [ -e "/etc/cron.d/surfids-sensor" ]; then
+    rm -f /etc/cron.d/surfids-sensor
+    /etc/init.d/cron reload
+fi
+if [ ! -e "/etc/cron.d/surfids-sensor" ]; then
+    ln -s /etc/surfids/cron.conf /etc/cron.d/surfids-sensor
+fi
+
 echo ""
 echo "NOTE: If this is the first time you have installed surfids-sensor,"
 echo "reboot your machine to startup the sensor environment!"
