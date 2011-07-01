@@ -792,6 +792,7 @@ def mkTunnel(id):
     pid = os.fork()
     logging.debug("WATCHME PID: %s" % str(pid))
     if pid == 0:
+        os.setsid()
         fd = plock(locations.LOCKFILE)
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         buffer = ""
@@ -805,6 +806,9 @@ def mkTunnel(id):
                     regex = ".*" + locations.OPENVPN_INIT_RDY + ".*"
                     if tools.chkReg(regex, buffer[25:]):
                         punlock(fd, locations.LOCKFILE)
+                        logging.debug("SYSEXIT")
+                        import sys
+                        sys.exit()
                     buffer = ""
         if p.poll() > 0:
             logging.error("%s died with error code %s, see log for details" % (cmd[0], p.poll()))
@@ -817,7 +821,7 @@ def mkTunnel(id):
         while os.path.exists(locations.LOCKFILE):
             time.sleep(1)
         logging.debug("Parent continuing...")
-
+        os.wait()
 
 def brList():
     """ Return a list of bridge interfaces """
@@ -1014,6 +1018,19 @@ def shutdown():
     logging.debugv("functions/linux.py->shutdown()", [])
     cmd = [locations.INIT, "0"]
     runWrapper(cmd)
+
+def checkPid(pid):
+    """ Checks if a PID is running or not """
+    logging.debugv("functions/linux.py->checkPid(pid)", [pid])
+    try:
+        os.kill(pid,0)
+    except OSError:
+        return False
+    except:
+        e = sys.exc_info()[1]
+        logging.error("Error checking pid %s" % str(e))
+    else:
+        return True
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,

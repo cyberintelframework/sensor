@@ -87,18 +87,18 @@ def setLog():
     loglevel = c.getLogLevel()
 
     level = logging.INFO
-    format = '%(asctime)s %(message)s'
+    format = '%(asctime)s %(process)d %(message)s'
     logfile = locations.LOGFILE
 
     if loglevel in "debug":
         level = logging.DEBUG
-        format='%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s'
+        format='%(asctime)s %(process)d %(levelname)s %(filename)s:%(lineno)d %(message)s'
     elif loglevel in "debugv":
         level = logging.DEBUGV
-        format='%(asctime)s %(levelname)s %(message)s'
+        format='%(asctime)s %(process)d %(levelname)s %(message)s'
     elif loglevel in "debugvv":
         level = logging.DEBUGVV
-        format='%(asctime)s %(levelname)s %(message)s'
+        format='%(asctime)s %(process)d %(levelname)s %(message)s'
     elif loglevel == "trace":
         level = logging.TRACE
         format='%(levelname)s %(message)s'

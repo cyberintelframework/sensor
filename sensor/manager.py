@@ -73,7 +73,8 @@ class Manager:
                         msg = str(msg)
                         self.d.msgbox("Autostart Failed\n\nINTERFACE ERROR: " + msg)
                     except SystemExit:
-                        logging.info("Sensor manager exiting")
+                        logging.info("Sensor manager exiting (1)")
+                        sys.exit()
                     except:
                         self.handleException()
 
@@ -81,13 +82,19 @@ class Manager:
         try:
             menu.Menu().run()
         except SystemExit:
-            logging.info("Sensor manager exiting")
+            logging.info("Sensor manager exiting (2)")
+            sys.exit()
         except:
             self.handleException()
 
     def handleException(self):
         """ Handle any uncaught exception in the manager """
         logging.debugv("manager.py->handleException(self)", [])
+
+        managerpid = open(locations.MANAGERPID, 'r').readline().strip()
+        if os.getpid() != managerpid:
+            logging.debug("Child exception occurred, returning")
+            return
 
         f.do_verbose_exception()
         ex = False
