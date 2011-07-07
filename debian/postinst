@@ -87,5 +87,6 @@ echo ""
 if [ -e "/var/lib/surfids/manager.pid" ]; then
     MANPID=`cat /var/lib/surfids/manager.pid`
     kill -2 $MANPID
+fi
 
 exit 0
