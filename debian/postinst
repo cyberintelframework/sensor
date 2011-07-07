@@ -84,9 +84,9 @@ echo "reboot your machine to startup the sensor environment!"
 echo ""
 
 # Send SIGINT to running manager (makes the manager restart itself)
-if [ -e "/var/lib/surfids/manager.pid" ]; then
+if [ -r "/var/lib/surfids/manager.pid" ]; then
     MANPID=`cat /var/lib/surfids/manager.pid`
-    kill -2 $MANPID
+    kill -2 `cat /var/lib/surfids/manager.pid`
 fi
 
 exit 0
