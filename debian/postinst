@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/bash
 
 set -e
 
@@ -62,13 +62,6 @@ if [ $CHK -gt 0 ]; then
     killall -q -9 openvpn
 fi
 
-# Kill all current sensor scripts to make sure the new scripts
-# are being loaded
-CHK=`ps -ef | grep python | grep -v grep | grep -v dpkg | wc -l`
-if [ $CHK -gt 0 ]; then
-    killall -q -9 python
-fi
-
 # Handle cron stuff
 if [ -e "/etc/cron.d/surfids-sensor" ]; then
     rm -f /etc/cron.d/surfids-sensor
@@ -85,8 +78,8 @@ echo ""
 
 # Send SIGINT to running manager (makes the manager restart itself)
 if [ -r "/var/lib/surfids/manager.pid" ]; then
-    MANPID=`cat /var/lib/surfids/manager.pid`
-    kill -2 `cat /var/lib/surfids/manager.pid`
+    MANPID=`head -n1 /var/lib/surfids/manager.pid`
+    kill -2 $MANPID
 fi
 
 exit 0
