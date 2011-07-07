@@ -132,6 +132,7 @@ def aptInstall():
     if args:
         client.saveAptOutput(args)
 
+    import signal
     log.inthandler(signal.SIGINT, "")
 
 def aptUpgrade():
