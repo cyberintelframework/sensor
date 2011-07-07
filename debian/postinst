@@ -14,13 +14,17 @@ if [ -e "/etc/inittab" ]; then
     fi
 fi
 if [ -e "/etc/event.d/" ]; then
-    mv -f /var/lib/surfids/tty1.conf /etc/event.d/tty1
+    if [ -e "/var/lib/surfids/tty1.conf" ]; then
+        mv -f /var/lib/surfids/tty1.conf /etc/event.d/tty1
+    fi
 else
     rm -f /var/lib/surfids/tty1.conf
 fi
 
 if [ -e "/etc/logrotate.d/" ]; then
-    mv -f /var/lib/surfids/logrotate.conf /etc/logrotate.d/surfids-sensor
+    if [ -e "/var/lib/surfids/logrotate.conf" ]; then
+        mv -f /var/lib/surfids/logrotate.conf /etc/logrotate.d/surfids-sensor
+    fi
 fi
 
 
@@ -78,5 +82,10 @@ echo ""
 echo "NOTE: If this is the first time you have installed surfids-sensor,"
 echo "reboot your machine to startup the sensor environment!"
 echo ""
+
+# Send SIGINT to running manager (makes the manager restart itself)
+if [ -e "/var/lib/surfids/manager.pid" ]; then
+    MANPID=`cat /var/lib/surfids/manager.pid`
+    kill -2 $MANPID
 
 exit 0
