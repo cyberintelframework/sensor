@@ -132,8 +132,9 @@ def aptInstall():
     if args:
         client.saveAptOutput(args)
 
-    import signal
-    log.inthandler(signal.SIGINT, "")
+    managerpid = int(open(locations.MANAGERPID, 'r').readline().strip())
+    logging.debug("MANAGERPID: %s" % str(managerpid))
+    os.kill(managerpid, 2)
 
 def aptUpgrade():
     """ Do a apt-get upgrade to upgrade the sensors packages """
@@ -152,6 +153,10 @@ def aptUpgrade():
 
     if args:
         client.saveAptOutput(args)
+
+    managerpid = int(open(locations.MANAGERPID, 'r').readline().strip())
+    logging.debug("MANAGERPID: %s" % str(managerpid))
+    os.kill(managerpid, 2)
 
 
 def depUpgrade():
