@@ -5,12 +5,11 @@ import os
 
 from sensor import altlog
 from sensor import functions
-from sensor import runtime
 from sensor import locations
 
-r = runtime.Runtime()
-
-if not r.tunnelStatus():
+cmd = "ifconfig -a | grep ^br | wc -l"
+chk = os.popen(cmd).readline().rstrip()
+if chk == "0":
     logging.debug("Runtime tunnel status: disabled")
 else:
     logging.debug("Runtime tunnel status: enabled")
