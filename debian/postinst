@@ -77,9 +77,12 @@ echo "reboot your machine to startup the sensor environment!"
 echo ""
 
 # Send SIGINT to running manager (makes the manager restart itself)
-if [ -r "/var/lib/surfids/manager.pid" ]; then
-    MANPID=`head -n1 /var/lib/surfids/manager.pid`
-    kill -2 $MANPID
-fi
+# As of 3.10, the manager should restart itself if the update
+# was done via the manager itself
+#if [ -r "/var/lib/surfids/manager.pid" ]; then
+#    MANPID=`head -n1 /var/lib/surfids/manager.pid`
+#    kill -2 $MANPID
+#fi
+echo "NOTE: If you updated the sensor via the command shell, restart the manager"
 
 exit 0
