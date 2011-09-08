@@ -413,6 +413,13 @@ def update():
     if c.getAutoUpdate() == "Enabled":
         # Do all the APT stuff
         aptUpdate()
+        try:
+            sensorDown()
+        except:
+            allTunnelsDown
+            allInfsDown()
+            networkUp()
+
         aptInstall()
 
     ac = client.update(localIp, ssh, mac, getPackageVersion())
