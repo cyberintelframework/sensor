@@ -202,6 +202,9 @@ def sensorUp():
         client.checkKey(localIp)
         client.register(localIp, c.getSensorID())
 
+        # Setup loop protection
+        setIptables(tap)
+
     # Check if the sensor certificate is valid, if not, don't start
     if verifyCrt():
         # Check if the sensor key is valid, if not, don't start
@@ -300,41 +303,6 @@ def getFirstIf(types):
     else:
         raise excepts.InterfaceException, "No interface found with type in %s" % str(types)
         return
-
-def getLocalAddress():
-    """ Get the localy configured IP address """
-    logging.debugv("functions/__init__.py->getLocalAddress()", [])
-
-    localIp = False
-
-    # First check for IP of main interface
-    mainIf = c.getMainIf()
-    if mainIf:
-        localIp = getIp(mainIf)
-        if not localIp:
-            bridge = c.getBridge()
-            if bridge:
-                localIp = getIp(bridge)
-
-    return localIp
-
-
-def getLocalIp():
-    """ Get the localy configured IP address """
-    logging.debugv("functions/__init__.py->getLocalIp()", [])
-
-    localIp = False
-
-    # First check for IP of main interface
-    mainIf = c.getMainIf()
-    if mainIf:
-        localIp = getIp(mainIf)
-        if not localIp:
-            bridge = c.getBridge()
-            if bridge:
-                localIp = getIp(bridge)
-
-    return localIp
 
 def update():
     """ Update status info to the server """

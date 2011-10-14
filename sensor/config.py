@@ -883,7 +883,7 @@ class Config:
         except KeyError:
             self.config['oid'] = ""
             self.config.write()
-            return false
+            return False
 
     def getLock(self):
         """ Get the sensor menu lock value """

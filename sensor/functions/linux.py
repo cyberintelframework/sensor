@@ -21,6 +21,10 @@ from sensor import excepts
 from sensor import tools
 from sensor import client
 from sensor import log
+from sensor import config
+
+# configuration object
+c = config.Config()
 
 changeset = "009"
 
@@ -374,6 +378,24 @@ def ifList():
 
     # remove tap interfaces
     infs = [x for x in infs if not x.startswith('tap')]
+
+    return infs
+
+def ifListAll():
+    """ Return a list of network interfaces
+        including tap and bridge interfaces
+    """
+    logging.debugv("functions/linux.py->ifListAll()", [])
+
+    infs = []
+    netFile = open('/proc/net/dev', 'r')
+    # skip first 2 lines
+    for line in netFile.readlines()[2:]:
+        # split the string with spaces, and split first with :
+        infs.append(line.split()[0].split(":")[0])
+
+    # remove localhost
+    infs = [x for x in infs if not x.startswith('lo')]
 
     return infs
 
@@ -866,6 +888,7 @@ def bridgify(inf, infConf, bridgeNumber):
             delGw(inf)
         if infConf['gateway']:
             addGw(infConf['gateway'])
+    setIptables(tapdev)
 
     return (brdev, ip)
 
@@ -1051,7 +1074,6 @@ def networkStatus(mainInf):
     logging.debugv("functions/linux.py->networkStatus(mainInf)", [mainInf])
 
     if infStatus(mainInf) > 1:
-        pdb.set_trace()
         if getLocalAddress():
             return True
         else:
@@ -1086,6 +1108,49 @@ def infStatus(inf):
     else:
         return 0
 
+
+def getLocalAddress():
+    """ Get the localy configured IP address """
+    logging.debugv("functions/__init__.py->getLocalAddress()", [])
+
+    localIp = False
+
+    # First check for IP of main interface
+    mainIf = c.getMainIf()
+    if mainIf:
+        localIp = getIp(mainIf)
+        if not localIp:
+            bridge = c.getBridge()
+            if bridge:
+                localIp = getIp(bridge)
+
+    return localIp
+
+
+def getLocalIp():
+    """ Get the localy configured IP address """
+    logging.debugv("functions/__init__.py->getLocalIp()", [])
+
+    localIp = False
+
+    # First check for IP of main interface
+    mainIf = c.getMainIf()
+    if mainIf:
+        localIp = getIp(mainIf)
+        if not localIp:
+            bridge = c.getBridge()
+            if bridge:
+                localIp = getIp(bridge)
+
+    return localIp
+
+def setIptables(dev):
+    """ Sets loop protection via iptables """
+    logging.debugv("functions/linux.py->setIptables(dev)", [dev])
+    try:
+        runWrapper([locations.IPTABLES, "-A", "OUTPUT", "-p", "TCP", "-m", "physdev", "--physdev-out", dev, "--dport", "1194", "-j", "DROP"], True)
+    except:
+        logging.error("Setting up loop protection with iptables failed")
 
 
 if __name__ == '__main__':

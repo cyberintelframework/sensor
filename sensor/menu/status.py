@@ -45,11 +45,11 @@ class Status:
         """ Prints information about the actual network interfaces """
         logging.debugv("menu/status.py->interfaces(self)", [])
 
-        infList = f.ifList()
+        infList = f.ifListAll()
 
         report = t.formatTitle("Network interfaces")
         for (inf) in infList:
-            status = infStatus(inf)
+            status = f.infStatus(inf)
             if status == 0:
                 statustxt = "Non-existant"
             elif status == 1:
@@ -85,7 +85,7 @@ class Status:
     def netconf(self):
         """ Prints the network configuration as saved in the config file """
         logging.debugv("menu/status.py->netconf(self)", [])
-        infs = self.r.listInf()
+        infs = f.ifListAll()
         report = t.formatTitle("Main network configuration")
 
         try:

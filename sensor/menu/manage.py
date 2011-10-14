@@ -31,7 +31,7 @@ class Manage:
 
         choices = []
 
-        if functions.sensorStatus():
+        if functions.tunnelStatus():
             choices.append( ("Sensor Down", "Bring sensor down") )
             choices.append( ("Sensor Restart", "Restart the sensor") )
         else:
