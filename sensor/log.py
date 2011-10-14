@@ -59,7 +59,6 @@ def inthandler(signum, frame):
     import os
     from sensor import functions as f
     from sensor import dialog
-    from sensor import runtime as r
     di = dialog.Dialog()
     logging.debug("SIGINT received")
 

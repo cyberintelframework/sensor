@@ -902,6 +902,11 @@ class Config:
         self.config['lock'] = toggle
         self.config.write()
 
+    def getBridge(self):
+        """ Returns the default bridge device name """
+        logging.debugv("config.py->getBridge()", [])
+        return "br0"
+
 #    def get(self, key):
 #        logging.debugv("config.py->get(self, key)", [key])
 #        try:

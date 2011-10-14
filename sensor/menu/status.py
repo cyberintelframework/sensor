@@ -4,7 +4,6 @@ import os
 import pdb
 import configobj
 
-from sensor import runtime
 from sensor import functions as f
 from sensor import config
 from sensor import version
@@ -16,7 +15,6 @@ class Status:
         logging.debugv("menu/status.py->__init__(self, d)", [])
         self.d = d
         self.c = config.Config()
-        self.r = runtime.Runtime()
 
     def run(self):
         """ Submenu showing the different status overviews """
@@ -46,10 +44,12 @@ class Status:
     def interfaces(self):
         """ Prints information about the actual network interfaces """
         logging.debugv("menu/status.py->interfaces(self)", [])
-        infstatus = self.r.listInfStatus()
+
+        infList = f.ifList()
+
         report = t.formatTitle("Network interfaces")
-        for (inf, status) in infstatus:
-            status = int(status)
+        for (inf) in infList:
+            status = infStatus(inf)
             if status == 0:
                 statustxt = "Non-existant"
             elif status == 1:
@@ -180,8 +180,9 @@ class Status:
         """ Prints information about the sensor status """
         logging.debugv("menu/status.py->sensor(self)", [])
         sid = self.c.getSensorID()
-        status = self.r.sensorStatus()
-        networkStatus = self.r.networkStatus()
+        mainInf = self.c.getMainIf()
+        status = f.tunnelStatus()
+        networkStatus = f.networkStatus(mainInf)
         pversion = f.getPackageVersion()
 
         # Subtitle

@@ -7,7 +7,6 @@ import time
 import configobj
 
 from sensor import config
-from sensor import runtime
 from sensor import client
 from sensor import tools
 from sensor import version
@@ -17,9 +16,6 @@ from sensor import log
 
 # configuration object
 c = config.Config()
-
-# runtime object, stores active interfaces
-r = runtime.Runtime()
 
 system = platform.system()
 
@@ -67,11 +63,9 @@ def networkUp():
             if getGw(inf):
                 delGw(inf)
             addGw(gw)
-            r.networkUp()
         else:
             try:
                 ifUpDhcp(inf)
-                r.networkUp()
             except excepts.InterfaceException:
                 logging.error("Could not setup %s with DHCP" % str(inf))
                 raise excepts.InterfaceException, "Could not setup %s with DHCP" % str(inf)
@@ -89,9 +83,6 @@ def sensorUp():
         c.validNetConf()
     except excepts.ConfigException, e:
         raise excepts.ConfigException, "Invalid network configuration:\n %s" % str(e)
-#    if not r.configStatus():
-#        logging.error("Could not find a configured interface")
-#        raise excepts.ConfigException, "Could not find a configured interface"
 
     # Always bring the main network interface up
     networkUp()
@@ -152,7 +143,6 @@ def sensorUp():
         infType = infConf['type']
         ifDelIp(inf)
         (brdev, localIp) = bridgify(inf, infConf, bridgeID)
-        r.addInf(inf, brdev, infType, bridgeID)
 
         if infType == "static":
             nm = infConf['netmask']
@@ -222,11 +212,6 @@ def sensorUp():
     else:
         return False
 
-    if openvpnStatus():
-        # only set registered status if there are one ore more tunnels active
-        r.sensorUp()
-        r.tunnelUp()
-
     return True
 
 
@@ -263,9 +248,7 @@ def allTunnelsDown():
     logging.debugv("functions/__init__.py->allTunnelsDown()", [])
     logging.info("Bringing all tunnels down")
 
-    if os.path.exists(locations.OPENVPNPID):
-        pid = open(locations.OPENVPNPID, 'r').readline().strip()
-        if not pid.isdigit(): raise excepts.RunException, "Invalid pidfile (%s)" % pidfile
+    if tunnelStatus():
         logging.debug("WATCHME Kill openvpn daemon with PID " + pid)
         try:
             os.kill(int(pid), 15)
@@ -275,41 +258,16 @@ def allTunnelsDown():
     else:
         logging.debug("WATCHME Could not find any tunnel PID files")
 
-    # set runtime status to tunnels down
-    r.sensorDown()
-
 
 def allInfsDown():
     """ Bring all the interfaces down """
     logging.debugv("functions/__init__.py->allInfsDown()", [])
     logging.info("Bringing all interfaces down")
 
-    # try to bring tunnels down if they are up
-    if r.sensorStatus():
-        try:
-            allTunnelsDown()
-        except excepts.NetworkException:
-            logging.warning("No network, so can't bring tunnels down")
-            r.sensorDown()
-
-    for inf, infProps in r.listInf():
-        if infProps['type'] == 'vlan':
-            for vlan, vlanProps in infProps['vlans'].items():
-                bridge = vlanProps['bridgedev']
-                try:
-                    ifDown(bridge)
-                    delBridge(bridge)
-                    delVlan(vlan)
-                    r.delVlan(inf, vlan)
-                except excepts.InterfaceException:
-                    logging.error("can't bring down %s, doesn't exists" % inf)
-        try:
-            ifDown(inf)
-            r.delInf(inf)
-        except excepts.InterfaceException:
-            logging.error("can't bring down %s, doesn't exists" % inf)
-
-    # and now we will destroy everything that is left
+    try:
+        allTunnelsDown()
+    except excepts.NetworkException:
+        logging.warning("No network, so can't bring tunnels down")
 
     # down all interfaces
     for inf in ifList():
@@ -328,14 +286,8 @@ def allInfsDown():
     for tap in tapList():
         delTap(tap)
     
-    # set dns to bogus
-    #setDNS("","")
-
     # kill any remaining DHCP servers
     killAllDhcp()
-
-    # set runtime status to network down
-    r.networkDown()
 
 
 def getFirstIf(types):
@@ -349,38 +301,40 @@ def getFirstIf(types):
         raise excepts.InterfaceException, "No interface found with type in %s" % str(types)
         return
 
+def getLocalAddress():
+    """ Get the localy configured IP address """
+    logging.debugv("functions/__init__.py->getLocalAddress()", [])
+
+    localIp = False
+
+    # First check for IP of main interface
+    mainIf = c.getMainIf()
+    if mainIf:
+        localIp = getIp(mainIf)
+        if not localIp:
+            bridge = c.getBridge()
+            if bridge:
+                localIp = getIp(bridge)
+
+    return localIp
+
+
 def getLocalIp():
     """ Get the localy configured IP address """
     logging.debugv("functions/__init__.py->getLocalIp()", [])
 
-    # Determine which interface needs to be checked
-    sensortype = c.getSensorType()
-    if sensortype == "":
-        raise excepts.ConfigException, "Could not find a sensor type in the configuration"
-    elif sensortype == "normal":
-        mainIf = c.getMainIf()
-        if r.sensorStatus():
-            inf = r.getBridgeDev(mainIf)
-        else:
-            inf = mainIf    
-    elif sensortype == "vlan":
-        inf = c.getMainIf()
+    localIp = False
 
-    # Check if the interface has been configured with an IP
-    try:
-        localIP = getIp(inf)
-    except:
-        try:
-            mainIf = c.getMainIf()
-            inf = r.getBridgeDev(mainIf)
-            localIP = getIp(inf)
-        except excepts.InterfaceException:
-            raise excepts.InterfaceException, "No local IP address could be found"
-        else:
-            return localIP
-    else:
-        return localIP
-    return
+    # First check for IP of main interface
+    mainIf = c.getMainIf()
+    if mainIf:
+        localIp = getIp(mainIf)
+        if not localIp:
+            bridge = c.getBridge()
+            if bridge:
+                localIp = getIp(bridge)
+
+    return localIp
 
 def update():
     """ Update status info to the server """
@@ -394,15 +348,7 @@ def update():
         return
 
     # Get the localIp
-    try:
-        localIp = getLocalIp()
-    except excepts.ConfigException, msg:
-        logging.warning("Could not sync with the server")
-        logging.error(msg)
-        return
-    except excepts.InterfaceException, msg:
-       logging.error(msg)
-       return
+    localIp = getLocalIp()
 
     ssh = int(sshStatus())
     try:
@@ -535,34 +481,6 @@ def saveNetConf(config):
         nc.write(config)
         nc.close()
         logging.info("Saved network configuration with revision %s" % str(rev))
-
-def initRuntime():
-    """ Initializes the runtime status dict """
-    logging.debugv("functions/__init__.py->initRuntime()", [])
-    mainIf = c.getMainIf()
-    if mainIf != "":
-        r.configUp()
-    else:
-        logging.warning("Could not find a configured interface")
-        r.configDown()
-
-    if openvpnStatus():
-        r.sensorUp()
-        r.tunnelUp()
-    else:
-        r.sensorDown()
-        r.tunnelDown()
-
-    infs = ifList()
-    for inf in infs:
-        if chkIf(inf):
-            r.net(inf, 1)
-            flags = getIfFlags(inf).split()
-            if flags[0] == "UP":
-                r.net(inf, 2)
-                if chkIfIp(inf):
-                    r.net(inf, 3)
-                    r.networkUp()
 
 def printDict(di, format="%-25s %s"):
     logging.debugv("functions/__init__.py->printDict(di, format)", [di, format])

@@ -19,13 +19,10 @@ import urllib
 from sensor import locations
 from sensor import excepts
 from sensor import tools
-from sensor import runtime
 from sensor import client
 from sensor import log
 
 changeset = "009"
-
-r = runtime.Runtime()
 
 inf_flags = ["UP", "BROADCAST", "DEBUG", "LOOPBACK", "POINTTOPOINT", "NOTRAILERS", "RUNNING", "NOARP", "PROMISC", "ALLMULTI", "MASTER", "SLAVE", "MULTICAST", "PORTSEL", "AUTOMEDIA", "DYNAMIC"]
 
@@ -128,7 +125,6 @@ def aptInstall():
             args.append(('apt[]', line))
     except excepts.RunException, msg:
         logging.error("APT install error: %s" % str(msg))
-
     if args:
         client.saveAptOutput(args)
 
@@ -425,9 +421,11 @@ def getIp(interface):
             )[20:24])
             return res
         except IOError:
-            raise excepts.InterfaceException, "Interface %s did not have an IP address" % interface
+            logging.error("Interface %s did not have an IP address" % str(interface))
+            return False
     else:
-        raise excepts.InterfaceException, "No interface argument given"
+        logging.error("No interface argument given")
+        return False
 
 def getIfFlags(interface):
     """ Get the interface flags of a given interface """
@@ -577,7 +575,6 @@ def ifDelIp(interface):
     logging.info("Removing IP address from %s" % interface)
     cmd = [locations.IFCONFIG, interface, "0.0.0.0", "up"]
     if runWrapper(cmd):
-        r.net(interface, 2)
         return True
     else:
         return False
@@ -589,8 +586,6 @@ def ifUp(interface):
     logging.info("bring interface %s up " % interface)
     cmd = [locations.IFCONFIG, interface, "up"]
     if runWrapper(cmd):
-        if not r.chkNet(interface) > 2:
-            r.net(interface, 2)
         return True
     else:
         return False
@@ -603,32 +598,28 @@ def ifUpStatic(interface,ip,netmask):
     logging.info("configuring %s with %s/%s" % (interface, ip, netmask))
     cmd = [locations.IFCONFIG, interface, "up", ip, "netmask", netmask]
     if runWrapper(cmd):
-        r.net(interface, 3)
-        r.networkUp()
-    return ip
+        return ip
+    else:
+        return False
 
 def ifUpDhcp(interface):
     """ Configures a dynamic IP address for a given interface """
     logging.debugv("functions/linux.py->ifUpDhcp(interface)", [interface])
 
-    # If interface isn't up, bring it up
-    try:
-        temp = r.config['net'][interface]
-    except KeyError:
-        raise excepts.InterfaceException, "Could not find runtime configuration for %s" % str(interface)
+    if not ifUp(interface):
+        return False
 
-    if r.config['net'][interface] < 2:
-        ifUp(interface)
-    else:
-        logging.debug("%s already UP, not calling ifUp" % str(interface))
-
-    # If the interface already has an IP address, return
-    if r.config['net'][interface] == 3:
-        logging.debug("%s already has an IP address, returning" % str(interface))
-        return
+    # Check for active dhclient
+    pidfile = locations.PID + 'dhcp-' + interface + '.pid'
+    if os.access(pidfile, os.R_OK):
+        pid = open(pidfile, 'r').readline().strip()
+        if pid.isdigit():
+            if checkPid(pid):
+                logging.warn("DHCP client still running, killing it now")
+                killDhcp(pidfile)
 
     logging.info("configuring %s with dynamic address" % interface)
-    cmd = [locations.DHCLIENT, interface, '-pf', locations.PID + 'dhcp-' + interface + '.pid']
+    cmd = [locations.DHCLIENT, interface, '-pf', pidfile]
     logging.debug(" ".join(cmd))
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     rcode = os.waitpid(p.pid, 0)
@@ -636,36 +627,38 @@ def ifUpDhcp(interface):
         logging.debug(p.stderr.read())
         try:
             ip = getIp(interface)
-            logging.info("received: " + ip)
-            r.net(interface, 3)
-            r.networkUp()
+            logging.info("DHCP Received: %s" % str(ip))
             return ip
         except excepts.InterfaceException:
             logging.warning("Did not receive an IP address on interface %s" % interface)
             logging.warning(p.stderr.read())
-
+            return False
     elif rcode[1] == 256:
         logging.warning("Interface %s does not exist" % interface)
         logging.warning(p.stderr.read())
-        raise excepts.InterfaceException,"Interface %s does not exist" % interface
+        return False
     else:
         logging.warning("dhclient returned a unknown exit code")
-    raise excepts.NetworkException,"Unable to get IP with DHCP for %s" % interface
+        return False
 
 def ifDown(interface):
     """ Brings given interface down """
     logging.debugv("functions/linux.py->ifDown(interface)", [interface])
-    logging.info("Bringin down %s" % interface)
-    try:
-        cmd = [locations.IFCONFIG, interface, "0.0.0.0", "down"]
-        if runWrapper(cmd):
-            r.net(interface, 1)
-    except excepts.RunException, msg:
-        raise excepts.InterfaceException, "Interface %s doesn't exists" % interface
 
     pidfile = locations.PID + 'dhcp-' + interface + '.pid'
     logging.info("Trying to kill DHCP daemon for %s" % interface)
     killDhcp(pidfile)
+
+    logging.info("Bringin down %s" % interface)
+    cmd = [locations.IFCONFIG, interface, "0.0.0.0", "down"]
+    try:
+        if runWrapper(cmd):
+            return True
+        else:
+            return False
+    except excepts.RunException, msg:
+        logging.error("Interface %s doesn't exists" % interface)
+        return False
 
 def killDhcp(pidfile):
     """ Kills a dhclient instance given a pid file """
@@ -732,7 +725,6 @@ def delVlan(vlandev):
     logging.info("Removing virtual vlan device %s" % vlandev)
     cmd = ["vconfig", "rem", vlandev]
     runWrapper(cmd)
-    r.net(vlandev, 0)
 
 def addTap(id):
     """ Create a tap device, ID is a unique id """
@@ -745,7 +737,6 @@ def addTap(id):
             return False
     cmd = [locations.OPENVPN, '--mktun', '--dev', dev]
     if runWrapper(cmd):
-        r.net(dev, 1)
         if ifUp(dev):
            return dev
         else:
@@ -759,7 +750,9 @@ def delTap(tap):
     ifDown(tap)
     cmd = [locations.OPENVPN, '--rmtun', '--dev', tap]
     if runWrapper(cmd):
-        r.net(tap, 0)
+        return True
+    else:
+        return False
 
 def tapList():
     """ Return a list of tap devices """
@@ -779,8 +772,7 @@ def addBridge(id, devices=[]):
     dev = 'br' + str(id)
     logging.info("Creating bridge %s " % dev)
     cmd = [locations.BRCTL, 'addbr', dev]
-    if runWrapper(cmd):
-        r.net(dev, 1)
+    runWrapper(cmd)
     ifUp(dev)
     for device in devices:
         cmd = [locations.BRCTL, 'addif', dev, device]
@@ -847,7 +839,6 @@ def delBridge(brdev):
     logging.info("removing bridge device %s" % brdev)
     cmd = [locations.BRCTL, 'delbr', brdev]
     runWrapper(cmd)
-    r.net(brdev, 0)
 
 
 def bridgify(inf, infConf, bridgeNumber):
@@ -922,7 +913,9 @@ def sshUp():
     logging.info("starting ssh daemon")
     cmd = [locations.SSHINIT, 'start']
     if runWrapper(cmd):
-        r.sshUp()
+        return True
+    return False
+
 
 def sshDown():
     """ Stops the SSH daemon """
@@ -930,7 +923,9 @@ def sshDown():
     logging.info("shutting down ssh daemon")
     cmd = [locations.SSHINIT, 'stop']
     if runWrapper(cmd):
-        r.sshDown()
+        return True
+    return False
+
 
 def plock(file):
     """ Function to touch a file. Acts as a proxy for locking. """
@@ -956,11 +951,6 @@ def waitInterfaceLink(interface, server):
     logging.debugv("functions/linux.py->waitInterfaceLink(interface, server)", [interface, server])
     from time import sleep as time_sleep
     
-#    gw = getGw(interface)
-#    if not gw:
-#        msg = "No default gateway was present"
-#        raise excepts.NetworkException, msg
-
     cmd = ['ping',  '-I', interface, '-c 1', server]
     timeout = 60
     done = 0
@@ -976,7 +966,6 @@ def waitInterfaceLink(interface, server):
     if (timeout == 0):
         msg = "Interface %s did not get a link in 60 seconds" % (interface)
         logging.warning(msg)
-        #raise excepts.NetworkException, msg
     else:
         logging.debug("network device up after %d seconds" % (60-timeout))
 
@@ -1037,6 +1026,67 @@ def checkPid(pid):
         logging.error("Error checking pid %s" % str(e))
     else:
         return True
+
+def tunnelStatus():
+    """ Returns the status of the tunnel """
+    logging.debugv("functions/linux.py->tunnelStatus()", [])
+
+    if os.path.exists(locations.OPENVPNPID):
+        # pidfile exists, check running tunnel
+        pid = open(locations.OPENVPNPID, 'r').readline().strip()
+        if not pid.isdigit():
+            logging.error("Invalid pidfile %s returned %s" % (pidfile, str(pid)))
+            return False
+        else:
+            if checkPid(pid):
+                return True
+            else:
+                return False
+    else:
+        logging.info("TunnelStatus: down")
+        return False
+
+def networkStatus(mainInf):
+    """ Returns the status of the network """
+    logging.debugv("functions/linux.py->networkStatus(mainInf)", [mainInf])
+
+    if infStatus(mainInf) > 1:
+        pdb.set_trace()
+        if getLocalAddress():
+            return True
+        else:
+            logging.info("Network status DOWN: No local IP address found")
+            return False 
+    else:
+        logging.info("Network status DOWN: Main interface not UP")
+        return False
+
+
+def infStatus(inf):
+    """ Returns the status of an interface 
+        \t0 = Interface does not exist\n
+        \t1 = Interface exists\n
+        \t2 = Interface exists and is up\n
+        \t3 = Interface exists, is up and has IP
+    """
+    logging.debugv("functions/linux.py->infStatus(inf)", [inf])
+
+    flags = getIfFlags(inf).split()
+    if flags:
+        # Interface exists
+        if flags[0] == "UP":
+            # Interface is up
+            if getIp(inf):
+                # Interface has address
+                return 3
+            else:
+                return 2
+        else:
+            return 1
+    else:
+        return 0
+
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,

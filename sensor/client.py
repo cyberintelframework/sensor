@@ -6,7 +6,6 @@ import os
 import platform
 
 from sensor import config
-from sensor import runtime
 from sensor import locations
 from sensor import excepts
 from sensor import tools as t
@@ -17,9 +16,6 @@ changeset = "001"
 
 # configuration object
 c = config.Config()
-
-# runtime object, stores active interfaces
-r = runtime.Runtime()
 
 def saveConf():
     """ Send the configuration to the server
@@ -55,7 +51,6 @@ def saveConf():
     method = c.netconf['sensortype']
 
     mainIf = c.getMainIf()
-#    mainIfMac = r.getMainIfMac()
     trunkIf = c.getTrunkIf()
 
     mainInfConf = c.getIf(mainIf)
@@ -123,10 +118,6 @@ def register(localip, keyname):
     """
     logging.debugv("client.py->register(localip, keyname)", [localip, keyname])
 
-    if not r.networkStatus():
-        logging.error("No network connection available, not registering")
-        return
-
     req = "startclient.php"
     args = urllib.urlencode((
         ('ip_localip', localip),
@@ -165,27 +156,19 @@ def deRegister(localip):
     """ Deregisters interface from IDS server """
     logging.debugv("client.py->deRegister(localip)", [localip])
 
-    if not r.networkStatus():
-        logging.warning("No network connection available, not deregistering")
-        return
+    sensorid = c.getSensorID()
+    req = "stopclient.php"
+    args = urllib.urlencode((
+        ('ip_localip', localip),
+        ('strip_html_escape_keyname', sensorid))
+    ) 
 
-    if r.sensorStatus():
-        sensorid = c.getSensorID()
-        req = "stopclient.php"
-        args = urllib.urlencode((
-            ('ip_localip', localip),
-            ('strip_html_escape_keyname', sensorid))
-        ) 
-
-        try:
-            x = makeRequest(req, args)
-        except excepts.NetworkException:
-            logging.warning("Could not deRegister from the server!")
-        else:
-            for line in x.readlines(): logging.debug(line[:-1])
+    try:
+        x = makeRequest(req, args)
+    except excepts.NetworkException:
+        logging.warning("Could not deRegister from the server!")
     else:
-        logging.warning("Sensor not active, not deregistering")
-        return
+        for line in x.readlines(): logging.debug(line[:-1])
 
 
 def checkKey(localip):
@@ -218,34 +201,26 @@ def getConfig():
     """ Get the latest configuration from the server """
     logging.debugv("client.py->getConfig()", [])
 
-    if r.networkStatus():
-        sensorid = c.getSensorID()
-        req = "get_config.php"
-        args = urllib.urlencode((
-            ('strip_html_escape_keyname', str(sensorid)),
-        ))
-        try:
-            x = makeRequest(req, args)
-        except excepts.NetworkException:
-            logging.warning("Could not retrieve configuration from the server!")
-            return False
-        else:
-            config = ""
-            for line in [x for x in x.readlines()]:
-                logging.debug(line)
-                config += line
-            return config
-    else:
-        logging.warning("No network connection available. Can't get new configuration.")
+    sensorid = c.getSensorID()
+    req = "get_config.php"
+    args = urllib.urlencode((
+        ('strip_html_escape_keyname', str(sensorid)),
+    ))
+    try:
+        x = makeRequest(req, args)
+    except excepts.NetworkException:
+        logging.warning("Could not retrieve configuration from the server!")
         return False
+    else:
+        config = ""
+        for line in [x for x in x.readlines()]:
+            logging.debug(line)
+            config += line
+        return config
 
 def update(localip, ssh, mac, pversion):
     """ updates interface @ ids server """
     logging.debugv("client.py->update(localip, ssh, mac, pversion)", [localip, ssh, mac, pversion])
-
-    if not r.networkStatus():
-        logging.debug("Sensor not active, not syncing")
-        return
 
     logging.info("Updating @ IDS server")
 

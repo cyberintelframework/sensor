@@ -8,7 +8,6 @@ from sensor import functions as f
 from sensor import config
 from sensor import tools as t
 from sensor import log
-from sensor import runtime
 from sensor import client
 from sensor import excepts
 
@@ -21,9 +20,6 @@ class Config:
 
         # c = config object        self.c = config.Config()
         self.c = config.Config()
-
-        # r = runtime object
-        self.r = runtime.Runtime()
 
         # flag for config change. used for "activate new config" popup
         self.changed = False

@@ -8,7 +8,6 @@ import signal
 from sensor import log
 from sensor import functions as f
 from sensor import menu
-from sensor import runtime
 from sensor import config
 from sensor import dialog
 from sensor import excepts
@@ -21,7 +20,6 @@ class Manager:
         os.putenv('LANG', 'en_US.UTF-8')
         os.environ['LANG'] = 'en_US.UTF-8'
 
-        self.r = runtime.Runtime()
         self.c = config.Config()
         self.d = dialog.Dialog()
 
@@ -49,9 +47,7 @@ class Manager:
             logging.info("Sensor manager exiting")
         except:
             self.handleException()
-        logging.debug("Initializing runtime info")
-        f.initRuntime()
-        if not self.r.sensorStatus():
+        if not f.tunnelStatus():
             if self.c.getAutoStart() == "Enabled":
                 logging.info("Sensor not active - Auto Starting")
                 self.d.setBackgroundTitle('SURFids v3.0 running on ' + f.system())
@@ -92,7 +88,7 @@ class Manager:
         logging.debugv("manager.py->handleException(self)", [])
 
         managerpid = open(locations.MANAGERPID, 'r').readline().strip()
-        if os.getpid() != managerpid:
+        if os.getpid() != int(managerpid):
             logging.debug("Child exception occurred, returning")
             return
 

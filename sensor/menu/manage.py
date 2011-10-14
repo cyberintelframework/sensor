@@ -6,7 +6,6 @@ from sensor import dialog
 from sensor import functions
 from sensor import config
 from sensor import tools
-from sensor import runtime
 from sensor import excepts
 from sensor import client
 
@@ -15,7 +14,6 @@ class Manage:
         # d = dialog object
         logging.debugv("menu/manage.py->__init__(self, d)", [])
         self.d = d
-        self.r = runtime.Runtime()
 
         # c = config object
         self.c = config.Config()
@@ -33,13 +31,14 @@ class Manage:
 
         choices = []
 
-        if self.r.sensorStatus():
+        if functions.sensorStatus():
             choices.append( ("Sensor Down", "Bring sensor down") )
             choices.append( ("Sensor Restart", "Restart the sensor") )
         else:
             choices.append( ("Sensor Up", "Bring sensor up") )
 
-        if self.r.networkStatus():
+        mainInf = self.c.getMainIf()
+        if functions.networkStatus(mainInf):
             choices.append( ("Update", "Sync with server now") )
             #choices.append( ("Get Config", "Get the latest network config") )
             choices.append( ("Ping", "Check if connection is okay") )
