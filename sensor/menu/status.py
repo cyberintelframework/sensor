@@ -23,6 +23,7 @@ class Status:
                 ("Sensor", "General information about the sensor"),
                 ("Netconf", "Network configuration info"),
                 ("Interfaces", "Interface information"),
+                ("Debug", "Debugger"),
             ]
         if f.ipmiStatus():        
             choices += [("IPMI", "IPMI information")]
@@ -38,6 +39,7 @@ class Status:
         elif choice[1] == "Sensor": self.sensor()
         elif choice[1] == "Netconf": self.netconf()
         elif choice[1] == "Interfaces": self.interfaces()
+        elif choice[1] == "Debug": pdb.set_trace()
         elif choice[1] == "IPMI": self.ipmi()
         self.run()
 

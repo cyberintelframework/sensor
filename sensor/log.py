@@ -61,19 +61,26 @@ def inthandler(signum, frame):
     from sensor import dialog
     di = dialog.Dialog()
     logging.debug("SIGINT received")
+    logging.debug("WATCHMEEE INTHANDLER SIGINT received")
 
     if f.managerStatus(str(os.getpid())):
         di.setBackgroundTitle('SURFids v3.0 sensor running on ' + f.system())
         di.infobox("CTRL-C received, shutting down sensor...")
         # Shutting down the sensor
         try:
+            logging.debug("WATCHMEEE INTHANDLER f.sensorDown")
+            logging.debug("WATCHMEEE INTHANDLER tunnel status: %s" % str(f.tunnelStatus()))
             f.sensorDown()
+            logging.debug("WATCHMEEE INTHANDLER tunnel status: %s" % str(f.tunnelStatus()))
         except:
+            err = str(sys.exc_info()[1])
+            logging.debug("WATCHMEEE error: %s" % str(err))
             logging.error("Could not shutdown the sensor during SIGINT")
 
-        logging.debug("WATCHME inthandler cleanup phase")
+        logging.debug("WATCHMEEE inthandler cleanup phase")
         # Cleaning up temporary files
         f.cleanUp()
+        logging.debug("WATCHMEEE INTHANDLER tunnel status: %s" % str(f.tunnelStatus()))
 
 #    if os.path.exists(locations.OPENVPNPID):
 #        os.unlink(locations.OPENVPNPID)

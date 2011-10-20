@@ -238,6 +238,7 @@ def sensorDown():
     except excepts.ConfigException, msg:
         logging.warning("%s, skipping deregistration" % (str(msg)))
 
+    logging.debug("WATCHMEEE allTunnelsDown")
     # Shut everything down
     allTunnelsDown()
     allInfsDown()
@@ -251,15 +252,16 @@ def allTunnelsDown():
     logging.debugv("functions/__init__.py->allTunnelsDown()", [])
     logging.info("Bringing all tunnels down")
 
-    if tunnelStatus():
-        logging.debug("WATCHME Kill openvpn daemon with PID " + pid)
+    pid = tunnelStatus()
+    if pid:
+        logging.debug("WATCHMEEE Kill openvpn daemon with PID %s" % str(pid))
         try:
             os.kill(int(pid), 15)
         except OSError:
             logging.warning("WATCHME Openvpn daemon with PID %s already died?" % pid)
         os.unlink(locations.OPENVPNPID)
     else:
-        logging.debug("WATCHME Could not find any tunnel PID files")
+        logging.debug("WATCHMEEE Could not find any tunnel PID files")
 
 
 def allInfsDown():

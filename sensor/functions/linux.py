@@ -1041,14 +1041,16 @@ def checkPid(pid):
     """ Checks if a PID is running or not """
     logging.debugv("functions/linux.py->checkPid(pid)", [pid])
     try:
-        os.kill(pid,0)
+        os.kill(int(pid),0)
     except OSError:
         return False
     except:
         e = sys.exc_info()[1]
         logging.error("Error checking pid %s" % str(e))
+        return False
     else:
         return True
+    return True
 
 def tunnelStatus():
     """ Returns the status of the tunnel """
@@ -1061,9 +1063,12 @@ def tunnelStatus():
             logging.error("Invalid pidfile %s returned %s" % (pidfile, str(pid)))
             return False
         else:
+            logging.debug("WATCHMEEE tunnel running with pid %s: %s" % (str(pid), str(checkPid(pid))))
             if checkPid(pid):
-                return True
+                logging.debug("WATCHMEEE tunnelStatus returning: True")
+                return pid
             else:
+                logging.debug("WATCHMEEE tunnelStatus returning: False")
                 return False
     else:
         logging.info("TunnelStatus: down")
