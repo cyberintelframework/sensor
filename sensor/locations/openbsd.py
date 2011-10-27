@@ -22,10 +22,9 @@ ALL_BIN = [OPENVPN, BRCONFIG, DHCLIENT, IFCONFIG, PKILL, OPENSSL]
 SYSCONF = "/etc/surfids/"
 LOG = "/var/log/surfids/"
 DATA = "/var/db/surfids/"
-RUNTIME = "/var/db/surfids/"
 DOC = "/tmp/"
 
-ALL_FOL = [SYSCONF, LOG, DATA, RUNTIME, DOC]
+ALL_FOL = [SYSCONF, LOG, DATA, DOC]
 
 
 # FILES
@@ -37,7 +36,6 @@ KEY = os.path.join(SYSCONF, "surfids.key")
 CRT = os.path.join(SYSCONF, "surfids.crt")
 LOGFILE = os.path.join(LOG, "surfids.log")
 VPNTEMPLATE = os.path.join(DATA, "openvpn.conf")
-INTERFACES = os.path.join(RUNTIME, "connections")
 ABOUT = os.path.join(DOC, "ABOUT")
 OPENVPNPID = os.path.join(DATA, "tunnel.pid")
 SSHPID = "/var/run/sshd.pid"

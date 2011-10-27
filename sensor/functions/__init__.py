@@ -32,7 +32,7 @@ else:
 def getVer(file):
     """ Get the version (changelog) of the given file """
     logging.debugv("functions/__init__.py->getVer(file)", [file])
-    d = {"client": client.changeset, "config": config.changeset, "dialog": dialog.changeset, "excepts": excepts.changeset, "log": log.changeset, "runtime": runtime.changeset, "tools": tools.changeset, "version": version.changeset}
+    d = {"client": client.changeset, "config": config.changeset, "dialog": dialog.changeset, "excepts": excepts.changeset, "log": log.changeset, "tools": tools.changeset, "version": version.changeset}
     return d[file]
 
 
@@ -409,7 +409,7 @@ def cleanUp():
     dhcpExp = r"^dhcp.*$"
     compiled = re.compile(dhcpExp)
 
-    dhcpFiles = [x for x in os.listdir(locations.RUNTIME) if compiled.match(x) != None]
+    dhcpFiles = [x for x in os.listdir(locations.DATA) if compiled.match(x) != None]
     for pidfile in dhcpFiles:
         killDhcp(pidfile)
 
@@ -453,7 +453,3 @@ def printDict(di, format="%-25s %s"):
     logging.debugv("functions/__init__.py->printDict(di, format)", [di, format])
     for (key, val) in di.items():
         print format % (str(key)+':', val)
-
-def printRuntime(run):
-    logging.debugv("functions/__init__.py->printRuntime(run)", [])
-    printDict(configobj.ConfigObj(locations.INTERFACES))

@@ -28,12 +28,11 @@ SYSCONF = "/etc/surfids/"
 BACKUP = "/etc/surfids/backup/"
 LOG = "/var/log/surfids/"
 DATA = "/var/lib/surfids/"
-RUNTIME = "/var/lib/surfids/"
 PID = "/var/lib/surfids/"
 DOC = "/usr/share/doc/surfids-sensor/"
 PROC = "/proc/"
 
-ALL_FOL = [SYSCONF, LOG, DATA, RUNTIME, PID]
+ALL_FOL = [SYSCONF, LOG, DATA, PID]
 
 
 # FILES
@@ -49,8 +48,7 @@ UPDATELOG = os.path.join(LOG, "update.log")
 TEMPLOG = os.path.join(LOG, "temp.log")
 DUMP = os.path.join(LOG, "dump.log")
 VPNTEMPLATE = os.path.join(SYSCONF, "openvpn.conf")
-INTERFACES = os.path.join(RUNTIME, "connections")
-LOCKFILE = os.path.join(RUNTIME, "openvpn.lock")
+LOCKFILE = os.path.join(DATA, "openvpn.lock")
 ABOUT = os.path.join(DOC, "ABOUT")
 SSHPID = "/var/run/sshd.pid"
 SSHINIT = "/etc/init.d/ssh"

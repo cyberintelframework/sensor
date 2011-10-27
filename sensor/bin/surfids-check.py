@@ -10,9 +10,9 @@ from sensor import locations
 cmd = "ifconfig -a | grep ^br | wc -l"
 chk = os.popen(cmd).readline().rstrip()
 if chk == "0":
-    logging.debug("Runtime tunnel status: disabled")
+    logging.debug("Tunnel status: disabled")
 else:
-    logging.debug("Runtime tunnel status: enabled")
+    logging.debug("Tunnel status: enabled")
     if os.path.exists(locations.OPENVPNPID):
         pid = open(locations.OPENVPNPID).read().rstrip()
         if pid.isdigit():

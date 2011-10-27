@@ -4,13 +4,16 @@ import logging
 
 from sensor import log
 from sensor import functions
-from sensor import runtime
+from sensor import config
 
-r = runtime.Runtime()
-
-# only update if we have tunnels
-if r.networkStatus():
-    functions.aptUpdate()
-    functions.aptInstall()
+c = config.Config()
+mainInf = c.getMainIf()
+if not mainInf == "":
+    # only update if we have tunnels
+    if functions.networkStatus(mainInf):
+        functions.aptUpdate()
+        functions.aptInstall()
+    else:
+        logging.debug("Sensor not active, not checking APT")
 else:
-    logging.debug("Sensor not active, not checking APT")
+    logging.error("Could not determine mainInf while running sensor-apt-update.py")
