@@ -397,8 +397,6 @@ def writePID():
 def cleanUp():
     """ Cleanup sensor status stuff and dhcp instances """
     logging.debugv("functions/__init__.py->cleanUp()", [])
-    if os.access(locations.INTERFACES, os.R_OK):
-        os.unlink(locations.INTERFACES)
     if os.access(locations.MANAGERPID, os.R_OK):
         os.unlink(locations.MANAGERPID)
     if os.access(locations.OPENVPNPID, os.R_OK):
