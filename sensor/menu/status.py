@@ -184,6 +184,10 @@ class Status:
         sid = self.c.getSensorID()
         mainInf = self.c.getMainIf()
         status = f.tunnelStatus()
+        if status:
+            status = True
+        else:
+            status = False
         networkStatus = f.networkStatus(mainInf)
         pversion = f.getPackageVersion()
 

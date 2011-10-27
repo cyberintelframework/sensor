@@ -202,9 +202,6 @@ def sensorUp():
         client.checkKey(localIp)
         client.register(localIp, c.getSensorID())
 
-        # Setup loop protection
-        setIptables(tap)
-
     # Check if the sensor certificate is valid, if not, don't start
     if verifyCrt():
         # Check if the sensor key is valid, if not, don't start
