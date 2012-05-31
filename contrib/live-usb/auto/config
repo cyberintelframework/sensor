@@ -1,0 +1,18 @@
+#!/bin/sh
+
+MIRROR="http://ftp.nl.debian.org/debian"
+DIST="squeeze"
+
+lb config noauto \
+	--debug \
+	--verbose \
+	--repositories live.debian.net \
+	--binary-images "usb-hdd" \
+	--distribution squeeze \
+	--packages-lists "standard" \
+	--mirror-binary $MIRROR \
+	--mirror-bootstrap $MIRROR \
+	--syslinux-splash config/binary_syslinux/splash.rle \
+	--bootappend-live "persistent quickreboot noautologin ip=frommedia nouser" \
+	--bootappend-install "persistent quickreboot noautologin ip=frommedia nouser" \
+	"${@}"

@@ -2,12 +2,6 @@
 #
 # you need live-helper package
 
-MIRROR="http://ftp.nl.debian.org/debian"
-DIST="lenny"
-
-lh_config -b usb-hdd -d $DIST \
-   --mirror-binary $MIRROR --mirror-bootstrap $MIRROR \
-   --syslinux-timeout 1
-
-sudo lh_clean
-sudo lh_build
+lb clean
+lb config
+lb build
