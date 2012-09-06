@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# This script fixes a symlink to the syslinux theme for squeeze as lb config errors
+# if that link does not exists
+
+if [ -e "/usr/share/syslinux/themes/debian-squeeze/" ]; then
+	if [ ! -e "/usr/share/syslinux/themes/debian-squeeze/syslinux-live" ]; then
+		echo "I: Fixing syslinux symlink"
+		ln -s /usr/share/syslinux/themes/debian-squeeze/isolinux /usr/share/syslinux/themes/debian-squeeze/syslinux-live
+	fi
+else
+	echo "E: Could not find Debian squeeze theme" 
+	echo "I: Installing syslinux"
+	DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -qy -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install syslinux syslinux-common syslinux-themes-debian 2>&1
+	if [ ! -e "/usr/share/syslinux/themes/debian-squeeze/syslinux-live" ]; then
+		echo "I: Fixing syslinux symlink"
+		ln -s /usr/share/syslinux/themes/debian-squeeze/isolinux /usr/share/syslinux/themes/debian-squeeze/syslinux-live
+	fi
+fi

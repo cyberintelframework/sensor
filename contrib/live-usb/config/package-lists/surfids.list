@@ -1,0 +1,17 @@
+# The sensor package, installed from our own repository
+surfids-sensor
+
+# used for automatic updates
+#cron-apt
+
+# remote administration
+openssh-server
+
+# usefull tools
+less
+
+# boot splash
+#splashy
+
+# Fix console fonts
+#console-setup
