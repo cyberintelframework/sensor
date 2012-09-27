@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# This script will setup the symlinks to an iptables script
+# if it is present:
+# /usb_sensor/config/chroot_local-includes/etc/init.d/iptables
+
+# Comment out the next line if you want to disable SSH at startup
+exit
+
+if [ -e "/etc/init.d/ssh" ]; then
+    echo "I: Disabling SSH startup"
+    update-rc.d -f ssh remove
+fi

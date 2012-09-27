@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+
+# This script will disable a given kernel module.
+# You can add more modules by just copying the first code piece
+# and replacing the module name
+
+# NOTE: This is a perl script
+
+# Add new modules into this array here:
+@modules = ("ipv6");
+
+# Don't edit past this line
+####################################
+
+foreach $mod (@modules) {
+    $chk = `grep -v "#" /etc/modprobe.d/blacklist | grep 'blacklist $mod' | wc -l`;
+    chomp($chk);
+    if ("$chk" eq "0") {
+        `echo "blacklist $mod" >> /etc/modprobe.d/blacklist`;
+    }
+}

@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# you need live-helper package
+
+lb clean
+lb config
+lb build

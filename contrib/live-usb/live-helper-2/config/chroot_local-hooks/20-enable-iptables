@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# This script will setup the symlinks to an iptables script
+# if it is present:
+# /usb_sensor/config/chroot_local-includes/etc/init.d/iptables
+
+if [ -e "/etc/init.d/iptables" ]; then
+    chmod +x /etc/init.d/iptables
+    echo "I: Enabling iptables"
+    update-rc.d iptables start 99 2 3 4 5 .
+fi
