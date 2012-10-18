@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "I: disabling root login in ssh"
+sed -i "s/PermitRootLogin yes/PermitRootLogin no/" /etc/ssh/sshd_config

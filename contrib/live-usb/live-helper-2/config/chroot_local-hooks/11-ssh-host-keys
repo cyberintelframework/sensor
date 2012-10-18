@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "I: Adding host keys script to startup"
+update-rc.d ssh-host-keys start 02 2 3 4 5 . 

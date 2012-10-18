@@ -1,0 +1,18 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          ssh-host-keys
+# Required-Start:    
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: SSH host keys
+# Description:       Generates SSH host keys
+### END INIT INFO
+
+if [ ! -e "/etc/ssh/ssh_host_rsa_key" ]; then
+	ssh-keygen -t rsa -N "" -f /etc/ssh/ssh_host_rsa_key
+fi
+if [ ! -e "/etc/ssh/ssh_host_dsa_key" ]; then
+	ssh-keygen -t dsa -N "" -f /etc/ssh/ssh_host_dsa_key
+fi

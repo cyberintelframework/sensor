@@ -6,16 +6,18 @@ DIST="squeeze"
 lb config noauto \
 	--debug \
 	--verbose \
-	--repositories live.debian.net \
 	--binary-images "usb-hdd" \
 	--distribution $DIST \
 	--packages-lists "standard surfids" \
 	--mirror-binary $MIRROR \
 	--mirror-bootstrap $MIRROR \
 	--syslinux-splash config/binary_syslinux/splash.rle \
+	--syslinux-timeout 5 \
 	--bootappend-live "persistent quickreboot noautologin ip=frommedia nouser" \
 	--bootappend-install "persistent quickreboot noautologin ip=frommedia nouser" \
 	"${@}"
 
 
+#	--syslinux-menu false \
+#	--repositories live.debian.net \
 #	--interactive shell \
